@@ -54,10 +54,9 @@ Each assignment's actual submission. These are hand-flattened right now:
 whatever a project needs from `toolkit/` gets copied and inlined directly
 into the submitted file, since there's no automated way yet to pull just
 the needed pieces into one file. That means the `toolkit/` version and the
-copy living inside a given project's submission can drift out of sync.
-Worth keeping in mind when updating shared code. A small script to handle
-that assembly step automatically is a likely future addition, but not
-something this repo does yet.
+copy living inside a given project's submission can drift out of sync. A small 
+script to handle that assembly step automatically is a likely future addition, 
+but not something this repo does yet.
 
 ## Known issues
 
@@ -65,7 +64,7 @@ something this repo does yet.
    
   - I'm working on implementing pre-rendered interpolated fade. Separating the frame rendering from the sleep/framerate
     should help a lot. I might use this as a tool to learn profiling and optimization in Python, since I don't have a 
-    lot of experience with that yet.
+    lot of experience with that yet.`Update: Prototype implemented`.
 
   - I'm also looking into doing precomputed color runs during the pre-rendering step. This would fix the issue 
     of sending a new ANSI color code for every pixel in every frame, which is a lot of overhead. 
