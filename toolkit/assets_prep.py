@@ -2,11 +2,6 @@
 
 Decided to make this a standalone script. I'll probably just include the final bitmap data in the final project. My
 hope is to be able to reuse this in the future, similar to the basic font set and drawing class I'm using.
-
-TODO:
-    * Decide on final resolution. 100x100(50 lines) is current front runner.
-
-
 """
 import shutil, json
 import urllib.request
