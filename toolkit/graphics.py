@@ -14,7 +14,7 @@ TODO:
     * Implement main paint loop. Control frame time similar to CHIP8.
     * Implement pre renderer, lerp, and (learn)various animations.
     * Learn and implement palette swap, fade, and cycling.
-    * Improve draw algos(Bresenham, ect.)
+    * Improve draw algos(Bresenham, midpoint circle.)
     * Consider efficiency gains like color runs, don't draw if 2 rows empty, draw full block if 2 rows same, ect.
 """
 import sys
