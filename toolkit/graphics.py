@@ -37,6 +37,7 @@ class GKS:
     LOWER_BLOCK = '\u2584'  # ▄
     FULL_BLOCK = '\u2588'  # █
     BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
     WIDTH = 132
     HEIGHT = 100
 
@@ -58,11 +59,11 @@ class GKS:
             for x in range(len(self.VIDEO_BUFFER[y])):
                 self.VIDEO_BUFFER[y][x] = self.BLACK
 
-    def set_pixel(self, x, y, color):
+    def set_pixel(self, x, y, color=WHITE):
         """Set a single pixels color."""
         self.VIDEO_BUFFER[y][x] = color
 
-    def draw_line(self, x1, y1, x2, y2, color):
+    def draw_line(self, x1, y1, x2, y2, color=WHITE):
         """Draw a line between two points, using a given color."""
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
