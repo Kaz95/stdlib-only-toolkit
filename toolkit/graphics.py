@@ -6,6 +6,7 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
+    * Migrate project to uv.
     * Dynamic aspect to maintain square canvas(height/0.76 = width * .76)
     * Implement the rest of the primitive drawing functions.
     * Implement main paint loop. Control frame time similar to CHIP8.
