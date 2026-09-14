@@ -85,9 +85,15 @@ class GKS:
 
 
 
-    def draw_rect(self, x, y, width, height, color):
+    def draw_rect(self, x, y, width, height, color=WHITE):
         """Draw a four sided object, of a given color and size, starting at point (x,y)."""
-        pass
+        x2 = x + width - 1
+        y2 = y + height - 1
+
+        self.draw_line(x, y,x2, y, color)
+        self.draw_line(x, y2, x2, y2, color)
+        self.draw_line(x, y, x, y2, color)
+        self.draw_line(x2, y, x2, y2, color)
 
     def draw_filled_rect(self, x, y, width, height, color):
         """Draw a filled four sided object, of a given color and size, starting at point (x,y)."""
@@ -129,10 +135,11 @@ if __name__ == '__main__':
 
     # gks.draw_line(25,25, 75, 75, (255, 255, 255))
     # gks.draw_line(75, 25, 25, 75, (255, 255, 255))
-    gks.draw_line(25,25, 75, 25, (255, 255, 255))
-    gks.draw_line(75,25, 75, 75, (255, 255, 255))
-    gks.draw_line(25, 75, 75, 75, (255, 255, 255))
-    gks.draw_line(25, 25, 25, 75, (255, 255, 255))
+    # gks.draw_line(25,25, 75, 25)
+    # gks.draw_line(75,25, 75, 75)
+    # gks.draw_line(25, 75, 75, 75)
+    # gks.draw_line(25, 25, 25, 75)
 
+    gks.draw_rect(25, 25, 50, 50)
     print(gks.CLEAR_SCREEN)
     gks.paint_frame()
