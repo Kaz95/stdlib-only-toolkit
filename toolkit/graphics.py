@@ -99,7 +99,7 @@ class GKS:
     def draw_filled_rect(self, x, y, width, height, color=WHITE):
         """Draw a filled four sided object, of a given color and size, starting at point (x,y).
 
-        Just iterate through every pixel and set it to the given color. 
+        Just iterate through every pixel and set it to the given color.
         """
         for row in range(y, y + height):
             for col in range(x, x + width):
