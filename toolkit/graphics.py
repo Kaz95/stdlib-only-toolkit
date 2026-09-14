@@ -58,8 +58,6 @@ class GKS:
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
 
-
-
         # If vertical line
         if delta_of_x == 0:
             step = 1 if y2 >= y1 else -1
@@ -76,16 +74,20 @@ class GKS:
             self.set_pixel(x, y, color)
 
 
-    def draw_rect(self, fill=False):
+
+    def draw_rect(self, x, y, width, height, color):
+        pass
+
+    def draw_filled_rect(self, x, y, width, height, color):
         pass
 
     def draw_circle(self):
         pass
 
-    def draw_sprite(self):
+    def draw_sprite(self, x, y, sprite_data, color):
         pass
 
-    def blit(self):
+    def blit(self, bitmap):
         pass
 
 
@@ -107,8 +109,8 @@ class GKS:
 if __name__ == '__main__':
     gks = GKS()
 
-    gks.draw_line(25,25, 75, 75, (255, 255, 255))
-    gks.draw_line(75, 25, 25, 75, (255, 255, 255))
+    # gks.draw_line(25,25, 75, 75, (255, 255, 255))
+    # gks.draw_line(75, 25, 25, 75, (255, 255, 255))
     gks.draw_line(25,25, 75, 25, (255, 255, 255))
     gks.draw_line(75,25, 75, 75, (255, 255, 255))
     gks.draw_line(25, 75, 75, 75, (255, 255, 255))
