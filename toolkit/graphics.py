@@ -22,6 +22,11 @@ from pprint import pp
 
 
 class GKS:
+    """A class for drawing vector and bitmapped graphics to the terminal.
+
+    Will provide constants, drawing primitives, animation pre-rendering, and custom color palettes. The name GKS is
+    a homage to the Graphical Kernel System, the first international standard for low-level 2D computer graphics.
+    """
     RESET = "\033[0m"
     CURSOR_TO_TOP = "\x1b[H"
     CLEAR_SCREEN = "\x1b[2J"
@@ -41,20 +46,24 @@ class GKS:
     VIDEO_BUFFER = []
 
     def __init__(self, width=WIDTH, height=HEIGHT):
+        """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
         self.width = width
         self.height = height
         self.VIDEO_BUFFER = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
 
     def clear(self):
+        """Clear video buffer in place."""
         for y in range(len(self.VIDEO_BUFFER)):
             for x in range(len(self.VIDEO_BUFFER[y])):
                 self.VIDEO_BUFFER[y][x] = self.BLACK
 
     def set_pixel(self, x, y, color):
+        """Set a single pixels color."""
         self.VIDEO_BUFFER[y][x] = color
 
     def draw_line(self, x1, y1, x2, y2, color):
+        """Draw a line between two points, using a given color."""
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
 
@@ -76,22 +85,30 @@ class GKS:
 
 
     def draw_rect(self, x, y, width, height, color):
+        """Draw a four sided object, of a given color and size, starting at point (x,y)."""
         pass
 
     def draw_filled_rect(self, x, y, width, height, color):
+        """Draw a filled four sided object, of a given color and size, starting at point (x,y)."""
         pass
 
     def draw_circle(self):
         pass
 
-    def draw_sprite(self, x, y, sprite_data, color):
+    def draw_filled_circle(self):
+        pass
+
+    def draw_sprite(self, x, y, sprite_data):
+        """Draw sprite from given data, starting at point (x,y)."""
         pass
 
     def blit(self, bitmap):
+        """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
         pass
 
 
     def paint_frame(self):
+        """Paint a single frame to the terminal."""
         for y in range(0, self.height, 2):
             line_buffer = []
             for x in range(self.width):
