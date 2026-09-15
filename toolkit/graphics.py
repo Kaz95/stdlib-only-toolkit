@@ -165,8 +165,10 @@ if __name__ == '__main__':
     # gks.draw_line(25, 75, 75, 75)
     # gks.draw_line(25, 25, 25, 75)
 
-    # gks.draw_rect(25, 25, 50, 50)
-    # gks.draw_filled_rect(25, 25, 50, 50)
+    gks.draw_rect(20, 25, 10, 10)
+    gks.draw_filled_rect(75, 25, 10, 10)
     gks.draw_circle(25, 25, 20)
+    gks.draw_line(75, 75, 80, 80)
+    gks.draw_line(80, 75, 75, 80)
     print(gks.CLEAR_SCREEN)
     gks.paint_frame()
