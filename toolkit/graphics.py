@@ -8,7 +8,6 @@ learn about packaging a library for distribution.
 TODO:
     * Current circle formula looks like crap. Learning math to update it already.
     * Migrate project to uv.
-    * Add docstrings.
     * Add tests.
     * Dynamic aspect to maintain square canvas(height/0.76 = width * .76)
     * Implement the rest of the primitive drawing functions.
