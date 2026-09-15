@@ -108,6 +108,10 @@ class GKS:
                 self.set_pixel(col, row, color)
 
     def draw_circle(self, center_x, center_y, radius, color=WHITE):
+        """Draw a circle around center point, starting at point (x,y).
+
+        This is currently using cartesian method based on relationship between x and y. Improvements Soon™.
+        """
         for x in range(center_x - radius, center_x + radius + 1):
             delta_of_x = x - center_x
 
