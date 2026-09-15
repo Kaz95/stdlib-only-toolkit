@@ -6,6 +6,7 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
+    * Current circle formula looks like crap. Learning math to update it already.
     * Migrate project to uv.
     * Add docstrings.
     * Add tests.
@@ -18,6 +19,7 @@ TODO:
     * Consider efficiency gains like color runs, don't draw if 2 rows empty, draw full block if 2 rows same, ect.
 """
 import sys
+from math import sqrt
 from pprint import pp
 
 
@@ -105,8 +107,21 @@ class GKS:
             for col in range(x, x + width):
                 self.set_pixel(col, row, color)
 
-    def draw_circle(self):
-        pass
+    def draw_circle(self, center_x, center_y, radius, color=WHITE):
+        for x in range(center_x - radius, center_x + radius + 1):
+            delta_of_x = x - center_x
+
+            y_offset = sqrt(radius**2 - delta_of_x**2)
+
+            y1 = round(center_y - y_offset)
+            y2 = round(center_y + y_offset)
+
+            self.set_pixel(x, y1)
+            self.set_pixel(x, y2)
+
+
+
+
 
     def draw_filled_circle(self):
         pass
@@ -147,6 +162,7 @@ if __name__ == '__main__':
     # gks.draw_line(25, 25, 25, 75)
 
     # gks.draw_rect(25, 25, 50, 50)
-    gks.draw_filled_rect(25, 25, 50, 50)
+    # gks.draw_filled_rect(25, 25, 50, 50)
+    gks.draw_circle(25, 25, 20)
     print(gks.CLEAR_SCREEN)
     gks.paint_frame()
