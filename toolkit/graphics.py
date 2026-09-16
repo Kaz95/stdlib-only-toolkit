@@ -86,6 +86,21 @@ class GKS:
             y = round(m * x + b)
             self.set_pixel(x, y, color)
 
+    def draw_bresenhams_line(self, x1, y1, x2, y2, color=WHITE):
+        # Compute deltas
+        # Determine step directions for x, y
+        # Use absolute values of the deltas. Only care about offset. Step direction handles rest.
+        # Set initial midpoint/decision value
+        # Loop & Plot
+        #   Set pixel
+        #   If D < 0:
+        #       y += sy (which may be negative based on step direction)
+        #       D += 2dy - 2dx
+        #   else:
+        #       D += 2dy
+        #       x += sx
+        # Break loop when end point is reached.
+        pass
 
 
     def draw_rect(self, x, y, width, height, color=WHITE):
@@ -209,11 +224,12 @@ if __name__ == '__main__':
     # gks.draw_line(25, 75, 75, 75)
     # gks.draw_line(25, 25, 25, 75)
 
-    # gks.draw_rect(20, 25, 10, 10)
+    gks.draw_rect(90, 10, 13, 13)
+    gks.set_pixel(96, 16)
     # gks.draw_filled_rect(75, 25, 10, 10)
     # gks.draw_circle(25, 25, 20)
-    # gks.draw_line(75, 75, 80, 80)
-    # gks.draw_line(80, 75, 75, 80)
+    gks.draw_line(75, 75, 80, 80)
+    gks.draw_line(80, 75, 75, 80)
     # print(gks.CLEAR_SCREEN)
     gks.old_draw_circle(75, 75, 20)
     gks.new_draw_circle(40, 40, 20)
