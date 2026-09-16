@@ -6,7 +6,10 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
-    * Current circle formula looks like crap. Learning math to update it already.
+    * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
+        gains come from.
+    * Implement Bresenham's line algorithm. Should be cake after circles.
+    * Start researching Mike Pitteway and drawing ellipses.
     * Migrate project to uv.
     * Add tests.
     * Dynamic aspect to maintain square canvas(height/0.76 = width * .76)
@@ -14,7 +17,6 @@ TODO:
     * Implement main paint loop. Control frame time similar to CHIP8.
     * Implement pre renderer, lerp, and (learn)various animations.
     * Learn and implement palette swap, fade, and cycling.
-    * Improve draw algos(Bresenham, midpoint circle.)
     * Consider efficiency gains like color runs, don't draw if 2 rows empty, draw full block if 2 rows same, ect.
 """
 import sys
@@ -106,7 +108,7 @@ class GKS:
             for col in range(x, x + width):
                 self.set_pixel(col, row, color)
 
-    def draw_circle(self, center_x, center_y, radius, color=WHITE):
+    def old_draw_circle(self, center_x, center_y, radius, color=WHITE):
         """Draw a circle around center point, starting at point (x,y).
 
         This is currently using cartesian method based on relationship between x and y. Improvements Soon™.
@@ -122,6 +124,49 @@ class GKS:
             self.set_pixel(x, y1)
             self.set_pixel(x, y2)
 
+    def new_draw_circle(self, center_x, center_y, radius):
+        """Draw a circle around the center point, starting at point (x,y).
+
+        Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
+        Uses integer arithmetic to calculate difference of squares and keeps a running tab to avoid recalculating at
+        each step. Only calculates one octant between 90° and 45°, then takes advantage of the symmetry of a circle to
+        find the coordinates of the other seven octants. The entire algo uses normal cartesian coordinates for depicting
+        (x,y) and is converted to screen coordinates before painting the pixel.
+
+        Implementing this almost feels like cheating. This is so much better than anything I'd ever come up with alone.
+        I spent most of my time understanding the math behind it, so I could understand the efficiency gains. I've never
+        implemented a well known algorithm like this and that seemed like the most important thing to understand.
+        Bresenham is a genius, and we are all standing on the backs of giants.
+        """
+        # start at 90°
+        x = 0
+        y = radius
+
+        # Keeps track of running midpoint. Starts at 1-raidus instead of exact midpoint to stick to integer arithmetic.
+        running_decision_parameter = 1 - radius
+
+        while x <= y:
+            # 8-way symmetry
+            # It took me forever to wrap my head around the final conversion to screen coordinates
+            self.set_pixel(center_x + x, center_y + y)
+            self.set_pixel(center_x - x, center_y + y)
+            self.set_pixel(center_x + x, center_y - y)
+            self.set_pixel(center_x - x, center_y - y)
+
+            self.set_pixel(center_x + y, center_y + x)
+            self.set_pixel(center_x - y, center_y + x)
+            self.set_pixel(center_x + y, center_y - x)
+            self.set_pixel(center_x - y, center_y - x)
+
+            if running_decision_parameter < 0:
+                # Choose East
+                running_decision_parameter += 2 * x + 3
+            else:
+                # Choose South-East
+                y -= 1
+                running_decision_parameter += 2 * (x - y) + 5
+
+            x += 1
 
 
 
@@ -164,10 +209,13 @@ if __name__ == '__main__':
     # gks.draw_line(25, 75, 75, 75)
     # gks.draw_line(25, 25, 25, 75)
 
-    gks.draw_rect(20, 25, 10, 10)
-    gks.draw_filled_rect(75, 25, 10, 10)
-    gks.draw_circle(25, 25, 20)
-    gks.draw_line(75, 75, 80, 80)
-    gks.draw_line(80, 75, 75, 80)
-    print(gks.CLEAR_SCREEN)
+    # gks.draw_rect(20, 25, 10, 10)
+    # gks.draw_filled_rect(75, 25, 10, 10)
+    # gks.draw_circle(25, 25, 20)
+    # gks.draw_line(75, 75, 80, 80)
+    # gks.draw_line(80, 75, 75, 80)
+    # print(gks.CLEAR_SCREEN)
+    gks.old_draw_circle(75, 75, 20)
+    gks.new_draw_circle(40, 40, 20)
+
     gks.paint_frame()
