@@ -8,7 +8,6 @@ learn about packaging a library for distribution.
 TODO:
     * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
         gains come from.
-    * Implement Bresenham's line algorithm. Should be cake after circles.
     * Start researching Mike Pitteway and drawing ellipses.
     * Migrate project to uv.
     * Add tests.
@@ -87,20 +86,49 @@ class GKS:
             self.set_pixel(x, y, color)
 
     def draw_bresenhams_line(self, x1, y1, x2, y2, color=WHITE):
+        """Draw a line between two points, using a given color.
+
+        Somehow harder to understand than circle midpoint. This wasn't too hard to implement, but hard to really
+        understand it. There's a lot going on for such a compact algorithm. This one was really easy for me to
+        conceptualize from a programming point of view, but the math made it seem much more confusing than it really is.
+        Cool algorithm. Thank you, Mr. Bresenham.
+        """
         # Compute deltas
-        # Determine step directions for x, y
         # Use absolute values of the deltas. Only care about offset. Step direction handles rest.
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+
+        # Determine step directions for x, y
+        sx = 1 if x1 < x2 else -1
+        sy = 1 if y1 < y2 else -1
+
         # Set initial midpoint/decision value
-        # Loop & Plot
-        #   Set pixel
-        #   If D < 0:
-        #       y += sy (which may be negative based on step direction)
-        #       D += 2dy - 2dx
-        #   else:
-        #       D += 2dy
-        #       x += sx
-        # Break loop when end point is reached.
-        pass
+        # This could be: param = dy - dx, and I'd just change the direction of the threshold tests.
+        # This messed with me for a while, but I'm pretty sure I could do < dy and > -dx if the param were reversed.
+        running_decision_parameter = dx - dy
+
+        while True:
+            self.set_pixel(x1, y1, color)
+            if x1 == x2 and y1 == y2:
+                break
+
+            temp_decision_parameter = 2 * running_decision_parameter
+
+            # Understanding why -dy and dx act as decision thresholds took longer to understand than circle midpoint.
+            # Not to self: It's because the deltas(slope) represent the ratio of movement on an ideal line.
+            # The values can be anything as long as the ratio is maintained.
+            # We use -dy as the lower bound because we know it is less than dx.
+            # Both dx and dy are absolute values so we can be sure -dy is <= 0, and thus < dx which must be positive.
+            # When the decision param crosses a threshold, it's saying the ratio is off, correct in the other direction.
+            if temp_decision_parameter > -dy:
+                running_decision_parameter -= dy
+                x1 += sx
+
+            if temp_decision_parameter < dx:
+                running_decision_parameter += dx
+                y1 += sy
+
+
 
 
     def draw_rect(self, x, y, width, height, color=WHITE):
@@ -224,14 +252,16 @@ if __name__ == '__main__':
     # gks.draw_line(25, 75, 75, 75)
     # gks.draw_line(25, 25, 25, 75)
 
-    gks.draw_rect(90, 10, 13, 13)
-    gks.set_pixel(96, 16)
+    # gks.draw_rect(90, 10, 13, 13)
+    # gks.set_pixel(96, 16)
     # gks.draw_filled_rect(75, 25, 10, 10)
     # gks.draw_circle(25, 25, 20)
-    gks.draw_line(75, 75, 80, 80)
-    gks.draw_line(80, 75, 75, 80)
+    # gks.draw_bresenhams_line(75, 75, 80, 80)
+    # gks.draw_bresenhams_line(80, 75, 75, 80)
     # print(gks.CLEAR_SCREEN)
-    gks.old_draw_circle(75, 75, 20)
-    gks.new_draw_circle(40, 40, 20)
+    # gks.old_draw_circle(75, 75, 20)
+    # gks.new_draw_circle(40, 40, 20)
+    gks.draw_bresenhams_line(10, 20, 70, 35)
+    gks.draw_bresenhams_line(20, 10, 35, 70)
 
     gks.paint_frame()
