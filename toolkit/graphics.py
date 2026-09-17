@@ -214,8 +214,33 @@ class GKS:
 
 
 
-    def draw_filled_circle(self):
-        pass
+    def draw_filled_circle(self, center_x, center_y, radius, color=WHITE):
+        """Draw a filled circle around center point, starting at point (x,y).
+
+        Decided to start with the most obvious version. I know I can do better based on what I learned with circle
+        midpoint.
+        """
+        for y in range(center_y - radius, center_y + radius + 1):
+            for x in range(center_x - radius, center_x + radius + 1):
+                if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
+                    self.set_pixel(x, y, color)
+
+    def draw_filled_circle_span(self, center_x, center_y, radius, color=WHITE):
+        """Draw a filled circle around center point, starting at point (x,y).
+
+        Another pretty easy one. Just isolate x. I'll learn the blended circle midpoint/span method eventually, but
+        I need to focus on other parts of the project. I've got plenty of CPU, can't waste time on this sadly.
+        """
+        for y in range(center_y - radius, center_y + radius + 1):
+            dy = y - center_y
+            x_offset = sqrt(radius**2 - dy**2)
+            left = round(center_x - x_offset)
+            right = round(center_x + x_offset)
+
+            for x in range(left, right + 1):
+                self.set_pixel(x, y, color)
+
+
 
     def draw_sprite(self, x, y, sprite_data):
         """Draw sprite from given data, starting at point (x,y)."""
@@ -261,7 +286,8 @@ if __name__ == '__main__':
     # print(gks.CLEAR_SCREEN)
     # gks.old_draw_circle(75, 75, 20)
     # gks.new_draw_circle(40, 40, 20)
-    gks.draw_bresenhams_line(10, 20, 70, 35)
-    gks.draw_bresenhams_line(20, 10, 35, 70)
-
+    # gks.draw_bresenhams_line(10, 20, 70, 35)
+    # gks.draw_bresenhams_line(20, 10, 35, 70)
+    # gks.draw_filled_circle(75, 75, 20)
+    gks.draw_filled_circle_span(75, 75, 20)
     gks.paint_frame()
