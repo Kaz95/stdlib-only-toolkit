@@ -54,7 +54,6 @@ class GKS:
         self.height = height
         self.VIDEO_BUFFER = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
-
     def clear(self):
         """Clear video buffer in place."""
         for y in range(len(self.VIDEO_BUFFER)):
@@ -128,19 +127,16 @@ class GKS:
                 running_decision_parameter += dx
                 y1 += sy
 
-
-
-
     def draw_rect(self, x, y, width, height, color=WHITE):
         """Draw a four sided object, of a given color and size, starting at point (x,y)."""
         # Have to subtract one to avoid over running.  Width represents how wide rect is, points included.
         x2 = x + width - 1
         y2 = y + height - 1
 
-        self.draw_line(x, y, x2, y, color) # Top
-        self.draw_line(x, y2, x2, y2, color) # Bottom
-        self.draw_line(x, y, x, y2, color) # Left
-        self.draw_line(x2, y, x2, y2, color) # Right
+        self.draw_line(x, y, x2, y, color)  # Top
+        self.draw_line(x, y2, x2, y2, color)  # Bottom
+        self.draw_line(x, y, x, y2, color)  # Left
+        self.draw_line(x2, y, x2, y2, color)  # Right
 
     def draw_filled_rect(self, x, y, width, height, color=WHITE):
         """Draw a filled four sided object, of a given color and size, starting at point (x,y).
@@ -159,7 +155,7 @@ class GKS:
         for x in range(center_x - radius, center_x + radius + 1):
             delta_of_x = x - center_x
 
-            y_offset = sqrt(radius**2 - delta_of_x**2)
+            y_offset = sqrt(radius ** 2 - delta_of_x ** 2)
 
             y1 = round(center_y - y_offset)
             y2 = round(center_y + y_offset)
@@ -211,9 +207,6 @@ class GKS:
 
             x += 1
 
-
-
-
     def draw_filled_circle(self, center_x, center_y, radius, color=WHITE):
         """Draw a filled circle around center point, starting at point (x,y).
 
@@ -233,14 +226,12 @@ class GKS:
         """
         for y in range(center_y - radius, center_y + radius + 1):
             dy = y - center_y
-            x_offset = sqrt(radius**2 - dy**2)
+            x_offset = sqrt(radius ** 2 - dy ** 2)
             left = round(center_x - x_offset)
             right = round(center_x + x_offset)
 
             for x in range(left, right + 1):
                 self.set_pixel(x, y, color)
-
-
 
     def draw_sprite(self, x, y, sprite_data):
         """Draw sprite from given data, starting at point (x,y)."""
@@ -249,7 +240,6 @@ class GKS:
     def blit(self, bitmap):
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
         pass
-
 
     def paint_frame(self):
         """Paint a single frame to the terminal."""
@@ -266,6 +256,7 @@ class GKS:
 
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
+
 
 if __name__ == '__main__':
     gks = GKS()
