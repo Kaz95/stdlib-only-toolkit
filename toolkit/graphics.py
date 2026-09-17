@@ -6,17 +6,17 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
-    * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
-        gains come from.
-    * Start researching Mike Pitteway and drawing ellipses.
-    * Migrate project to uv.
-    * Add tests.
-    * Dynamic aspect to maintain square canvas(height/0.76 = width * .76)
     * Implement the rest of the primitive drawing functions.
     * Implement main paint loop. Control frame time similar to CHIP8.
     * Implement pre renderer, lerp, and (learn)various animations.
     * Learn and implement palette swap, fade, and cycling.
+    * Migrate project to uv.
+    * Add tests.
+    * Dynamic aspect to maintain square canvas(height/0.76 = width * .76)
     * Consider efficiency gains like color runs, don't draw if 2 rows empty, draw full block if 2 rows same, ect.
+    * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
+        gains come from.
+    * Start researching Mike Pitteway and drawing ellipses.
 """
 import sys
 from math import sqrt
