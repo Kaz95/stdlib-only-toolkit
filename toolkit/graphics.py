@@ -6,9 +6,9 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
-    * Implement the rest of the primitive drawing functions.
+    * Implement the draw_sprite and blit. These should be quick because I've done them multiple times now.
     * Implement main paint loop. Control frame time similar to CHIP8.
-    * Implement pre renderer, lerp, and (learn)various animations.
+    * Implement pre renderer, lerp, and (learn)various animations. Pre renderer and lerp should be pulled from prev work
     * Learn and implement palette swap, fade, and cycling.
     * Migrate project to uv.
     * Add tests.
@@ -17,6 +17,7 @@ TODO:
     * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
         gains come from.
     * Start researching Mike Pitteway and drawing ellipses.
+    * Consider how I want to handle input handling. Should it be tied to GKS? Think about it.
 """
 import sys
 from math import sqrt
