@@ -6,10 +6,6 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
-    * Implement the draw_sprite and blit. These should be quick because I've done them multiple times now.
-    * Implement main paint loop. Control frame time similar to CHIP8.
-    * Implement pre renderer, lerp, and (learn)various animations. Pre renderer and lerp should be pulled from prev work
-    * Learn and implement palette swap, fade, and cycling.
     * Migrate project to uv.
     * Add tests.
     * Dynamic aspect to maintain square canvas(height/0.76 = width * .76)
