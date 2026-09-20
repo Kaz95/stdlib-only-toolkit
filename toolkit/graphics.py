@@ -10,10 +10,12 @@ TODO:
         gains come from.
 
 """
+from typing import Final
 import sys
 from math import sqrt
 from pprint import pp
 
+type RGB = tuple[int, int, int]
 
 class GKS:
     """A class for drawing vector and bitmapped graphics to the terminal.
@@ -21,42 +23,42 @@ class GKS:
     Will provide constants, drawing primitives, animation pre-rendering, and custom color palettes. The name GKS is
     a homage to the Graphical Kernel System, the first international standard for low-level 2D computer graphics.
     """
-    RESET = "\033[0m"
-    CURSOR_TO_TOP = "\x1b[H"
-    CLEAR_SCREEN = "\x1b[2J"
-    HIDE_CURSOR = "\x1b[?25l"
-    SHOW_CURSOR = "\x1b[?25h"
+    RESET: Final[str] = "\033[0m"
+    CURSOR_TO_TOP: Final[str] = "\x1b[H"
+    CLEAR_SCREEN: Final[str] = "\x1b[2J"
+    HIDE_CURSOR: Final[str] = "\x1b[?25l"
+    SHOW_CURSOR: Final[str] = "\x1b[?25h"
 
-    UPPER_BLOCK = '\u2580'  # ▀
-    LOWER_BLOCK = '\u2584'  # ▄
-    FULL_BLOCK = '\u2588'  # █
-    BLACK = (0, 0, 0)
-    WHITE = (255, 255, 255)
-    WIDTH = 132
-    HEIGHT = 100
+    UPPER_BLOCK: Final[str] = '\u2580'  # ▀
+    LOWER_BLOCK: Final[str] = '\u2584'  # ▄
+    FULL_BLOCK: Final[str] = '\u2588'  # █
+    BLACK: Final[RGB] = (0, 0, 0)
+    WHITE: Final[RGB] = (255, 255, 255)
+    WIDTH: Final[int] = 132
+    HEIGHT: Final[int] = 100
 
-    PRE_RENDERED_FRAMES = []
+    # PRE_RENDERED_FRAMES = []
 
     BUFFER_ROW = [BLACK] * WIDTH
     VIDEO_BUFFER = []
 
-    def __init__(self, width=WIDTH, height=HEIGHT):
+    def __init__(self, width: int=WIDTH, height: int=HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
-        self.width = width
-        self.height = height
-        self.VIDEO_BUFFER = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+        self.width: int = width
+        self.height: int = height
+        self.VIDEO_BUFFER: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear video buffer in place."""
         for y in range(len(self.VIDEO_BUFFER)):
             for x in range(len(self.VIDEO_BUFFER[y])):
                 self.VIDEO_BUFFER[y][x] = self.BLACK
 
-    def set_pixel(self, x, y, color=WHITE):
+    def set_pixel(self, x: int, y: int, color: RGB=WHITE) -> None:
         """Set a single pixels color."""
         self.VIDEO_BUFFER[y][x] = color
 
-    def draw_line(self, x1, y1, x2, y2, color=WHITE):
+    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB=WHITE) -> None:
         """Draw a line between two points, using a given color."""
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
@@ -76,7 +78,7 @@ class GKS:
             y = round(m * x + b)
             self.set_pixel(x, y, color)
 
-    def draw_bresenhams_line(self, x1, y1, x2, y2, color=WHITE):
+    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB=WHITE) -> None:
         """Draw a line between two points, using a given color.
 
         Somehow harder to understand than circle midpoint. This wasn't too hard to implement, but hard to really
@@ -119,7 +121,7 @@ class GKS:
                 running_decision_parameter += dx
                 y1 += sy
 
-    def draw_rect(self, x, y, width, height, color=WHITE):
+    def draw_rect(self, x: int, y: int, width: int, height: int, color: RGB=WHITE) -> None:
         """Draw a four sided object, of a given color and size, starting at point (x,y)."""
         # Have to subtract one to avoid over running.  Width represents how wide rect is, points included.
         x2 = x + width - 1
@@ -130,7 +132,7 @@ class GKS:
         self.draw_line(x, y, x, y2, color)  # Left
         self.draw_line(x2, y, x2, y2, color)  # Right
 
-    def draw_filled_rect(self, x, y, width, height, color=WHITE):
+    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: RGB=WHITE) -> None:
         """Draw a filled four sided object, of a given color and size, starting at point (x,y).
 
         Just iterate through every pixel and set it to the given color.
@@ -139,7 +141,7 @@ class GKS:
             for col in range(x, x + width):
                 self.set_pixel(col, row, color)
 
-    def old_draw_circle(self, center_x, center_y, radius, color=WHITE):
+    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB=WHITE) -> None:
         """Draw a circle around center point, starting at point (x,y).
 
         This is currently using cartesian method based on relationship between x and y. Improvements Soon™.
@@ -155,7 +157,7 @@ class GKS:
             self.set_pixel(x, y1, color)
             self.set_pixel(x, y2, color)
 
-    def new_draw_circle(self, center_x, center_y, radius):
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int) -> None:
         """Draw a circle around the center point, starting at point (x,y).
 
         Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
@@ -199,7 +201,7 @@ class GKS:
 
             x += 1
 
-    def draw_filled_circle(self, center_x, center_y, radius, color=WHITE):
+    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: RGB=WHITE) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Decided to start with the most obvious version. I know I can do better based on what I learned with circle
@@ -210,7 +212,7 @@ class GKS:
                 if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
                     self.set_pixel(x, y, color)
 
-    def draw_filled_circle_span(self, center_x, center_y, radius, color=WHITE):
+    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: RGB=WHITE) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Another pretty easy one. Just isolate x. I'll learn the blended circle midpoint/span method eventually, but
@@ -233,7 +235,7 @@ class GKS:
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
         pass
 
-    def paint_frame(self):
+    def paint_frame(self) -> None:
         """Paint a single frame to the terminal."""
         for y in range(0, self.height, 2):
             line_buffer = []
