@@ -160,3 +160,14 @@ def test_paint_frame_outputs_ansi_color_sequences(capsys):
     assert "\x1b[38;2;0;255;0m" in output
     assert gks.LOWER_BLOCK in output
     assert gks.RESET in output
+
+
+def test_paint_frame_paints_missing_bottom_row_black(capsys):
+    """An odd-height frame should use black for the missing bottom half."""
+    gks = GKS(1, 3)
+    gks.set_pixel(0, 2, (255, 0, 0))
+
+    gks.paint_frame()
+
+    output = capsys.readouterr().out
+    assert "\x1b[48;2;255;0;0m\x1b[38;2;0;0;0m" in output
