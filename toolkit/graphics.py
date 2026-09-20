@@ -157,8 +157,8 @@ class GKS:
             y1 = round(center_y - y_offset)
             y2 = round(center_y + y_offset)
 
-            self.set_pixel(x, y1)
-            self.set_pixel(x, y2)
+            self.set_pixel(x, y1, color)
+            self.set_pixel(x, y2, color)
 
     def new_draw_circle(self, center_x, center_y, radius):
         """Draw a circle around the center point, starting at point (x,y).
