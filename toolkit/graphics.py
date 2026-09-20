@@ -7,13 +7,11 @@ learn about packaging a library for distribution.
 
 TODO:
     * Turn remaining TODOs into issues.
-    * Add tests.
     * Dynamic aspect to maintain square canvas(height/0.76 = width * .76)
     * Consider efficiency gains like color runs, don't draw if 2 rows empty, draw full block if 2 rows same, ect.
     * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
         gains come from.
     * Start researching Mike Pitteway and drawing ellipses.
-    * Consider how I want to handle input handling. Should it be tied to GKS? Think about it.
 """
 import sys
 from math import sqrt
