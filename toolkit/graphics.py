@@ -6,7 +6,7 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
-    * Migrate project to uv.
+    * Turn remaining TODOs into issues.
     * Add tests.
     * Dynamic aspect to maintain square canvas(height/0.76 = width * .76)
     * Consider efficiency gains like color runs, don't draw if 2 rows empty, draw full block if 2 rows same, ect.
