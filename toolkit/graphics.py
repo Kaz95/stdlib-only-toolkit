@@ -242,7 +242,7 @@ class GKS:
             line_buffer = []
             for x in range(self.width):
                 top = self.VIDEO_BUFFER[y][x]
-                bottom = self.VIDEO_BUFFER[y + 1][x]
+                bottom = self.VIDEO_BUFFER[y + 1][x] if y + 1 < self.height else self.BLACK
 
                 bg_ansi = f"\x1b[48;2;{top[0]};{top[1]};{top[2]}m"
                 fg_ansi = f"\x1b[38;2;{bottom[0]};{bottom[1]};{bottom[2]}m"
