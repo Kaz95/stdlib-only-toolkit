@@ -5,3 +5,8 @@ requires-python = ">=3.13"
 dependencies = [
     "pillow>=12.3.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
