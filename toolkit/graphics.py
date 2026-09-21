@@ -274,5 +274,19 @@ if __name__ == '__main__':
     # gks.draw_bresenhams_line(10, 20, 70, 35)
     # gks.draw_bresenhams_line(20, 10, 35, 70)
     # gks.draw_filled_circle(75, 75, 20)
-    gks.draw_filled_circle_span(75, 75, 20)
+    # gks.draw_filled_circle_span(75, 75, 20)
+
+    # Boarder
+    gks.draw_rect(0, 0, 132, 100)
+
+    # Center divider
+    gks.draw_line(65, 0, 65, 99)
+    gks.draw_line(66, 0, 66, 99)
+
+    # Horizontal midpoint on the right half
+    gks.draw_line(66, 49, 131, 49)
+    gks.draw_line(66, 50, 131, 50)
+
+    # Header for options section
+    gks.draw_line(0, 11, 64, 11)
     gks.paint_frame()
