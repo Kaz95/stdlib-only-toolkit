@@ -289,4 +289,6 @@ if __name__ == '__main__':
 
     # Header for options section
     gks.draw_line(0, 11, 64, 11)
+    gks.draw_filled_circle_span(99, 75, 20)
+
     gks.paint_frame()
