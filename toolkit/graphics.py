@@ -14,10 +14,13 @@ TODO:
         gains come from.
 
 """
+import time
 from typing import Final
 import sys
 from math import sqrt
 from pprint import pp
+
+import msvcrt
 
 type RGB = tuple[int, int, int]
 
@@ -50,6 +53,8 @@ class GKS:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
         self.width: int = width
         self.height: int = height
+        self.buffer_updated: bool = False
+        self.rendering: bool = False
         self.VIDEO_BUFFER: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
     def clear(self) -> None:
@@ -61,6 +66,7 @@ class GKS:
     def set_pixel(self, x: int, y: int, color: RGB=WHITE) -> None:
         """Set a single pixels color."""
         self.VIDEO_BUFFER[y][x] = color
+        self.buffer_updated = True
 
     def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB=WHITE) -> None:
         """Draw a line between two points, using a given color."""
@@ -241,6 +247,7 @@ class GKS:
 
     def paint_frame(self) -> None:
         """Paint a single frame to the terminal."""
+        sys.stdout.write(self.CURSOR_TO_TOP)
         for y in range(0, self.height, 2):
             line_buffer = []
             for x in range(self.width):
@@ -254,6 +261,22 @@ class GKS:
 
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
+
+    def start_render_loop(self, frame_rate: int) -> None:
+        sys.stdout.write(self.HIDE_CURSOR)
+        sys.stdout.write(self.CLEAR_SCREEN)
+        frame_duration = 1 / frame_rate
+        self.rendering = True
+        while self.rendering:
+            start_time = time.perf_counter()
+            if msvcrt.kbhit():
+                pass
+            if self.buffer_updated:
+                self.paint_frame()
+            elapsed_time = time.perf_counter() - start_time
+            sleep_time = frame_duration - elapsed_time
+            if sleep_time > 0:
+                time.sleep(sleep_time)
 
 
 if __name__ == '__main__':
@@ -293,6 +316,8 @@ if __name__ == '__main__':
 
     # Header for options section
     gks.draw_line(0, 11, 64, 11)
-    gks.draw_filled_circle_span(99, 75, 20)
+    gks.draw_filled_circle_span(99, 75, 20, (198, 124, 56))
+    gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
 
-    gks.paint_frame()
+    # gks.paint_frame()
+    gks.start_render_loop(60)
