@@ -284,6 +284,11 @@ class GKS:
             sys.stdout.flush()
 
     def start_render_loop(self, frame_rate: int) -> None:
+        """Initiate the main render loop.
+
+        This controls frame pacing, user input listening, and rendering. New frame is only rendered if update flag is
+        set.
+        """
         sys.stdout.write(self.HIDE_CURSOR)
         sys.stdout.write(self.CLEAR_SCREEN)
         frame_duration = 1 / frame_rate
