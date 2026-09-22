@@ -46,8 +46,8 @@ class GKS:
 
     # PRE_RENDERED_FRAMES = []
 
-    BUFFER_ROW = [BLACK] * WIDTH
-    VIDEO_BUFFER = []
+    # BUFFER_ROW = [BLACK] * WIDTH
+    # video_buffer = []
 
     def __init__(self, width: int=WIDTH, height: int=HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
@@ -55,17 +55,17 @@ class GKS:
         self.height: int = height
         self.buffer_updated: bool = False
         self.rendering: bool = False
-        self.VIDEO_BUFFER: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+        self.video_buffer: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
     def clear(self) -> None:
         """Clear video buffer in place."""
-        for y in range(len(self.VIDEO_BUFFER)):
-            for x in range(len(self.VIDEO_BUFFER[y])):
-                self.VIDEO_BUFFER[y][x] = self.BLACK
+        for y in range(len(self.video_buffer)):
+            for x in range(len(self.video_buffer[y])):
+                self.video_buffer[y][x] = self.BLACK
 
     def set_pixel(self, x: int, y: int, color: RGB=WHITE) -> None:
         """Set a single pixels color."""
-        self.VIDEO_BUFFER[y][x] = color
+        self.video_buffer[y][x] = color
         self.buffer_updated = True
 
     def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB=WHITE) -> None:
@@ -261,8 +261,8 @@ class GKS:
         for y in range(0, self.height, 2):
             line_buffer = []
             for x in range(self.width):
-                top = self.VIDEO_BUFFER[y][x]
-                bottom = self.VIDEO_BUFFER[y + 1][x] if y + 1 < self.height else self.BLACK
+                top = self.video_buffer[y][x]
+                bottom = self.video_buffer[y + 1][x] if y + 1 < self.height else self.BLACK
 
                 bg_ansi = f"\x1b[48;2;{top[0]};{top[1]};{top[2]}m"
                 fg_ansi = f"\x1b[38;2;{bottom[0]};{bottom[1]};{bottom[2]}m"
