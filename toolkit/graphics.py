@@ -6,6 +6,12 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
+    * Write an issue concerning validation of primitive inputs. Example: A malformed bitmap could be passed to blit.
+        It would probably fail with an IndexError or similar. It would be more clear if I made similar situations return
+        a ValueError with a clear message. The factory pattern probably fits for creating bitmaps in the expected form,
+        but runtime validation is still needed. Not sure if its worth a factory class if blit is the only thing that
+        uses Bitmaps. For the scalar inputs I just need runtime validation. Example: What if I passed negative
+        dimensions into GKS()? Ya, I gotta fix that.
     * Write an issue concerning the UI and its in-memory representation(dict...probably). Link it to main renderer and
         input issues. Cover static and dynamic UI elements in the issue. Decide how data will be modeled. Decide
         how the UI model will trigger UI view updates. Maybe I can use observer pattern here. Maybe on vbuffer update
@@ -46,8 +52,8 @@ class GKS:
 
     # PRE_RENDERED_FRAMES = []
 
-    BUFFER_ROW = [BLACK] * WIDTH
-    VIDEO_BUFFER = []
+    # BUFFER_ROW = [BLACK] * WIDTH
+    # video_buffer = []
 
     def __init__(self, width: int=WIDTH, height: int=HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
@@ -55,17 +61,17 @@ class GKS:
         self.height: int = height
         self.buffer_updated: bool = False
         self.rendering: bool = False
-        self.VIDEO_BUFFER: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+        self.video_buffer: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
     def clear(self) -> None:
         """Clear video buffer in place."""
-        for y in range(len(self.VIDEO_BUFFER)):
-            for x in range(len(self.VIDEO_BUFFER[y])):
-                self.VIDEO_BUFFER[y][x] = self.BLACK
+        for y in range(len(self.video_buffer)):
+            for x in range(len(self.video_buffer[y])):
+                self.video_buffer[y][x] = self.BLACK
 
     def set_pixel(self, x: int, y: int, color: RGB=WHITE) -> None:
         """Set a single pixels color."""
-        self.VIDEO_BUFFER[y][x] = color
+        self.video_buffer[y][x] = color
         self.buffer_updated = True
 
     def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB=WHITE) -> None:
@@ -241,9 +247,22 @@ class GKS:
         """Draw sprite from given data, starting at point (x,y)."""
         pass
 
-    def blit(self, bitmap):
+    def blit(self, bitmap, x_start: int=0, y_start:int=0):
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
-        pass
+        bitmap_height = len(bitmap)
+        bitmap_width = len(bitmap[0])
+
+        if (
+            x_start < 0
+            or y_start < 0
+            or x_start + bitmap_width > self.width
+            or y_start + bitmap_height > self.height
+        ):
+            raise ValueError('Bitmap does not fit')
+
+        for row_index, row in enumerate(bitmap):
+            self.video_buffer[y_start + row_index][x_start:x_start + bitmap_width] = row
+
 
     def paint_frame(self) -> None:
         """Paint a single frame to the terminal."""
@@ -251,8 +270,8 @@ class GKS:
         for y in range(0, self.height, 2):
             line_buffer = []
             for x in range(self.width):
-                top = self.VIDEO_BUFFER[y][x]
-                bottom = self.VIDEO_BUFFER[y + 1][x] if y + 1 < self.height else self.BLACK
+                top = self.video_buffer[y][x]
+                bottom = self.video_buffer[y + 1][x] if y + 1 < self.height else self.BLACK
 
                 bg_ansi = f"\x1b[48;2;{top[0]};{top[1]};{top[2]}m"
                 fg_ansi = f"\x1b[38;2;{bottom[0]};{bottom[1]};{bottom[2]}m"
@@ -273,6 +292,7 @@ class GKS:
                 pass
             if self.buffer_updated:
                 self.paint_frame()
+                self.buffer_updated = False
             elapsed_time = time.perf_counter() - start_time
             sleep_time = frame_duration - elapsed_time
             if sleep_time > 0:
@@ -316,8 +336,22 @@ if __name__ == '__main__':
 
     # Header for options section
     gks.draw_line(0, 11, 64, 11)
+
+    # Paint a pizza in bottom right section using primitives
     gks.draw_filled_circle_span(99, 75, 20, (198, 124, 56))
     gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
 
-    # gks.paint_frame()
+    # Blit a red square into top right section
+    gks.blit(
+        [
+            [(255, 0, 0)] * 5,
+            [(255, 0, 0)] * 5,
+            [(255, 0, 0)] * 5,
+            [(255, 0, 0)] * 5,
+            [(255, 0, 0)] * 5,
+        ],
+        97,
+        23,
+    )
+
     gks.start_render_loop(60)

@@ -22,9 +22,9 @@ def test_constructor_initializes_blank_buffer():
 
     assert gks.width == 8
     assert gks.height == 6
-    assert len(gks.VIDEO_BUFFER) == 6
-    assert len(gks.VIDEO_BUFFER[0]) == 8
-    assert all(pixel == gks.BLACK for row in gks.VIDEO_BUFFER for pixel in row)
+    assert len(gks.video_buffer) == 6
+    assert len(gks.video_buffer[0]) == 8
+    assert all(pixel == gks.BLACK for row in gks.video_buffer for pixel in row)
 
 
 def test_clear_restores_black_pixels():
@@ -34,7 +34,7 @@ def test_clear_restores_black_pixels():
 
     gks.clear()
 
-    assert gks.VIDEO_BUFFER[3][2] == gks.BLACK
+    assert gks.video_buffer[3][2] == gks.BLACK
 
 
 def test_set_pixel_writes_color_to_buffer():
@@ -44,7 +44,56 @@ def test_set_pixel_writes_color_to_buffer():
 
     gks.set_pixel(4, 2, color)
 
-    assert gks.VIDEO_BUFFER[2][4] == color
+    assert gks.video_buffer[2][4] == color
+
+
+def test_blit_places_bitmap_at_valid_position():
+    """A bitmap should be copied into the buffer at the requested origin."""
+    gks = GKS(5, 4)
+    bitmap = [
+        [(1, 2, 3), (4, 5, 6)],
+        [(7, 8, 9), (10, 11, 12)],
+    ]
+
+    gks.blit(bitmap, 2, 1)
+
+    assert gks.video_buffer[1][2:4] == bitmap[0]
+    assert gks.video_buffer[2][2:4] == bitmap[1]
+
+
+@pytest.mark.parametrize("x_start, y_start", [(4, 0), (0, 3), (-1, 0), (0, -1)])
+def test_blit_rejects_bitmap_outside_video_buffer(x_start, y_start):
+    """A bitmap that does not fit within the buffer should be rejected."""
+    gks = GKS(5, 4)
+    bitmap = [[gks.WHITE, gks.WHITE], [gks.WHITE, gks.WHITE]]
+
+    with pytest.raises(ValueError, match="Bitmap does not fit"):
+        gks.blit(bitmap, x_start, y_start)
+
+
+def test_blit_pixels_match_bitmap():
+    """Every destination pixel should match the corresponding bitmap pixel."""
+    gks = GKS(5, 4)
+    bitmap = [
+        [(10, 20, 30), (40, 50, 60)],
+        [(70, 80, 90), (100, 110, 120)],
+    ]
+
+    gks.blit(bitmap, 1, 1)
+
+    for bitmap_y, row in enumerate(bitmap):
+        for bitmap_x, pixel in enumerate(row):
+            assert gks.video_buffer[bitmap_y + 1][bitmap_x + 1] == pixel
+
+
+def test_blit_defaults_to_top_left_origin():
+    """Omitting coordinates should place the bitmap at (0, 0)."""
+    gks = GKS(4, 3)
+    bitmap = [[(1, 2, 3), (4, 5, 6)]]
+
+    gks.blit(bitmap)
+
+    assert gks.video_buffer[0][:2] == bitmap[0]
 
 
 def test_draw_line_draws_horizontal_and_vertical_segments():
@@ -54,11 +103,11 @@ def test_draw_line_draws_horizontal_and_vertical_segments():
 
     gks.draw_line(1, 1, 4, 1, color)
     for x in range(1, 5):
-        assert gks.VIDEO_BUFFER[1][x] == color
+        assert gks.video_buffer[1][x] == color
 
     gks.draw_line(6, 1, 6, 4, (0, 255, 0))
     for y in range(1, 5):
-        assert gks.VIDEO_BUFFER[y][6] == (0, 255, 0)
+        assert gks.video_buffer[y][6] == (0, 255, 0)
 
 
 def test_draw_bresenhams_line_draws_diagonal_points():
@@ -68,9 +117,9 @@ def test_draw_bresenhams_line_draws_diagonal_points():
 
     gks.draw_bresenhams_line(0, 0, 4, 2, color)
 
-    assert gks.VIDEO_BUFFER[0][0] == color
-    assert gks.VIDEO_BUFFER[2][4] == color
-    assert gks.VIDEO_BUFFER[1][2] == color
+    assert gks.video_buffer[0][0] == color
+    assert gks.video_buffer[2][4] == color
+    assert gks.video_buffer[1][2] == color
 
 
 def test_draw_rect_draws_only_the_border():
@@ -80,11 +129,11 @@ def test_draw_rect_draws_only_the_border():
 
     gks.draw_rect(1, 1, 4, 3, color)
 
-    assert gks.VIDEO_BUFFER[1][1] == color
-    assert gks.VIDEO_BUFFER[1][4] == color
-    assert gks.VIDEO_BUFFER[3][1] == color
-    assert gks.VIDEO_BUFFER[3][4] == color
-    assert gks.VIDEO_BUFFER[2][2] != color
+    assert gks.video_buffer[1][1] == color
+    assert gks.video_buffer[1][4] == color
+    assert gks.video_buffer[3][1] == color
+    assert gks.video_buffer[3][4] == color
+    assert gks.video_buffer[2][2] != color
 
 
 def test_draw_filled_rect_fills_the_entire_area():
@@ -96,7 +145,7 @@ def test_draw_filled_rect_fills_the_entire_area():
 
     for y in range(1, 3):
         for x in range(1, 4):
-            assert gks.VIDEO_BUFFER[y][x] == color
+            assert gks.video_buffer[y][x] == color
 
 
 def test_old_draw_circle_preserves_requested_color():
@@ -106,10 +155,10 @@ def test_old_draw_circle_preserves_requested_color():
 
     gks.old_draw_circle(4, 3, 2, color)
 
-    assert gks.VIDEO_BUFFER[1][4] == color
-    assert gks.VIDEO_BUFFER[5][4] == color
-    assert gks.VIDEO_BUFFER[3][2] == color
-    assert gks.VIDEO_BUFFER[3][4] != color
+    assert gks.video_buffer[1][4] == color
+    assert gks.video_buffer[5][4] == color
+    assert gks.video_buffer[3][2] == color
+    assert gks.video_buffer[3][4] != color
 
 
 def test_new_draw_circle_uses_eight_way_symmetry():
@@ -118,11 +167,11 @@ def test_new_draw_circle_uses_eight_way_symmetry():
 
     gks.new_draw_circle(4, 3, 2)
 
-    assert gks.VIDEO_BUFFER[1][4] == gks.WHITE
-    assert gks.VIDEO_BUFFER[5][4] == gks.WHITE
-    assert gks.VIDEO_BUFFER[3][2] == gks.WHITE
-    assert gks.VIDEO_BUFFER[3][6] == gks.WHITE
-    assert gks.VIDEO_BUFFER[3][4] != gks.WHITE
+    assert gks.video_buffer[1][4] == gks.WHITE
+    assert gks.video_buffer[5][4] == gks.WHITE
+    assert gks.video_buffer[3][2] == gks.WHITE
+    assert gks.video_buffer[3][6] == gks.WHITE
+    assert gks.video_buffer[3][4] != gks.WHITE
 
 
 def test_draw_filled_circle_pixels_are_inside_the_disk():
@@ -132,10 +181,10 @@ def test_draw_filled_circle_pixels_are_inside_the_disk():
 
     gks.draw_filled_circle(4, 3, 2, color)
 
-    assert gks.VIDEO_BUFFER[3][4] == color
-    assert gks.VIDEO_BUFFER[1][4] == color
-    assert gks.VIDEO_BUFFER[3][2] == color
-    assert gks.VIDEO_BUFFER[0][0] != color
+    assert gks.video_buffer[3][4] == color
+    assert gks.video_buffer[1][4] == color
+    assert gks.video_buffer[3][2] == color
+    assert gks.video_buffer[0][0] != color
 
 
 def test_draw_filled_circle_span_draws_scanlines_across_the_disk():
@@ -145,10 +194,10 @@ def test_draw_filled_circle_span_draws_scanlines_across_the_disk():
 
     gks.draw_filled_circle_span(4, 3, 2, color)
 
-    assert gks.VIDEO_BUFFER[1][4] == color
-    assert gks.VIDEO_BUFFER[3][4] == color
-    assert gks.VIDEO_BUFFER[3][2] == color
-    assert gks.VIDEO_BUFFER[0][0] != color
+    assert gks.video_buffer[1][4] == color
+    assert gks.video_buffer[3][4] == color
+    assert gks.video_buffer[3][2] == color
+    assert gks.video_buffer[0][0] != color
 
 
 def test_paint_frame_outputs_ansi_color_sequences(capsys):
