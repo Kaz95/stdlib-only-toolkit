@@ -247,6 +247,7 @@ class GKS:
 
     def paint_frame(self) -> None:
         """Paint a single frame to the terminal."""
+        sys.stdout.write(self.CURSOR_TO_TOP)
         for y in range(0, self.height, 2):
             line_buffer = []
             for x in range(self.width):
