@@ -66,6 +66,7 @@ class GKS:
     def set_pixel(self, x: int, y: int, color: RGB=WHITE) -> None:
         """Set a single pixels color."""
         self.VIDEO_BUFFER[y][x] = color
+        self.buffer_updated = True
 
     def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB=WHITE) -> None:
         """Draw a line between two points, using a given color."""
