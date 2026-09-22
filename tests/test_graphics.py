@@ -8,7 +8,11 @@ TODO
     * line tests for descending coordinates and diagonals
     * property-style tests for symmetry and fill behavior
 """
+from unittest.mock import patch
 
+import pytest
+
+from toolkit import graphics
 from toolkit.graphics import GKS
 
 
@@ -171,3 +175,13 @@ def test_paint_frame_paints_missing_bottom_row_black(capsys):
 
     output = capsys.readouterr().out
     assert "\x1b[48;2;255;0;0m\x1b[38;2;0;0;0m" in output
+
+def test_set_pixel_marks_video_buffer_updated():
+    """Writing a pixel marks the buffer as needing to be repainted to screen."""
+    gks = GKS(2, 2)
+
+    assert gks.buffer_updated is False
+
+    gks.set_pixel(0, 0, gks.WHITE)
+
+    assert gks.buffer_updated is True
