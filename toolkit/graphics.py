@@ -254,6 +254,9 @@ class GKS:
         ):
             raise ValueError('Bitmap does not fit')
 
+        for row_index, row in enumerate(bitmap):
+            self.video_buffer[y_start + row_index][x_start:x_start + bitmap_width] = row
+
 
     def paint_frame(self) -> None:
         """Paint a single frame to the terminal."""
