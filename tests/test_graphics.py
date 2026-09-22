@@ -176,6 +176,65 @@ def test_paint_frame_paints_missing_bottom_row_black(capsys):
     output = capsys.readouterr().out
     assert "\x1b[48;2;255;0;0m\x1b[38;2;0;0;0m" in output
 
+
+def test_render_loop_sleeps_for_remaining_frame_time():
+    """Remaining sleep time is frame duration - elapsed work."""
+    gks = GKS(2, 2)
+
+    # Simulate 3 ms of rendering work.
+    def stop_after_sleep(_duration):
+        gks.rendering = False
+
+    with (
+        patch.object(graphics.time, "perf_counter", side_effect=[10.000, 10.003]),
+        patch.object(graphics.time, "sleep", side_effect=stop_after_sleep) as sleep,
+        patch.object(gks, "paint_frame"),
+    ):
+        gks.start_render_loop(frame_rate=100)
+
+    # 100 FPS = 0.01 seconds per frame.
+    # 0.003 seconds was spent working, so 0.007 remains.
+    # I would have used 60 fps to better test an expected use case, but the frame duration is a long float.
+    # Maybe I should consider rounding it when it's set in the render loop?
+    sleep.assert_called_once_with(pytest.approx(0.007))
+
+
+@pytest.mark.parametrize("frame_rate", [30, 60, 100])
+def test_frame_duration_is_based_on_frame_rate(frame_rate):
+    """The loop schedules one frame every 1 / frame_rate seconds."""
+    gks = GKS(2, 2)
+
+    def stop_after_sleep(_duration):
+        gks.rendering = False
+
+    with (
+        patch.object(graphics.time, "perf_counter", side_effect=[10.0, 10.0]),
+        patch.object(graphics.time, "sleep", side_effect=stop_after_sleep) as sleep,
+    ):
+        gks.start_render_loop(frame_rate)
+
+    sleep.assert_called_once_with(pytest.approx(1 / frame_rate))
+
+
+def test_render_loop_iteration_includes_work_and_sleep():
+    """Rendering work and the requested sleep together fill one frame duration."""
+    gks = GKS(2, 2)
+    work_duration = 0.003
+    frame_duration = 1 / 100
+
+    def stop_after_sleep(_duration):
+        gks.rendering = False
+
+    with (
+        patch.object(graphics.time,"perf_counter",side_effect=[10.0, 10.0 + work_duration]),
+        patch.object(graphics.time, "sleep", side_effect=stop_after_sleep) as sleep,
+    ):
+        gks.start_render_loop(100)
+
+    sleep_duration = sleep.call_args.args[0]
+    assert work_duration + sleep_duration == pytest.approx(frame_duration)
+
+
 def test_set_pixel_marks_video_buffer_updated():
     """Writing a pixel marks the buffer as needing to be repainted to screen."""
     gks = GKS(2, 2)
@@ -185,3 +244,25 @@ def test_set_pixel_marks_video_buffer_updated():
     gks.set_pixel(0, 0, gks.WHITE)
 
     assert gks.buffer_updated is True
+
+
+@pytest.mark.parametrize("buffer_updated, expected_paint_calls", [(True, 1), (False, 0)])
+def test_render_loop_draws_only_updated_video_buffer(
+    buffer_updated,
+    expected_paint_calls,
+):
+    """The loop only paints when the video buffer update flag is set."""
+    gks = GKS(2, 2)
+    gks.buffer_updated = buffer_updated
+
+    def stop_after_sleep(_duration):
+        gks.rendering = False
+
+    with (
+        patch.object(gks, "paint_frame") as paint_frame,
+        patch.object(graphics.time, "perf_counter", return_value=10.0),
+        patch.object(graphics.time, "sleep", side_effect=stop_after_sleep),
+    ):
+        gks.start_render_loop(60)
+
+    assert paint_frame.call_count == expected_paint_calls
