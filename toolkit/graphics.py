@@ -241,16 +241,16 @@ class GKS:
         """Draw sprite from given data, starting at point (x,y)."""
         pass
 
-    def blit(self, bitmap, x: int=0, y:int=0):
+    def blit(self, bitmap, x_start: int=0, y_start:int=0):
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
         bitmap_height = len(bitmap)
         bitmap_width = len(bitmap[0])
 
         if (
-            x < 0
-            or y < 0
-            or x + bitmap_width > self.width
-            or y + bitmap_height > self.height
+            x_start < 0
+            or y_start < 0
+            or x_start + bitmap_width > self.width
+            or y_start + bitmap_height > self.height
         ):
             raise ValueError('Bitmap does not fit')
 
