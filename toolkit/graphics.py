@@ -14,10 +14,13 @@ TODO:
         gains come from.
 
 """
+import time
 from typing import Final
 import sys
 from math import sqrt
 from pprint import pp
+
+import msvcrt
 
 type RGB = tuple[int, int, int]
 
@@ -50,6 +53,8 @@ class GKS:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
         self.width: int = width
         self.height: int = height
+        self.buffer_updated: bool = False
+        self.rendering: bool = False
         self.VIDEO_BUFFER: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
     def clear(self) -> None:
@@ -254,6 +259,22 @@ class GKS:
 
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
+
+    def start_render_loop(self, frame_rate: int) -> None:
+        sys.stdout.write(self.HIDE_CURSOR)
+        sys.stdout.write(self.CLEAR_SCREEN)
+        frame_duration = 1 / frame_rate
+        self.rendering = True
+        while self.rendering:
+            start_time = time.perf_counter()
+            if msvcrt.kbhit():
+                pass
+            if self.buffer_updated:
+                self.paint_frame()
+            elapsed_time = time.perf_counter() - start_time
+            sleep_time = frame_duration - elapsed_time
+            if sleep_time > 0:
+                time.sleep(sleep_time)
 
 
 if __name__ == '__main__':
