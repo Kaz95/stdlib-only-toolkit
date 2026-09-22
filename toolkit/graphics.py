@@ -292,6 +292,7 @@ class GKS:
                 pass
             if self.buffer_updated:
                 self.paint_frame()
+                self.buffer_updated = False
             elapsed_time = time.perf_counter() - start_time
             sleep_time = frame_duration - elapsed_time
             if sleep_time > 0:
