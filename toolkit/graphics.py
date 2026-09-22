@@ -241,9 +241,19 @@ class GKS:
         """Draw sprite from given data, starting at point (x,y)."""
         pass
 
-    def blit(self, bitmap):
+    def blit(self, bitmap, x: int=0, y:int=0):
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
-        pass
+        bitmap_height = len(bitmap)
+        bitmap_width = len(bitmap[0])
+
+        if (
+            x < 0
+            or y < 0
+            or x + bitmap_width > self.width
+            or y + bitmap_height > self.height
+        ):
+            raise ValueError('Bitmap does not fit')
+
 
     def paint_frame(self) -> None:
         """Paint a single frame to the terminal."""
