@@ -20,11 +20,13 @@ TODO:
         gains come from.
 
 """
+import json
 import time
+import urllib.request
 from typing import Final
 import sys
 from math import sqrt
-from pprint import pp
+from pprint import pp, pprint
 
 import msvcrt
 
@@ -298,6 +300,13 @@ class GKS:
             if sleep_time > 0:
                 time.sleep(sleep_time)
 
+    @staticmethod
+    def load_font():
+        """Load remote font and cast hex strings to int."""
+        with urllib.request.urlopen(r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets/fonts/font8x8.json') as response:
+            font_set_as_hex_str = json.load(response)
+            font_set_as_hex_int = {char: [int(hex_str, 16) for hex_str in rows] for char, rows in font_set_as_hex_str.items()}
+            return font_set_as_hex_int
 
 if __name__ == '__main__':
     gks = GKS()
@@ -354,4 +363,6 @@ if __name__ == '__main__':
         23,
     )
 
-    gks.start_render_loop(60)
+    # gks.start_render_loop(60)
+    pp(gks.load_font())
+    print()
