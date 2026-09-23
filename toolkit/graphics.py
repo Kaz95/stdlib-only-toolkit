@@ -6,6 +6,7 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
+    * Write an issue that deals with adding video buffer boundary checks to GKS.paint_chars method.
     * Write an issue concerning validation of primitive inputs. Example: A malformed bitmap could be passed to blit.
         It would probably fail with an IndexError or similar. It would be more clear if I made similar situations return
         a ValueError with a clear message. The factory pattern probably fits for creating bitmaps in the expected form,
