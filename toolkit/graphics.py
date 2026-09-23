@@ -315,8 +315,15 @@ class GKS:
             return font_set_as_hex_int
 
     @staticmethod
-    def get_pixel(row: int, x: int, width: int = 8) -> int:
-        return (row >> (width - 1 - x)) & 1
+    def get_pixel(row: int, bit_index: int, width: int = 8) -> int:
+        """Isolate a single bit from a given integer, use an AND mask to capture it, and return it.
+
+        Bit index must be valid.
+        """
+        if bit_index >= width or bit_index < 0:
+            raise ValueError('Bit index out of range')
+
+        return (row >> (width - 1 - bit_index)) & 1
 
     def paint_chars(self, word: str, x_start: int, y_start: int, color: RGB=WHITE):
         glyph_data = [self.font[char] for char in word]
