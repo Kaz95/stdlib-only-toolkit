@@ -63,6 +63,7 @@ class GKS:
         self.height: int = height
         self.buffer_updated: bool = False
         self.rendering: bool = False
+        self.font = self.load_font()
         self.video_buffer: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
     def clear(self) -> None:
@@ -313,6 +314,30 @@ class GKS:
             font_set_as_hex_int = {char: [int(hex_str, 16) for hex_str in rows] for char, rows in font_set_as_hex_str.items()}
             return font_set_as_hex_int
 
+    @staticmethod
+    def get_pixel(row: int, x: int, width: int = 8) -> int:
+        return (row >> (width - 1 - x)) & 1
+
+    def paint_chars(self, word: str, x_start: int, y_start: int, color: RGB=WHITE):
+        glyph_data = [self.font[char] for char in word]
+
+        for _ in range(len(glyph_data)):
+            a_glyph = glyph_data.pop(0)
+
+            for y in range(0, len(a_glyph), 2):
+                for x in range(8):
+
+                    top = self.get_pixel(a_glyph[y], x)
+                    bottom = self.get_pixel(a_glyph[y + 1], x)
+
+                    if top:
+                        self.set_pixel(x_start + x, y_start + y, color)
+                    if bottom:
+                        self.set_pixel(x_start + x, y_start + y + 1, color)
+
+            x_start += 8
+
+
 if __name__ == '__main__':
     gks = GKS()
 
@@ -337,37 +362,38 @@ if __name__ == '__main__':
     # gks.draw_filled_circle(75, 75, 20)
     # gks.draw_filled_circle_span(75, 75, 20)
 
-    # Boarder
-    gks.draw_rect(0, 0, 132, 100)
+    # # Boarder
+    # gks.draw_rect(0, 0, 132, 100)
+    #
+    # # Center divider
+    # gks.draw_line(65, 0, 65, 99)
+    # gks.draw_line(66, 0, 66, 99)
+    #
+    # # Horizontal midpoint on the right half
+    # gks.draw_line(66, 49, 131, 49)
+    # gks.draw_line(66, 50, 131, 50)
+    #
+    # # Header for options section
+    # gks.draw_line(0, 11, 64, 11)
+    #
+    # # Paint a pizza in bottom right section using primitives
+    # gks.draw_filled_circle_span(99, 75, 20, (198, 124, 56))
+    # gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
+    #
+    # # Blit a red square into top right section
+    # gks.blit(
+    #     [
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #     ],
+    #     97,
+    #     23,
+    # )
 
-    # Center divider
-    gks.draw_line(65, 0, 65, 99)
-    gks.draw_line(66, 0, 66, 99)
-
-    # Horizontal midpoint on the right half
-    gks.draw_line(66, 49, 131, 49)
-    gks.draw_line(66, 50, 131, 50)
-
-    # Header for options section
-    gks.draw_line(0, 11, 64, 11)
-
-    # Paint a pizza in bottom right section using primitives
-    gks.draw_filled_circle_span(99, 75, 20, (198, 124, 56))
-    gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
-
-    # Blit a red square into top right section
-    gks.blit(
-        [
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-        ],
-        97,
-        23,
-    )
-
-    # gks.start_render_loop(60)
-    pp(gks.load_font())
-    print()
+    gks.paint_chars('It Works!'.upper(), 20, 20)
+    gks.start_render_loop(60)
+    # pp(gks.load_font())
+    # print()
