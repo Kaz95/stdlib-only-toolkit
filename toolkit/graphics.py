@@ -326,6 +326,7 @@ class GKS:
         return (row >> (width - 1 - bit_index)) & 1
 
     def paint_chars(self, word: str, x_start: int, y_start: int, color: RGB=WHITE):
+        """Paint chars from given word, using built-in font, starting at point (x,y)."""
         glyph_data = [self.font[char] for char in word]
 
         for _ in range(len(glyph_data)):
