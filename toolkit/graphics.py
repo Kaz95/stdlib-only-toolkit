@@ -327,6 +327,11 @@ class GKS:
 
     def paint_chars(self, word: str, x_start: int, y_start: int, color: RGB=WHITE):
         """Paint chars from given word, using built-in font, starting at point (x,y)."""
+        word = word.upper()
+        unsupported_characters = [char for char in word if char not in self.font]
+        if unsupported_characters:
+            raise ValueError(f'Character not available in font: {unsupported_characters[0]!r}')
+
         glyph_data = [self.font[char] for char in word]
 
         for _ in range(len(glyph_data)):
