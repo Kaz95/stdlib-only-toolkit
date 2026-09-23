@@ -47,6 +47,66 @@ def test_set_pixel_writes_color_to_buffer():
     assert gks.video_buffer[2][4] == color
 
 
+@pytest.fixture
+def gks_with_test_font():
+    """Create a graphics surface with small deterministic test glyphs."""
+    test_font = {
+        "A": [0x80] + [0x00] * 7,
+        "B": [0x00] * 6 + [0x01, 0x00],
+    }
+    with patch.object(GKS, "load_font", return_value=test_font):
+        yield GKS(24, 8)
+
+
+def test_paint_chars_maps_word_to_glyphs(gks_with_test_font):
+    """Each character in the word should use its corresponding glyph data."""
+    gks = gks_with_test_font
+
+    gks.paint_chars("AB", 2, 1)
+
+    assert gks.video_buffer[1][2] == gks.WHITE
+    assert gks.video_buffer[7][17] == gks.WHITE
+
+
+def test_paint_chars_offsets_each_glyph_to_the_right(gks_with_test_font):
+    """Glyphs should be placed in consecutive eight-pixel columns."""
+    gks = gks_with_test_font
+
+    gks.paint_chars("AA", 3, 2)
+
+    assert gks.video_buffer[2][3] == gks.WHITE
+    assert gks.video_buffer[2][11] == gks.WHITE
+    assert gks.video_buffer[2][19] == gks.BLACK
+
+
+def test_paint_chars_paints_all_glyphs_and_preserves_color(gks_with_test_font):
+    """Every glyph should update the video buffer using the requested color."""
+    gks = gks_with_test_font
+    color = (12, 34, 56)
+
+    gks.paint_chars("AB", 0, 0, color)
+
+    assert gks.video_buffer[0][0] == color
+    assert gks.video_buffer[6][15] == color
+    assert gks.video_buffer[0][8] == gks.BLACK
+
+
+def test_paint_chars_maps_lowercase_words_to_uppercase_glyphs(gks_with_test_font):
+    """Lowercase input should resolve to the corresponding uppercase glyphs."""
+    gks = gks_with_test_font
+
+    gks.paint_chars("ab", 0, 0)
+
+    assert gks.video_buffer[0][0] == gks.WHITE
+    assert gks.video_buffer[6][15] == gks.WHITE
+
+
+def test_paint_chars_rejects_unsupported_character(gks_with_test_font):
+    """Words containing characters absent from the font should be rejected."""
+    with pytest.raises(ValueError, match="Character not available in font"):
+        gks_with_test_font.paint_chars("A?", 0, 0)
+
+
 @pytest.mark.parametrize(
     "bit_index, expected",
     [
