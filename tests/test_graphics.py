@@ -47,6 +47,97 @@ def test_set_pixel_writes_color_to_buffer():
     assert gks.video_buffer[2][4] == color
 
 
+@pytest.mark.parametrize(
+    "bit_index, expected",
+    [
+        (0, 1),
+        (1, 0),
+        (2, 1),
+        (3, 0),
+        (4, 0),
+        (5, 1),
+        (6, 0),
+        (7, 1),
+    ],
+)
+def test_get_pixel_returns_bit_at_index(bit_index, expected):
+    """Bits are read from left to right within the configured width."""
+    assert GKS.get_pixel(0b10100101, bit_index) == expected
+
+
+@pytest.mark.parametrize("bit_index", [-1, 8])
+def test_get_pixel_rejects_invalid_bit_index(bit_index):
+    """A bit index outside the configured width should be rejected."""
+    with pytest.raises(ValueError, match="Bit index out of range"):
+        GKS.get_pixel(0b10100101, bit_index)
+
+
+def test_get_pixel_uses_custom_width():
+    """Bits are correctly read when using custom width."""
+    assert GKS.get_pixel(0b1010, 0, width=4) == 1
+    assert GKS.get_pixel(0b1010, 3, width=4) == 0
+
+
+@pytest.fixture
+def gks_with_test_font():
+    """Create a graphics surface with small deterministic test glyphs."""
+    test_font = {
+        "A": [0x80] + [0x00] * 7,
+        "B": [0x00] * 6 + [0x01, 0x00],
+    }
+    with patch.object(GKS, "load_font", return_value=test_font):
+        yield GKS(24, 8)
+
+
+def test_paint_chars_maps_word_to_glyphs(gks_with_test_font):
+    """Each character in the word should use its corresponding glyph data."""
+    gks = gks_with_test_font
+
+    gks.paint_chars("AB", 2, 1)
+
+    assert gks.video_buffer[1][2] == gks.WHITE
+    assert gks.video_buffer[7][17] == gks.WHITE
+
+
+def test_paint_chars_offsets_each_glyph_to_the_right(gks_with_test_font):
+    """Glyphs should be placed in consecutive eight-pixel columns."""
+    gks = gks_with_test_font
+
+    gks.paint_chars("AA", 3, 2)
+
+    assert gks.video_buffer[2][3] == gks.WHITE
+    assert gks.video_buffer[2][11] == gks.WHITE
+    assert gks.video_buffer[2][19] == gks.BLACK
+
+
+def test_paint_chars_paints_all_glyphs_and_preserves_color(gks_with_test_font):
+    """Every glyph should update the video buffer using the requested color."""
+    gks = gks_with_test_font
+    color = (12, 34, 56)
+
+    gks.paint_chars("AB", 0, 0, color)
+
+    assert gks.video_buffer[0][0] == color
+    assert gks.video_buffer[6][15] == color
+    assert gks.video_buffer[0][8] == gks.BLACK
+
+
+def test_paint_chars_maps_lowercase_words_to_uppercase_glyphs(gks_with_test_font):
+    """Lowercase input should resolve to the corresponding uppercase glyphs."""
+    gks = gks_with_test_font
+
+    gks.paint_chars("ab", 0, 0)
+
+    assert gks.video_buffer[0][0] == gks.WHITE
+    assert gks.video_buffer[6][15] == gks.WHITE
+
+
+def test_paint_chars_rejects_unsupported_character(gks_with_test_font):
+    """Words containing characters absent from the font should be rejected."""
+    with pytest.raises(ValueError, match="Character not available in font"):
+        gks_with_test_font.paint_chars("A?", 0, 0)
+
+
 def test_blit_places_bitmap_at_valid_position():
     """A bitmap should be copied into the buffer at the requested origin."""
     gks = GKS(5, 4)
@@ -275,7 +366,7 @@ def test_render_loop_iteration_includes_work_and_sleep():
         gks.rendering = False
 
     with (
-        patch.object(graphics.time,"perf_counter",side_effect=[10.0, 10.0 + work_duration]),
+        patch.object(graphics.time, "perf_counter", side_effect=[10.0, 10.0 + work_duration]),
         patch.object(graphics.time, "sleep", side_effect=stop_after_sleep) as sleep,
     ):
         gks.start_render_loop(100)
@@ -296,10 +387,7 @@ def test_set_pixel_marks_video_buffer_updated():
 
 
 @pytest.mark.parametrize("buffer_updated, expected_paint_calls", [(True, 1), (False, 0)])
-def test_render_loop_draws_only_updated_video_buffer(
-    buffer_updated,
-    expected_paint_calls,
-):
+def test_render_loop_draws_only_updated_video_buffer(buffer_updated, expected_paint_calls):
     """The loop only paints when the video buffer update flag is set."""
     gks = GKS(2, 2)
     gks.buffer_updated = buffer_updated
