@@ -6,16 +6,9 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
-    * Write an issue that deals with adding video buffer boundary checks to GKS.paint_chars method.
-    * Write an issue concerning validation of primitive inputs. Example: A malformed bitmap could be passed to blit.
-        It would probably fail with an IndexError or similar. It would be more clear if I made similar situations return
-        a ValueError with a clear message. The factory pattern probably fits for creating bitmaps in the expected form,
-        but runtime validation is still needed. Not sure if its worth a factory class if blit is the only thing that
-        uses Bitmaps. For the scalar inputs I just need runtime validation. Example: What if I passed negative
-        dimensions into GKS()? Ya, I gotta fix that.
-    * Write an issue concerning the UI and its in-memory representation(dict...probably). Link it to main renderer and
-        input issues. Cover static and dynamic UI elements in the issue. Decide how data will be modeled. Decide
-        how the UI model will trigger UI view updates. Maybe I can use observer pattern here. Maybe on vbuffer update
+    * Consider using factory pattern for creating bitmaps in the expected form. Would allow input validation to be a
+        type check and remove need for complex custom type.
+    * Decide how the UI model will trigger UI view updates. Maybe I can use observer pattern here. Maybe on vbuffer update
         check too.
     * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
         gains come from.
