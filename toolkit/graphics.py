@@ -170,7 +170,7 @@ class GKS:
             self.set_pixel(x, y1, color)
             self.set_pixel(x, y2, color)
 
-    def new_draw_circle(self, center_x: int, center_y: int, radius: int) -> None:
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB=WHITE) -> None:
         """Draw a circle around the center point, starting at point (x,y).
 
         Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
@@ -194,15 +194,15 @@ class GKS:
         while x <= y:
             # 8-way symmetry
             # It took me forever to wrap my head around the final conversion to screen coordinates
-            self.set_pixel(center_x + x, center_y + y)
-            self.set_pixel(center_x - x, center_y + y)
-            self.set_pixel(center_x + x, center_y - y)
-            self.set_pixel(center_x - x, center_y - y)
+            self.set_pixel(center_x + x, center_y + y, color)
+            self.set_pixel(center_x - x, center_y + y, color)
+            self.set_pixel(center_x + x, center_y - y, color)
+            self.set_pixel(center_x - x, center_y - y, color)
 
-            self.set_pixel(center_x + y, center_y + x)
-            self.set_pixel(center_x - y, center_y + x)
-            self.set_pixel(center_x + y, center_y - x)
-            self.set_pixel(center_x - y, center_y - x)
+            self.set_pixel(center_x + y, center_y + x, color)
+            self.set_pixel(center_x - y, center_y + x, color)
+            self.set_pixel(center_x + y, center_y - x, color)
+            self.set_pixel(center_x - y, center_y - x, color)
 
             if running_decision_parameter < 0:
                 # Choose East
@@ -346,6 +346,24 @@ class GKS:
 
 
 if __name__ == '__main__':
+    def draw_bpepper(x, y, engine):
+        engine.draw_rect(x, y, 4, 1, (34, 136, 0))
+
+    def draw_rpepper(x, y, engine):
+        engine.draw_rect(x, y, 4, 1, (205, 28, 24))
+
+    def draw_tofu(x, y, engine):
+        engine.draw_filled_rect(x, y, 3, 3, (238, 220, 130))
+
+    def draw_pepperoni(x, y, engine):
+        engine.draw_filled_circle(x, y, 2, (255, 0, 0))
+
+    def draw_sausage(x, y, engine):
+        engine.draw_filled_circle(x, y, 2, (101, 67, 33))
+
+    def draw_olive(x, y, engine):
+        engine.new_draw_circle(x, y, 1, (0, 0, 0))
+
     gks = GKS()
 
     # gks.draw_line(25,25, 75, 75, (255, 255, 255))
@@ -386,9 +404,18 @@ if __name__ == '__main__':
     # Center HEADER in the top-left header area
     gks.paint_chars('HEADER', 8, 2)
 
-    # Paint a pizza in bottom right section using primitives
-    gks.draw_filled_circle_span(99, 75, 20, (198, 124, 56))
-    gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
+    # Paint a lg pizza in bottom right section using primitives
+    # gks.draw_filled_circle_span(99, 75, 23, (198, 124, 56))
+    # gks.draw_filled_circle_span(99, 75, 20, (244, 196, 48))
+
+    # 85% scale....I should learn how to implement scaling. Its gotta be a linear function.
+    # gks.draw_filled_circle_span(99, 75, 19, (198, 124, 56))
+    # gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
+
+    # 75% scale
+    gks.draw_filled_circle_span(99, 75, 16, (198, 124, 56))
+    gks.draw_filled_circle_span(99, 75, 14, (244, 196, 48))
+
 
     # Blit a red square into top right section
     gks.blit(
@@ -404,4 +431,32 @@ if __name__ == '__main__':
     )
 
     # gks.paint_chars('It Works!'.upper(), 20, 20)
+    # gks.set_pixel(99 + 7, 75 + 7,(255, 0, 0))
+
+    draw_tofu(99 + 7, 75 + 7, gks)
+    draw_tofu(99 - 7, 75 - 7, gks)
+    draw_olive(99 + 7, 75 - 7, gks)
+    draw_olive(99 - 7, 75 + 7, gks)
+
+    # draw_tofu(99 + 9, 75 + 9, gks)
+    # draw_tofu(99 - 9, 75 - 9, gks)
+    # draw_olive(99 + 9, 75 - 9, gks)
+    # draw_olive(99 - 9, 75 + 9, gks)
+
+    # draw_tofu(99 + 11, 75 + 11, gks)
+    # draw_tofu(99 - 11, 75 - 11, gks)
+    # draw_olive(99 + 11, 75 - 11, gks)
+    # draw_olive(99 - 11, 75 + 11, gks)
+
+    # gks.draw_rect(99 + 9, 75 + 9, 4, 1, (34, 136, 0))
+    # gks.draw_rect(99 - 9, 75 - 9, 4, 1, (34, 136, 0))
+    # gks.draw_filled_circle(99 + 9, 75 - 9, 2, (255, 0, 0))
+    # gks.draw_filled_circle(99 - 9, 75 + 9, 2, (255, 0, 0))
+
+    # gks.draw_rect(99 + 11, 75 + 11, 4, 1, (34, 136, 0))
+    # gks.draw_rect(99 - 11, 75 - 11, 4, 1, (34, 136, 0))
+    # gks.draw_filled_circle(99 + 11, 75 - 11, 2, (255, 0, 0))
+    # gks.draw_filled_circle(99 - 11, 75 + 11, 2, (255, 0, 0))
+
+    # gks.set_pixel(99 - 7, 75 - 7, (255, 0, 0))
     gks.start_render_loop(60)
