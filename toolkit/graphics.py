@@ -170,7 +170,7 @@ class GKS:
             self.set_pixel(x, y1, color)
             self.set_pixel(x, y2, color)
 
-    def new_draw_circle(self, center_x: int, center_y: int, radius: int) -> None:
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB=WHITE) -> None:
         """Draw a circle around the center point, starting at point (x,y).
 
         Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
@@ -194,15 +194,15 @@ class GKS:
         while x <= y:
             # 8-way symmetry
             # It took me forever to wrap my head around the final conversion to screen coordinates
-            self.set_pixel(center_x + x, center_y + y)
-            self.set_pixel(center_x - x, center_y + y)
-            self.set_pixel(center_x + x, center_y - y)
-            self.set_pixel(center_x - x, center_y - y)
+            self.set_pixel(center_x + x, center_y + y, color)
+            self.set_pixel(center_x - x, center_y + y, color)
+            self.set_pixel(center_x + x, center_y - y, color)
+            self.set_pixel(center_x - x, center_y - y, color)
 
-            self.set_pixel(center_x + y, center_y + x)
-            self.set_pixel(center_x - y, center_y + x)
-            self.set_pixel(center_x + y, center_y - x)
-            self.set_pixel(center_x - y, center_y - x)
+            self.set_pixel(center_x + y, center_y + x, color)
+            self.set_pixel(center_x - y, center_y + x, color)
+            self.set_pixel(center_x + y, center_y - x, color)
+            self.set_pixel(center_x - y, center_y - x, color)
 
             if running_decision_parameter < 0:
                 # Choose East
