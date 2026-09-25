@@ -431,4 +431,32 @@ if __name__ == '__main__':
     )
 
     # gks.paint_chars('It Works!'.upper(), 20, 20)
+    # gks.set_pixel(99 + 7, 75 + 7,(255, 0, 0))
+
+    draw_tofu(99 + 7, 75 + 7, gks)
+    draw_tofu(99 - 7, 75 - 7, gks)
+    draw_olive(99 + 7, 75 - 7, gks)
+    draw_olive(99 - 7, 75 + 7, gks)
+
+    # draw_tofu(99 + 9, 75 + 9, gks)
+    # draw_tofu(99 - 9, 75 - 9, gks)
+    # draw_olive(99 + 9, 75 - 9, gks)
+    # draw_olive(99 - 9, 75 + 9, gks)
+
+    # draw_tofu(99 + 11, 75 + 11, gks)
+    # draw_tofu(99 - 11, 75 - 11, gks)
+    # draw_olive(99 + 11, 75 - 11, gks)
+    # draw_olive(99 - 11, 75 + 11, gks)
+
+    # gks.draw_rect(99 + 9, 75 + 9, 4, 1, (34, 136, 0))
+    # gks.draw_rect(99 - 9, 75 - 9, 4, 1, (34, 136, 0))
+    # gks.draw_filled_circle(99 + 9, 75 - 9, 2, (255, 0, 0))
+    # gks.draw_filled_circle(99 - 9, 75 + 9, 2, (255, 0, 0))
+
+    # gks.draw_rect(99 + 11, 75 + 11, 4, 1, (34, 136, 0))
+    # gks.draw_rect(99 - 11, 75 - 11, 4, 1, (34, 136, 0))
+    # gks.draw_filled_circle(99 + 11, 75 - 11, 2, (255, 0, 0))
+    # gks.draw_filled_circle(99 - 11, 75 + 11, 2, (255, 0, 0))
+
+    # gks.set_pixel(99 - 7, 75 - 7, (255, 0, 0))
     gks.start_render_loop(60)
