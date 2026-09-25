@@ -404,9 +404,18 @@ if __name__ == '__main__':
     # Center HEADER in the top-left header area
     gks.paint_chars('HEADER', 8, 2)
 
-    # Paint a pizza in bottom right section using primitives
-    gks.draw_filled_circle_span(99, 75, 20, (198, 124, 56))
-    gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
+    # Paint a lg pizza in bottom right section using primitives
+    # gks.draw_filled_circle_span(99, 75, 23, (198, 124, 56))
+    # gks.draw_filled_circle_span(99, 75, 20, (244, 196, 48))
+
+    # 85% scale....I should learn how to implement scaling. Its gotta be a linear function.
+    # gks.draw_filled_circle_span(99, 75, 19, (198, 124, 56))
+    # gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
+
+    # 75% scale
+    gks.draw_filled_circle_span(99, 75, 16, (198, 124, 56))
+    gks.draw_filled_circle_span(99, 75, 14, (244, 196, 48))
+
 
     # Blit a red square into top right section
     gks.blit(
