@@ -17,7 +17,10 @@ TODO:
 import json
 import time
 import urllib.request
+from enum import Enum, auto
 from typing import Final
+from collections.abc import Callable
+from dataclasses import dataclass
 import sys
 from math import sqrt
 from pprint import pp, pprint
@@ -346,6 +349,21 @@ class GKS:
 
 
 if __name__ == '__main__':
+    CENTER_X = 99
+    CENTER_Y = 75
+
+    def draw_sm_pizza(engine):
+        engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 16, (198, 124, 56))
+        engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 14, (244, 196, 48))
+
+    def draw_md_pizza(engine):
+        engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 19, (198, 124, 56))
+        engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 17, (244, 196, 48))
+
+    def draw_lg_pizza(engine):
+        engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 23, (198, 124, 56))
+        engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 20, (244, 196, 48))
+
     def draw_bpepper(x, y, engine):
         engine.draw_rect(x, y, 4, 1, (34, 136, 0))
 
@@ -363,6 +381,70 @@ if __name__ == '__main__':
 
     def draw_olive(x, y, engine):
         engine.new_draw_circle(x, y, 1, (0, 0, 0))
+
+
+    class SizeOptions(Enum):
+        SMALL = auto()
+        MEDIUM = auto()
+        LARGE = auto()
+
+    class ProteinOptions(Enum):
+        PEPPERONI = auto()
+        SAUSAGE = auto()
+        TOFU = auto()
+
+    class VegetableOptions(Enum):
+        BELL_PEPPERS = auto()
+        RED_PEPPERS = auto()
+        BLACK_OLIVES = auto()
+
+    @dataclass(frozen=True, slots=True)
+    class SizeOption:
+        cost: int
+        description: str
+        draw: Callable[[GKS], None]
+        topping_offset: int
+
+
+    @dataclass(frozen=True, slots=True)
+    class ToppingOption:
+        cost: float
+        draw: Callable[[int, int, GKS], None]
+
+
+    sizes = {
+        SizeOptions.SMALL: SizeOption(
+            cost=10,
+            description="10-inch pizza",
+            draw=draw_sm_pizza,
+            topping_offset=7,
+        ),
+        SizeOptions.MEDIUM: SizeOption(
+            cost=15,
+            description="14-inch pizza",
+            draw=draw_md_pizza,
+            topping_offset=9,
+        ),
+        SizeOptions.LARGE: SizeOption(
+            cost=20,
+            description="18-inch pizza",
+            draw=draw_lg_pizza,
+            topping_offset=11,
+        ),
+    }
+
+    proteins = {
+        ProteinOptions.PEPPERONI: ToppingOption(2, draw_pepperoni),
+        ProteinOptions.SAUSAGE: ToppingOption(2, draw_sausage),
+        ProteinOptions.TOFU: ToppingOption(5, draw_tofu)
+    }
+
+    vegetables = {
+        VegetableOptions.BELL_PEPPERS: ToppingOption(0.50, draw_bpepper),
+        VegetableOptions.RED_PEPPERS: ToppingOption(0.50, draw_rpepper),
+        VegetableOptions.BLACK_OLIVES: ToppingOption(0.75, draw_olive),
+    }
+
 
     gks = GKS()
 
@@ -413,8 +495,8 @@ if __name__ == '__main__':
     # gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
 
     # 75% scale
-    gks.draw_filled_circle_span(99, 75, 16, (198, 124, 56))
-    gks.draw_filled_circle_span(99, 75, 14, (244, 196, 48))
+    # gks.draw_filled_circle_span(99, 75, 16, (198, 124, 56))
+    # gks.draw_filled_circle_span(99, 75, 14, (244, 196, 48))
 
 
     # Blit a red square into top right section
@@ -433,10 +515,10 @@ if __name__ == '__main__':
     # gks.paint_chars('It Works!'.upper(), 20, 20)
     # gks.set_pixel(99 + 7, 75 + 7,(255, 0, 0))
 
-    draw_tofu(99 + 7, 75 + 7, gks)
-    draw_tofu(99 - 7, 75 - 7, gks)
-    draw_olive(99 + 7, 75 - 7, gks)
-    draw_olive(99 - 7, 75 + 7, gks)
+    # draw_tofu(99 + 7, 75 + 7, gks)
+    # draw_tofu(99 - 7, 75 - 7, gks)
+    # draw_olive(99 + 7, 75 - 7, gks)
+    # draw_olive(99 - 7, 75 + 7, gks)
 
     # draw_tofu(99 + 9, 75 + 9, gks)
     # draw_tofu(99 - 9, 75 - 9, gks)
@@ -458,5 +540,27 @@ if __name__ == '__main__':
     # gks.draw_filled_circle(99 + 11, 75 - 11, 2, (255, 0, 0))
     # gks.draw_filled_circle(99 - 11, 75 + 11, 2, (255, 0, 0))
 
-    # gks.set_pixel(99 - 7, 75 - 7, (255, 0, 0))
+    cur_size = SizeOptions.SMALL
+    cur_protein = ProteinOptions.PEPPERONI
+    cur_vegetable = VegetableOptions.BELL_PEPPERS
+
+    size = sizes[cur_size]
+    protein = proteins[cur_protein]
+    vegetable = vegetables[cur_vegetable]
+
+    size.draw(gks)
+
+    for x, y in (
+            (CENTER_X + size.topping_offset, CENTER_Y + size.topping_offset),
+            (CENTER_X - size.topping_offset, CENTER_Y - size.topping_offset),
+
+    ):
+        protein.draw(x, y, gks)
+
+    for x, y in (
+            (CENTER_X + size.topping_offset, CENTER_Y - size.topping_offset),
+            (CENTER_X - size.topping_offset, CENTER_Y + size.topping_offset)
+    ):
+        vegetable.draw(x, y, gks)
+
     gks.start_render_loop(60)
