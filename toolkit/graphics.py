@@ -448,27 +448,6 @@ if __name__ == '__main__':
 
     gks = GKS()
 
-    # gks.draw_line(25,25, 75, 75, (255, 255, 255))
-    # gks.draw_line(75, 25, 25, 75, (255, 255, 255))
-    # gks.draw_line(25,25, 75, 25)
-    # gks.draw_line(75,25, 75, 75)
-    # gks.draw_line(25, 75, 75, 75)
-    # gks.draw_line(25, 25, 25, 75)
-
-    # gks.draw_rect(90, 10, 13, 13)
-    # gks.set_pixel(96, 16)
-    # gks.draw_filled_rect(75, 25, 10, 10)
-    # gks.draw_circle(25, 25, 20)
-    # gks.draw_bresenhams_line(75, 75, 80, 80)
-    # gks.draw_bresenhams_line(80, 75, 75, 80)
-    # print(gks.CLEAR_SCREEN)
-    # gks.old_draw_circle(75, 75, 20)
-    # gks.new_draw_circle(40, 40, 20)
-    # gks.draw_bresenhams_line(10, 20, 70, 35)
-    # gks.draw_bresenhams_line(20, 10, 35, 70)
-    # gks.draw_filled_circle(75, 75, 20)
-    # gks.draw_filled_circle_span(75, 75, 20)
-
     # Boarder
     gks.draw_rect(0, 0, 132, 100)
 
@@ -486,18 +465,6 @@ if __name__ == '__main__':
     # Center HEADER in the top-left header area
     gks.paint_chars('HEADER', 8, 2)
 
-    # Paint a lg pizza in bottom right section using primitives
-    # gks.draw_filled_circle_span(99, 75, 23, (198, 124, 56))
-    # gks.draw_filled_circle_span(99, 75, 20, (244, 196, 48))
-
-    # 85% scale....I should learn how to implement scaling. Its gotta be a linear function.
-    # gks.draw_filled_circle_span(99, 75, 19, (198, 124, 56))
-    # gks.draw_filled_circle_span(99, 75, 17, (244, 196, 48))
-
-    # 75% scale
-    # gks.draw_filled_circle_span(99, 75, 16, (198, 124, 56))
-    # gks.draw_filled_circle_span(99, 75, 14, (244, 196, 48))
-
 
     # Blit a red square into top right section
     gks.blit(
@@ -511,34 +478,6 @@ if __name__ == '__main__':
         97,
         23,
     )
-
-    # gks.paint_chars('It Works!'.upper(), 20, 20)
-    # gks.set_pixel(99 + 7, 75 + 7,(255, 0, 0))
-
-    # draw_tofu(99 + 7, 75 + 7, gks)
-    # draw_tofu(99 - 7, 75 - 7, gks)
-    # draw_olive(99 + 7, 75 - 7, gks)
-    # draw_olive(99 - 7, 75 + 7, gks)
-
-    # draw_tofu(99 + 9, 75 + 9, gks)
-    # draw_tofu(99 - 9, 75 - 9, gks)
-    # draw_olive(99 + 9, 75 - 9, gks)
-    # draw_olive(99 - 9, 75 + 9, gks)
-
-    # draw_tofu(99 + 11, 75 + 11, gks)
-    # draw_tofu(99 - 11, 75 - 11, gks)
-    # draw_olive(99 + 11, 75 - 11, gks)
-    # draw_olive(99 - 11, 75 + 11, gks)
-
-    # gks.draw_rect(99 + 9, 75 + 9, 4, 1, (34, 136, 0))
-    # gks.draw_rect(99 - 9, 75 - 9, 4, 1, (34, 136, 0))
-    # gks.draw_filled_circle(99 + 9, 75 - 9, 2, (255, 0, 0))
-    # gks.draw_filled_circle(99 - 9, 75 + 9, 2, (255, 0, 0))
-
-    # gks.draw_rect(99 + 11, 75 + 11, 4, 1, (34, 136, 0))
-    # gks.draw_rect(99 - 11, 75 - 11, 4, 1, (34, 136, 0))
-    # gks.draw_filled_circle(99 + 11, 75 - 11, 2, (255, 0, 0))
-    # gks.draw_filled_circle(99 - 11, 75 + 11, 2, (255, 0, 0))
 
     cur_size = SizeOptions.SMALL
     cur_protein = ProteinOptions.PEPPERONI
