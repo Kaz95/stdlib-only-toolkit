@@ -346,6 +346,24 @@ class GKS:
 
 
 if __name__ == '__main__':
+    def draw_bpepper(x, y, engine):
+        engine.draw_rect(x, y, 4, 1, (34, 136, 0))
+
+    def draw_rpepper(x, y, engine):
+        engine.draw_rect(x, y, 4, 1, (205, 28, 24))
+
+    def draw_tofu(x, y, engine):
+        engine.draw_filled_rect(x, y, 3, 3, (238, 220, 130))
+
+    def draw_pepperoni(x, y, engine):
+        engine.draw_filled_circle(x, y, 2, (255, 0, 0))
+
+    def draw_sausage(x, y, engine):
+        engine.draw_filled_circle(x, y, 2, (101, 67, 33))
+
+    def draw_olive(x, y, engine):
+        engine.new_draw_circle(x, y, 1, (0, 0, 0))
+
     gks = GKS()
 
     # gks.draw_line(25,25, 75, 75, (255, 255, 255))
