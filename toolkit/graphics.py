@@ -352,6 +352,24 @@ if __name__ == '__main__':
     CENTER_X = 99
     CENTER_Y = 75
 
+    def draw_static_UI(engine):
+        # Boarder
+        engine.draw_rect(0, 0, 132, 100)
+
+        # Center divider
+        engine.draw_line(65, 0, 65, 99)
+        engine.draw_line(66, 0, 66, 99)
+
+        # Horizontal midpoint on the right half
+        engine.draw_line(66, 49, 131, 49)
+        engine.draw_line(66, 50, 131, 50)
+
+        # Header for options section
+        engine.draw_line(0, 11, 64, 11)
+
+        # Center HEADER in the top-left header area
+        engine.paint_chars('HEADER', 8, 2)
+
     def draw_sm_pizza(engine):
         engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 16, (198, 124, 56))
         engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 14, (244, 196, 48))
@@ -448,23 +466,7 @@ if __name__ == '__main__':
 
     gks = GKS()
 
-    # Boarder
-    gks.draw_rect(0, 0, 132, 100)
-
-    # Center divider
-    gks.draw_line(65, 0, 65, 99)
-    gks.draw_line(66, 0, 66, 99)
-
-    # Horizontal midpoint on the right half
-    gks.draw_line(66, 49, 131, 49)
-    gks.draw_line(66, 50, 131, 50)
-
-    # Header for options section
-    gks.draw_line(0, 11, 64, 11)
-
-    # Center HEADER in the top-left header area
-    gks.paint_chars('HEADER', 8, 2)
-
+    draw_static_UI(gks)
 
     # Blit a red square into top right section
     gks.blit(
