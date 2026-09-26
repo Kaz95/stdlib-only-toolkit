@@ -514,18 +514,18 @@ if __name__ == '__main__':
 
     draw_static_ui(gks)
 
-    # Blit a red square into top right section
-    gks.blit(
-        [
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-        ],
-        97,
-        23,
-    )
+    # # Blit a red square into top right section
+    # gks.blit(
+    #     [
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #     ],
+    #     97,
+    #     23,
+    # )
 
     cur_size = SizeOptions.LARGE
     cur_protein = ProteinOptions.PEPPERONI
