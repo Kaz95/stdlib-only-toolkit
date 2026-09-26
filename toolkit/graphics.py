@@ -459,7 +459,7 @@ if __name__ == '__main__':
 
     @dataclass(frozen=True, slots=True)
     class SizeOption:
-        cost: int
+        cost: float
         description: str
         draw: Callable[[GKS], None]
         topping_offset: int
@@ -475,21 +475,21 @@ if __name__ == '__main__':
 
     sizes = {
         SizeOptions.SMALL: SizeOption(
-            cost=10,
+            cost=12.99,
             description="6-inch",
             draw=draw_sm_pizza,
             topping_offset=7,
             option_number=1,
         ),
         SizeOptions.MEDIUM: SizeOption(
-            cost=15,
+            cost=15.99,
             description="12-inch",
             draw=draw_md_pizza,
             topping_offset=9,
             option_number=2,
         ),
         SizeOptions.LARGE: SizeOption(
-            cost=20,
+            cost=18.99,
             description="18-inch",
             draw=draw_lg_pizza,
             topping_offset=11,
@@ -554,15 +554,15 @@ if __name__ == '__main__':
     # A set of options
     # Row 1
     gks.paint_chars(f'{sizes[SizeOptions.SMALL].description}', 2, 14)
-    gks.paint_chars('$12.99', 2, 23)
+    gks.paint_chars(f'{sizes[SizeOptions.SMALL].cost}', 2, 23)
 
     # Row 2
     gks.paint_chars(f'{sizes[SizeOptions.MEDIUM].description}', 2, 43)
-    gks.paint_chars('$15.99', 2, 52)
+    gks.paint_chars(f'{sizes[SizeOptions.MEDIUM].cost}', 2, 52)
 
     # Row 3
     gks.paint_chars(f'{sizes[SizeOptions.LARGE].description}', 2, 72)
-    gks.paint_chars('$18.99', 2, 81)
+    gks.paint_chars(f'{sizes[SizeOptions.LARGE].cost}', 2, 81)
 
     select_option(gks, sizes[cur_size].option_number)
 
