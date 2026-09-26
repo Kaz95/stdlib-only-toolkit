@@ -459,19 +459,19 @@ if __name__ == '__main__':
     sizes = {
         SizeOptions.SMALL: SizeOption(
             cost=10,
-            description="10-inch pizza",
+            description="6-inch",
             draw=draw_sm_pizza,
             topping_offset=7,
         ),
         SizeOptions.MEDIUM: SizeOption(
             cost=15,
-            description="14-inch pizza",
+            description="12-inch",
             draw=draw_md_pizza,
             topping_offset=9,
         ),
         SizeOptions.LARGE: SizeOption(
             cost=20,
-            description="18-inch pizza",
+            description="18-inch",
             draw=draw_lg_pizza,
             topping_offset=11,
         ),
