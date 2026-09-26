@@ -514,18 +514,18 @@ if __name__ == '__main__':
 
     draw_static_ui(gks)
 
-    # Blit a red square into top right section
-    gks.blit(
-        [
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-            [(255, 0, 0)] * 5,
-        ],
-        97,
-        23,
-    )
+    # # Blit a red square into top right section
+    # gks.blit(
+    #     [
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #         [(255, 0, 0)] * 5,
+    #     ],
+    #     97,
+    #     23,
+    # )
 
     cur_size = SizeOptions.LARGE
     cur_protein = ProteinOptions.PEPPERONI
@@ -534,6 +534,7 @@ if __name__ == '__main__':
     size = sizes[cur_size]
     protein = proteins[cur_protein]
     vegetable = vegetables[cur_vegetable]
+    total = sum((sizes[cur_size].cost, proteins[cur_protein].cost, vegetables[cur_vegetable].cost))
 
     size.draw(gks)
 
@@ -566,4 +567,15 @@ if __name__ == '__main__':
 
     select_option(gks, sizes[cur_size].option_number)
 
+    # running total
+
+    gks.paint_chars(f'SZ${f'{sizes[cur_size].cost:05.2f}' if sizes[SizeOptions.SMALL].cost else 'None'}', 68, 2)
+    gks.paint_chars(f'PT${f'{proteins[cur_protein].cost:05.2f}' if cur_protein else 'None'}', 68, 12)
+    gks.paint_chars(f'VG${f'{vegetables[cur_vegetable].cost:05.2f}' if cur_vegetable else 'None'}', 68, 22)
+
+    # total = sizes[cur_size].cost + proteins[cur_protein].cost + vegetables[cur_vegetable].cost
+
+    gks.paint_chars(f'TT${total:05.2f}', 67, 41)
+
+    # a = sizes[SizeOptions.SMALL].cost + proteins[cur_protein].cost + vegetables[cur_vegetable].cost
     gks.start_render_loop(60)
