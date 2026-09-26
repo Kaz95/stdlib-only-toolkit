@@ -391,15 +391,9 @@ if __name__ == '__main__':
         center_header('Size', engine)
 
         # Static selection elements
-        engine.draw_rect(47, 22, 16, 15)  # x=47..64, y=22..36
-        engine.draw_filled_rect(47, 47, 16, 15)  # x=47..64, y=47..61
-        engine.draw_rect(47, 73, 16, 15)  # x=47..64, y=73..87
-
-
-
-
-
-
+        engine.draw_rect(53, 24, 11, 10)
+        engine.draw_filled_rect(53, 49, 11, 10)
+        engine.draw_rect(53, 75, 11, 10)
 
 
     def draw_sm_pizza(engine):
@@ -535,5 +529,11 @@ if __name__ == '__main__':
             (CENTER_X - size.topping_offset, CENTER_Y + size.topping_offset)
     ):
         vegetable.draw(x, y, gks)
+
+
+    # A set of options
+    gks.paint_chars('SMALL', 2, 25)
+    gks.paint_chars('MEDIUM', 2, 50)
+    gks.paint_chars('LARGE', 2, 76)
 
     gks.start_render_loop(60)
