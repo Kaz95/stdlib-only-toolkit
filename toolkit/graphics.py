@@ -352,7 +352,6 @@ if __name__ == '__main__':
     CENTER_X = 99
     CENTER_Y = 75
 
-    def draw_static_UI(engine):
 
     def center_header(header: str, engine: GKS):
         # 7 chars max. Can push to 8 by changing staring x to 2, otherwise first char will touch left boarder.
@@ -371,6 +370,7 @@ if __name__ == '__main__':
 
         engine.paint_chars(header, starting_x, starting_y)
 
+    def draw_static_ui(engine):
         # Boarder
         engine.draw_rect(0, 0, 132, 100)
 
@@ -492,7 +492,7 @@ if __name__ == '__main__':
 
     gks = GKS()
 
-    draw_static_UI(gks)
+    draw_static_ui(gks)
 
     # Blit a red square into top right section
     gks.blit(
