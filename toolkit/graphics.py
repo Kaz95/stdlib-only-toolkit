@@ -392,7 +392,7 @@ if __name__ == '__main__':
 
         # Static selection elements
         engine.draw_rect(53, 24, 11, 10)
-        engine.draw_filled_rect(53, 53, 11, 10)
+        engine.draw_rect(53, 53, 11, 10)
         engine.draw_rect(53, 82, 11, 10)
 
 
