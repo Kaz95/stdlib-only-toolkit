@@ -532,8 +532,20 @@ if __name__ == '__main__':
 
 
     # A set of options
-    gks.paint_chars('SMALL', 2, 25)
-    gks.paint_chars('MEDIUM', 2, 50)
-    gks.paint_chars('LARGE', 2, 76)
+    # gks.paint_chars('SMALL', 2, 25)
+    # gks.paint_chars('MEDIUM', 2, 50)
+    # gks.paint_chars('LARGE', 2, 76)
+
+    # Row 1
+    gks.paint_chars(f'{sizes[SizeOptions.SMALL].description}', 2, 14)
+    gks.paint_chars('$12.99', 2, 23)
+
+    # Row 2
+    gks.paint_chars(f'{sizes[SizeOptions.MEDIUM].description}', 2, 43)
+    gks.paint_chars('$15.99', 2, 52)
+
+    # Row 3
+    gks.paint_chars(f'{sizes[SizeOptions.LARGE].description}', 2, 72)
+    gks.paint_chars('$18.99', 2, 81)
 
     gks.start_render_loop(60)
