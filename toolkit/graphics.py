@@ -465,12 +465,14 @@ if __name__ == '__main__':
         description: str
         draw: Callable[[GKS], None]
         topping_offset: int
+        option_number: int
 
 
     @dataclass(frozen=True, slots=True)
     class ToppingOption:
         cost: float
         draw: Callable[[int, int, GKS], None]
+        option_number: int
 
 
     sizes = {
@@ -479,31 +481,34 @@ if __name__ == '__main__':
             description="6-inch",
             draw=draw_sm_pizza,
             topping_offset=7,
+            option_number=1,
         ),
         SizeOptions.MEDIUM: SizeOption(
             cost=15,
             description="12-inch",
             draw=draw_md_pizza,
             topping_offset=9,
+            option_number=2,
         ),
         SizeOptions.LARGE: SizeOption(
             cost=20,
             description="18-inch",
             draw=draw_lg_pizza,
             topping_offset=11,
+            option_number=3,
         ),
     }
 
     proteins = {
-        ProteinOptions.PEPPERONI: ToppingOption(2, draw_pepperoni),
-        ProteinOptions.SAUSAGE: ToppingOption(2, draw_sausage),
-        ProteinOptions.TOFU: ToppingOption(5, draw_tofu)
+        ProteinOptions.PEPPERONI: ToppingOption(2, draw_pepperoni, 1),
+        ProteinOptions.SAUSAGE: ToppingOption(2, draw_sausage, 2),
+        ProteinOptions.TOFU: ToppingOption(5, draw_tofu, 3)
     }
 
     vegetables = {
-        VegetableOptions.BELL_PEPPERS: ToppingOption(0.50, draw_bpepper),
-        VegetableOptions.RED_PEPPERS: ToppingOption(0.50, draw_rpepper),
-        VegetableOptions.BLACK_OLIVES: ToppingOption(0.75, draw_olive),
+        VegetableOptions.BELL_PEPPERS: ToppingOption(0.50, draw_bpepper, 1),
+        VegetableOptions.RED_PEPPERS: ToppingOption(0.50, draw_rpepper, 2),
+        VegetableOptions.BLACK_OLIVES: ToppingOption(0.75, draw_olive, 3),
     }
 
 
