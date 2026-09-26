@@ -529,7 +529,7 @@ if __name__ == '__main__':
         23,
     )
 
-    cur_size = SizeOptions.SMALL
+    cur_size = SizeOptions.LARGE
     cur_protein = ProteinOptions.PEPPERONI
     cur_vegetable = VegetableOptions.BELL_PEPPERS
 
@@ -569,5 +569,7 @@ if __name__ == '__main__':
     # Row 3
     gks.paint_chars(f'{sizes[SizeOptions.LARGE].description}', 2, 72)
     gks.paint_chars('$18.99', 2, 81)
+
+    select_option(gks, sizes[cur_size].option_number)
 
     gks.start_render_loop(60)
