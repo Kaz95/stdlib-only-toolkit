@@ -353,6 +353,24 @@ if __name__ == '__main__':
     CENTER_Y = 75
 
     def draw_static_UI(engine):
+
+    def center_header(header: str, engine: GKS):
+        # 7 chars max. Can push to 8 by changing staring x to 2, otherwise first char will touch left boarder.
+        # Pushing starting x to 2 results is slightly misaligned glyphs on all lengths < 8
+        if len(header) > 7:
+            raise ValueError('Header too long')
+
+        starting_x = 1
+        starting_y = 3
+        usable_width = 64
+
+        length_of_glyphs = len(header) * 8
+        centering_offset = (usable_width - length_of_glyphs) // 2
+
+        starting_x += centering_offset
+
+        engine.paint_chars(header, starting_x, starting_y)
+
         # Boarder
         engine.draw_rect(0, 0, 132, 100)
 
@@ -368,7 +386,15 @@ if __name__ == '__main__':
         engine.draw_line(0, 11, 64, 11)
 
         # Center HEADER in the top-left header area
-        engine.paint_chars('HEADER', 8, 3)
+        # engine.paint_chars('HEADER', 8, 3)
+
+        center_header('Size', engine)
+
+
+
+
+
+
 
     def draw_sm_pizza(engine):
         engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 16, (198, 124, 56))
