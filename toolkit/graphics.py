@@ -368,7 +368,7 @@ if __name__ == '__main__':
         engine.draw_line(0, 11, 64, 11)
 
         # Center HEADER in the top-left header area
-        engine.paint_chars('HEADER', 8, 2)
+        engine.paint_chars('HEADER', 8, 3)
 
     def draw_sm_pizza(engine):
         engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 16, (198, 124, 56))
