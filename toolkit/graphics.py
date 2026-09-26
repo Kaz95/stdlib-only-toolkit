@@ -349,6 +349,7 @@ class GKS:
 
 
 if __name__ == '__main__':
+    # Pizza origin
     CENTER_X = 99
     CENTER_Y = 75
 
@@ -384,9 +385,6 @@ if __name__ == '__main__':
 
         # Header for options section
         engine.draw_line(0, 11, 64, 11)
-
-        # Center HEADER in the top-left header area
-        # engine.paint_chars('HEADER', 8, 3)
 
         center_header('Size', engine)
 
@@ -554,10 +552,6 @@ if __name__ == '__main__':
 
 
     # A set of options
-    # gks.paint_chars('SMALL', 2, 25)
-    # gks.paint_chars('MEDIUM', 2, 50)
-    # gks.paint_chars('LARGE', 2, 76)
-
     # Row 1
     gks.paint_chars(f'{sizes[SizeOptions.SMALL].description}', 2, 14)
     gks.paint_chars('$12.99', 2, 23)
