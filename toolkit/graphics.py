@@ -534,6 +534,7 @@ if __name__ == '__main__':
     size = sizes[cur_size]
     protein = proteins[cur_protein]
     vegetable = vegetables[cur_vegetable]
+    total = sum((sizes[cur_size].cost, proteins[cur_protein].cost, vegetables[cur_vegetable].cost))
 
     size.draw(gks)
 
