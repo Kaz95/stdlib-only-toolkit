@@ -396,6 +396,23 @@ if __name__ == '__main__':
         engine.draw_rect(53, 82, 11, 10)
 
 
+    def select_option(engine: GKS, option: int):
+        engine.draw_rect(53, 24, 11, 10)
+        engine.draw_rect(53, 53, 11, 10)
+        engine.draw_rect(53, 82, 11, 10)
+
+        if option == 1:
+            engine.draw_filled_rect(53, 24, 11, 10)
+
+        elif option == 2:
+            engine.draw_filled_rect(53, 53, 11, 10)
+
+        elif option == 3:
+            engine.draw_filled_rect(53, 82, 11, 10)
+
+        else:
+            raise ValueError('Invalid option')
+
     def draw_sm_pizza(engine):
         engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 16, (198, 124, 56))
         engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 14, (244, 196, 48))
