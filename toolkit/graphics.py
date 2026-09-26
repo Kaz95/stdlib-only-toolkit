@@ -390,6 +390,12 @@ if __name__ == '__main__':
 
         center_header('Size', engine)
 
+        # Static selection elements
+        engine.draw_rect(47, 22, 16, 15)  # x=47..64, y=22..36
+        engine.draw_filled_rect(47, 47, 16, 15)  # x=47..64, y=47..61
+        engine.draw_rect(47, 73, 16, 15)  # x=47..64, y=73..87
+
+
 
 
 
