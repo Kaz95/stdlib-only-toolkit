@@ -14,6 +14,7 @@ TODO:
         gains come from.
 
 """
+import collections
 import json
 import time
 import urllib.request
@@ -590,38 +591,12 @@ if __name__ == '__main__':
 
     gks = GKS()
 
-    draw_static_ui(gks)
-
-    # # Blit a red square into top right section
-    # gks.blit(
-    #     [
-    #         [(255, 0, 0)] * 5,
-    #         [(255, 0, 0)] * 5,
-    #         [(255, 0, 0)] * 5,
-    #         [(255, 0, 0)] * 5,
-    #         [(255, 0, 0)] * 5,
-    #     ],
-    #     97,
-    #     23,
-    # )
-
-    cur_size = SizeOptions.LARGE
-    cur_protein = ProteinOptions.PEPPERONI
-    cur_vegetable = VegetableOptions.BELL_PEPPERS
-
-    size = sizes[cur_size]
-    protein = proteins[cur_protein]
-    vegetable = vegetables[cur_vegetable]
-    total = sum((sizes[cur_size].cost, proteins[cur_protein].cost, vegetables[cur_vegetable].cost))
-
-    size.draw(gks)
-
-    for x, y in (
-            (CENTER_X + size.topping_offset, CENTER_Y + size.topping_offset),
-            (CENTER_X - size.topping_offset, CENTER_Y - size.topping_offset),
-
-    ):
-        protein.draw(x, y, gks)
+    menus = collections.deque(['size', 'protein', 'vegetable'])
+    option_queues = {
+        'size': collections.deque(sizes),
+        'protein': collections.deque(proteins),
+        'vegetable': collections.deque(vegetables),
+    }
 
     for x, y in (
             (CENTER_X + size.topping_offset, CENTER_Y - size.topping_offset),
