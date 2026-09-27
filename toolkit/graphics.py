@@ -8,8 +8,6 @@ learn about packaging a library for distribution.
 TODO:
     * Consider using factory pattern for creating bitmaps in the expected form. Would allow input validation to be a
         type check and remove need for complex custom type.
-    * Decide how the UI model will trigger UI view updates. Maybe I can use observer pattern here. Maybe on vbuffer update
-        check too.
     * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
         gains come from.
 
