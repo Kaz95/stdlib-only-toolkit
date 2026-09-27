@@ -593,6 +593,24 @@ if __name__ == '__main__':
 
         return selected
 
+    class CommandHandler:
+        @staticmethod
+        def handle(key):
+            match key:
+                case 'H':
+                    print('up arrow')
+                case 'P':
+                    print('down arrow')
+                case 'K':
+                    print('left arrow')
+                case 'M':
+                    print('right arrow')
+                case 'q':
+                    print('quit')
+                case '\r':
+                    print('enter key')
+
+
     gks = GKS()
 
     menus = collections.deque(['size', 'protein', 'vegetable'])
