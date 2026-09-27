@@ -439,6 +439,21 @@ if __name__ == '__main__':
     def draw_olive(x, y, engine):
         engine.new_draw_circle(x, y, 1, (0, 0, 0))
 
+    def draw_pizza(engine, pizza_size, protein_option, vegetable_option):
+        pizza_size.draw(engine)
+
+        for x, y in (
+                (CENTER_X + pizza_size.topping_offset, CENTER_Y + pizza_size.topping_offset),
+                (CENTER_X - pizza_size.topping_offset, CENTER_Y - pizza_size.topping_offset),
+
+        ):
+            protein_option.draw(x, y, engine)
+
+        for x, y in (
+                (CENTER_X + pizza_size.topping_offset, CENTER_Y - pizza_size.topping_offset),
+                (CENTER_X - pizza_size.topping_offset, CENTER_Y + pizza_size.topping_offset)
+        ):
+            vegetable_option.draw(x, y, engine)
 
     class SizeOptions(Enum):
         SMALL = auto()
