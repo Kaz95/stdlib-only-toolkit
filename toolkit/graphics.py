@@ -536,6 +536,57 @@ if __name__ == '__main__':
         VegetableOptions.BLACK_OLIVES: ToppingOption(0.75, 'B.olives', draw_olive, 3),
     }
 
+    option_sets = {
+        'size': sizes,
+        'protein': proteins,
+        'vegetable': vegetables,
+    }
+
+    def redraw_ui(
+            engine: GKS,
+            active_menu: str,
+            current_size: SizeOptions,
+            current_protein: ProteinOptions,
+            current_vegetable: VegetableOptions,
+    ):
+        """Rebuild the frame from the current model state."""
+        engine.clear()
+        draw_static_ui(engine)
+
+        headers = {
+            'size': 'Size',
+            'protein': 'Protein',
+            'vegetable': 'Veggies',
+        }
+        selections = {
+            'size': sizes[current_size],
+            'protein': proteins[current_protein],
+            'vegetable': vegetables[current_vegetable],
+        }
+
+        if active_menu not in option_sets:
+            raise ValueError(f'Invalid menu: {active_menu}')
+
+        draw_pizza(engine,sizes[current_size], proteins[current_protein], vegetables[current_vegetable])
+        center_header(headers[active_menu], engine)
+        paint_option_set(engine, option_sets[active_menu])
+        select_option(engine, selections[active_menu].option_number)
+
+    def toggle_option(
+            direction: int,
+            option_queue,
+            option_set,
+    ):
+        """Advance one option queue and return its newly selected option."""
+        if not option_queue:
+            raise ValueError('Option queue cannot be empty')
+
+        option_queue.rotate(direction)
+        selected = option_queue[0]
+        if selected not in option_set:
+            raise ValueError('Option queue contains an invalid option')
+
+        return selected
 
     gks = GKS()
 
