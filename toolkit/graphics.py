@@ -386,8 +386,6 @@ if __name__ == '__main__':
         # Header for options section
         engine.draw_line(0, 11, 64, 11)
 
-        center_header('Size', engine)
-
         # Static selection elements
         engine.draw_rect(53, 24, 11, 10)
         engine.draw_rect(53, 53, 11, 10)
