@@ -549,6 +549,13 @@ if __name__ == '__main__':
         'vegetable': vegetables,
     }
 
+    menus = collections.deque(['size', 'protein', 'vegetable'])
+    option_deques = {
+        'size': collections.deque(sizes),
+        'protein': collections.deque(proteins),
+        'vegetable': collections.deque(vegetables),
+    }
+
     def redraw_ui(
             engine: GKS,
             active_menu: str,
@@ -603,10 +610,10 @@ if __name__ == '__main__':
         def handle(self, key):
             match key:
                 case 'H':
-                    toggle_option(1, option_queues[self.menus[0]], option_sets[self.menus[0]])
+                    toggle_option(1, option_deques[self.menus[0]], option_sets[self.menus[0]])
                     # print('up arrow')
                 case 'P':
-                    toggle_option(-1, option_queues[self.menus[0]], option_sets[self.menus[0]])
+                    toggle_option(-1, option_deques[self.menus[0]], option_sets[self.menus[0]])
                     # print('down arrow')
                 case 'K':
                     menus.rotate(-1)
@@ -619,30 +626,25 @@ if __name__ == '__main__':
                 case '\r':
                     print('Checkout')
 
-            redraw_ui(gks, menus[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
+            redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
 
     gks = GKS()
 
-    menus = collections.deque(['size', 'protein', 'vegetable'])
-    option_queues = {
-        'size': collections.deque(sizes),
-        'protein': collections.deque(proteins),
-        'vegetable': collections.deque(vegetables),
-    }
 
-    total = sum((sizes[option_queues['size'][0]].cost, proteins[option_queues['protein'][0]].cost, vegetables[option_queues['vegetable'][0]].cost))
+
+
 
     # menus.rotate(-1)
     # redraw_ui(gks, option_sets[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
     # toggle_option(-1, option_queues[menus[0]], option_sets[menus[0]])
-    redraw_ui(gks, menus[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
+    redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
+
+
 
     # running total
     gks.paint_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}', 68, 2)
     gks.paint_chars(f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}', 68, 12)
     gks.paint_chars(f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}', 68, 22)
 
-    gks.paint_chars(f'TT${total:05.2f}', 67, 41)
-
-    input_handler = CommandHandler(menus, option_queues)
+    input_handler = CommandHandler(menus, option_deques)
     gks.start_render_loop(60, input_handler)
