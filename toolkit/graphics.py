@@ -594,8 +594,11 @@ if __name__ == '__main__':
         return selected
 
     class CommandHandler:
-        @staticmethod
-        def handle(key):
+        def __init__(self, menus, option_ques):
+            self.menus = menus
+            self.option_ques = option_ques
+
+        def handle(self, key):
             match key:
                 case 'H':
                     print('up arrow')
@@ -609,7 +612,7 @@ if __name__ == '__main__':
                     print('quit')
                 case '\r':
                     print('enter key')
-
+            redraw_ui(gks, menus[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
 
     gks = GKS()
 
@@ -634,5 +637,5 @@ if __name__ == '__main__':
 
     gks.paint_chars(f'TT${total:05.2f}', 67, 41)
 
-    input_handler = CommandHandler()
+    input_handler = CommandHandler(menus, option_queues)
     gks.start_render_loop(60, input_handler)
