@@ -634,4 +634,5 @@ if __name__ == '__main__':
 
     gks.paint_chars(f'TT${total:05.2f}', 67, 41)
 
-    gks.start_render_loop(60)
+    input_handler = CommandHandler()
+    gks.start_render_loop(60, input_handler)
