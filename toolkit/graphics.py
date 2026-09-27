@@ -8,12 +8,11 @@ learn about packaging a library for distribution.
 TODO:
     * Consider using factory pattern for creating bitmaps in the expected form. Would allow input validation to be a
         type check and remove need for complex custom type.
-    * Decide how the UI model will trigger UI view updates. Maybe I can use observer pattern here. Maybe on vbuffer update
-        check too.
     * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
         gains come from.
 
 """
+import collections
 import json
 import time
 import urllib.request
@@ -281,7 +280,7 @@ class GKS:
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
 
-    def start_render_loop(self, frame_rate: int) -> None:
+    def start_render_loop(self, frame_rate: int, command_handler) -> None:
         """Initiate the main render loop.
 
         This controls frame pacing, user input listening, and rendering. New frame is only rendered if update flag is
@@ -294,7 +293,13 @@ class GKS:
         while self.rendering:
             start_time = time.perf_counter()
             if msvcrt.kbhit():
-                pass
+                key = msvcrt.getwch()
+                if key in ('\xe0', '\x00'):
+                    key = msvcrt.getwch()
+
+                if command_handler.handle(key) == 'quit':
+                    self.rendering = False
+
             if self.buffer_updated:
                 self.paint_frame()
                 self.buffer_updated = False
@@ -353,7 +358,6 @@ if __name__ == '__main__':
     CENTER_X = 99
     CENTER_Y = 75
 
-
     def center_header(header: str, engine: GKS):
         # 7 chars max. Can push to 8 by changing staring x to 2, otherwise first char will touch left boarder.
         # Pushing starting x to 2 results is slightly misaligned glyphs on all lengths < 8
@@ -385,8 +389,6 @@ if __name__ == '__main__':
 
         # Header for options section
         engine.draw_line(0, 11, 64, 11)
-
-        center_header('Size', engine)
 
         # Static selection elements
         engine.draw_rect(53, 24, 11, 10)
@@ -441,6 +443,34 @@ if __name__ == '__main__':
     def draw_olive(x, y, engine):
         engine.new_draw_circle(x, y, 1, (0, 0, 0))
 
+    def paint_option_set(engine, option_set):
+        option_description_y_coord = 14
+        option_price_y_coord = 23
+        y_offset = 29
+
+        for option in option_set:
+            engine.paint_chars(f'{option_set[option].description}', 2, option_description_y_coord)
+            engine.paint_chars(f'${option_set[option].cost:04.2f}', 2, option_price_y_coord)
+
+            option_description_y_coord += y_offset
+            option_price_y_coord += y_offset
+
+
+    def draw_pizza(engine, pizza_size, protein_option, vegetable_option):
+        pizza_size.draw(engine)
+
+        for x, y in (
+                (CENTER_X + pizza_size.topping_offset, CENTER_Y + pizza_size.topping_offset),
+                (CENTER_X - pizza_size.topping_offset, CENTER_Y - pizza_size.topping_offset),
+
+        ):
+            protein_option.draw(x, y, engine)
+
+        for x, y in (
+                (CENTER_X + pizza_size.topping_offset, CENTER_Y - pizza_size.topping_offset),
+                (CENTER_X - pizza_size.topping_offset, CENTER_Y + pizza_size.topping_offset)
+        ):
+            vegetable_option.draw(x, y, engine)
 
     class SizeOptions(Enum):
         SMALL = auto()
@@ -469,6 +499,7 @@ if __name__ == '__main__':
     @dataclass(frozen=True, slots=True)
     class ToppingOption:
         cost: float
+        description: str
         draw: Callable[[int, int, GKS], None]
         option_number: int
 
@@ -498,84 +529,112 @@ if __name__ == '__main__':
     }
 
     proteins = {
-        ProteinOptions.PEPPERONI: ToppingOption(2, draw_pepperoni, 1),
-        ProteinOptions.SAUSAGE: ToppingOption(2, draw_sausage, 2),
-        ProteinOptions.TOFU: ToppingOption(5, draw_tofu, 3)
+        ProteinOptions.PEPPERONI: ToppingOption(2, 'pep\'roni',draw_pepperoni, 1),
+        ProteinOptions.SAUSAGE: ToppingOption(2, 'sausage', draw_sausage, 2),
+        ProteinOptions.TOFU: ToppingOption(5, 'tofu', draw_tofu, 3)
     }
 
     vegetables = {
-        VegetableOptions.BELL_PEPPERS: ToppingOption(0.50, draw_bpepper, 1),
-        VegetableOptions.RED_PEPPERS: ToppingOption(0.50, draw_rpepper, 2),
-        VegetableOptions.BLACK_OLIVES: ToppingOption(0.75, draw_olive, 3),
+        VegetableOptions.BELL_PEPPERS: ToppingOption(0.50, 'B.pepper', draw_bpepper, 1),
+        VegetableOptions.RED_PEPPERS: ToppingOption(0.50, 'R.pepper', draw_rpepper, 2),
+        VegetableOptions.BLACK_OLIVES: ToppingOption(0.75, 'B.olives', draw_olive, 3),
     }
 
+    option_sets = {
+        'size': sizes,
+        'protein': proteins,
+        'vegetable': vegetables,
+    }
+
+    menus = collections.deque(['size', 'protein', 'vegetable'])
+    option_deques = {
+        'size': collections.deque(sizes),
+        'protein': collections.deque(proteins),
+        'vegetable': collections.deque(vegetables),
+    }
+
+    def draw_running_total(engine: GKS, option_queues):
+        total = sum((sizes[option_queues['size'][0]].cost, proteins[option_queues['protein'][0]].cost, vegetables[option_queues['vegetable'][0]].cost))
+        engine.paint_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}', 68,2)
+        engine.paint_chars(f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}', 68, 12)
+        engine.paint_chars(f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}',68, 22)
+
+        engine.paint_chars(f'TT${total:05.2f}', 67, 41)
+
+    def redraw_ui(
+            engine: GKS,
+            active_menu: str,
+            current_size: SizeOptions,
+            current_protein: ProteinOptions,
+            current_vegetable: VegetableOptions,
+    ):
+        """Rebuild the frame from the current model state."""
+        engine.clear()
+        draw_static_ui(engine)
+
+        headers = {
+            'size': 'Size',
+            'protein': 'Protein',
+            'vegetable': 'Veggies',
+        }
+        selections = {
+            'size': sizes[current_size],
+            'protein': proteins[current_protein],
+            'vegetable': vegetables[current_vegetable],
+        }
+
+        if active_menu not in option_sets:
+            raise ValueError(f'Invalid menu: {active_menu}')
+
+        draw_pizza(engine,sizes[current_size], proteins[current_protein], vegetables[current_vegetable])
+        center_header(headers[active_menu], engine)
+        paint_option_set(engine, option_sets[active_menu])
+        select_option(engine, selections[active_menu].option_number)
+        draw_running_total(engine, option_deques)
+
+    def toggle_option(
+            direction: int,
+            option_queue,
+            option_set,
+    ):
+        """Advance one option queue and return its newly selected option."""
+        if not option_queue:
+            raise ValueError('Option queue cannot be empty')
+
+        option_queue.rotate(direction)
+        selected = option_queue[0]
+        if selected not in option_set:
+            raise ValueError('Option queue contains an invalid option')
+
+        return selected
+
+    class CommandHandler:
+        def __init__(self, menus, option_ques):
+            self.menus = menus
+            self.option_ques = option_ques
+
+        def handle(self, key):
+            match key:
+                case 'H':
+                    toggle_option(1, option_deques[self.menus[0]], option_sets[self.menus[0]])
+                    # print('up arrow')
+                case 'P':
+                    toggle_option(-1, option_deques[self.menus[0]], option_sets[self.menus[0]])
+                    # print('down arrow')
+                case 'K':
+                    menus.rotate(-1)
+                    # print('left arrow')
+                case 'M':
+                    menus.rotate(1)
+                    # print('right arrow')
+                case 'q':
+                    return 'quit'
+                case '\r':
+                    print('Checkout')
+
+            redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
 
     gks = GKS()
-
-    draw_static_ui(gks)
-
-    # # Blit a red square into top right section
-    # gks.blit(
-    #     [
-    #         [(255, 0, 0)] * 5,
-    #         [(255, 0, 0)] * 5,
-    #         [(255, 0, 0)] * 5,
-    #         [(255, 0, 0)] * 5,
-    #         [(255, 0, 0)] * 5,
-    #     ],
-    #     97,
-    #     23,
-    # )
-
-    cur_size = SizeOptions.LARGE
-    cur_protein = ProteinOptions.PEPPERONI
-    cur_vegetable = VegetableOptions.BELL_PEPPERS
-
-    size = sizes[cur_size]
-    protein = proteins[cur_protein]
-    vegetable = vegetables[cur_vegetable]
-    total = sum((sizes[cur_size].cost, proteins[cur_protein].cost, vegetables[cur_vegetable].cost))
-
-    size.draw(gks)
-
-    for x, y in (
-            (CENTER_X + size.topping_offset, CENTER_Y + size.topping_offset),
-            (CENTER_X - size.topping_offset, CENTER_Y - size.topping_offset),
-
-    ):
-        protein.draw(x, y, gks)
-
-    for x, y in (
-            (CENTER_X + size.topping_offset, CENTER_Y - size.topping_offset),
-            (CENTER_X - size.topping_offset, CENTER_Y + size.topping_offset)
-    ):
-        vegetable.draw(x, y, gks)
-
-
-    # A set of options
-    # Row 1
-    gks.paint_chars(f'{sizes[SizeOptions.SMALL].description}', 2, 14)
-    gks.paint_chars(f'{sizes[SizeOptions.SMALL].cost}', 2, 23)
-
-    # Row 2
-    gks.paint_chars(f'{sizes[SizeOptions.MEDIUM].description}', 2, 43)
-    gks.paint_chars(f'{sizes[SizeOptions.MEDIUM].cost}', 2, 52)
-
-    # Row 3
-    gks.paint_chars(f'{sizes[SizeOptions.LARGE].description}', 2, 72)
-    gks.paint_chars(f'{sizes[SizeOptions.LARGE].cost}', 2, 81)
-
-    select_option(gks, sizes[cur_size].option_number)
-
-    # running total
-
-    gks.paint_chars(f'SZ${f'{sizes[cur_size].cost:05.2f}' if sizes[SizeOptions.SMALL].cost else 'None'}', 68, 2)
-    gks.paint_chars(f'PT${f'{proteins[cur_protein].cost:05.2f}' if cur_protein else 'None'}', 68, 12)
-    gks.paint_chars(f'VG${f'{vegetables[cur_vegetable].cost:05.2f}' if cur_vegetable else 'None'}', 68, 22)
-
-    # total = sizes[cur_size].cost + proteins[cur_protein].cost + vegetables[cur_vegetable].cost
-
-    gks.paint_chars(f'TT${total:05.2f}', 67, 41)
-
-    # a = sizes[SizeOptions.SMALL].cost + proteins[cur_protein].cost + vegetables[cur_vegetable].cost
-    gks.start_render_loop(60)
+    redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
+    input_handler = CommandHandler(menus, option_deques)
+    gks.start_render_loop(60, input_handler)
