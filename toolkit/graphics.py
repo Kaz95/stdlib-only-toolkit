@@ -439,6 +439,19 @@ if __name__ == '__main__':
     def draw_olive(x, y, engine):
         engine.new_draw_circle(x, y, 1, (0, 0, 0))
 
+    def paint_option_set(engine, option_set):
+        option_description_y_coord = 14
+        option_price_y_coord = 23
+        y_offset = 29
+
+        for option in option_set:
+            engine.paint_chars(f'{option_set[option].description}', 2, option_description_y_coord)
+            engine.paint_chars(f'${option_set[option].cost:04.2f}', 2, option_price_y_coord)
+
+            option_description_y_coord += y_offset
+            option_price_y_coord += y_offset
+
+
     def draw_pizza(engine, pizza_size, protein_option, vegetable_option):
         pizza_size.draw(engine)
 
