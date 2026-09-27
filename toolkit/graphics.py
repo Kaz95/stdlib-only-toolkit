@@ -495,6 +495,7 @@ if __name__ == '__main__':
     @dataclass(frozen=True, slots=True)
     class ToppingOption:
         cost: float
+        description: str
         draw: Callable[[int, int, GKS], None]
         option_number: int
 
@@ -524,15 +525,15 @@ if __name__ == '__main__':
     }
 
     proteins = {
-        ProteinOptions.PEPPERONI: ToppingOption(2, draw_pepperoni, 1),
-        ProteinOptions.SAUSAGE: ToppingOption(2, draw_sausage, 2),
-        ProteinOptions.TOFU: ToppingOption(5, draw_tofu, 3)
+        ProteinOptions.PEPPERONI: ToppingOption(2, 'pep\'roni',draw_pepperoni, 1),
+        ProteinOptions.SAUSAGE: ToppingOption(2, 'sausage', draw_sausage, 2),
+        ProteinOptions.TOFU: ToppingOption(5, 'tofu', draw_tofu, 3)
     }
 
     vegetables = {
-        VegetableOptions.BELL_PEPPERS: ToppingOption(0.50, draw_bpepper, 1),
-        VegetableOptions.RED_PEPPERS: ToppingOption(0.50, draw_rpepper, 2),
-        VegetableOptions.BLACK_OLIVES: ToppingOption(0.75, draw_olive, 3),
+        VegetableOptions.BELL_PEPPERS: ToppingOption(0.50, 'B.pepper', draw_bpepper, 1),
+        VegetableOptions.RED_PEPPERS: ToppingOption(0.50, 'R.pepper', draw_rpepper, 2),
+        VegetableOptions.BLACK_OLIVES: ToppingOption(0.75, 'B.olives', draw_olive, 3),
     }
 
 
