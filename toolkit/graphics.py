@@ -282,7 +282,7 @@ class GKS:
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
 
-    def start_render_loop(self, frame_rate: int) -> None:
+    def start_render_loop(self, frame_rate: int, command_handler) -> None:
         """Initiate the main render loop.
 
         This controls frame pacing, user input listening, and rendering. New frame is only rendered if update flag is
@@ -295,7 +295,11 @@ class GKS:
         while self.rendering:
             start_time = time.perf_counter()
             if msvcrt.kbhit():
-                pass
+                key = msvcrt.getwch()
+                if key in ('\xe0', '\x00'):
+                    key = msvcrt.getwch()
+                command_handler.handle(key)
+
             if self.buffer_updated:
                 self.paint_frame()
                 self.buffer_updated = False
