@@ -627,9 +627,9 @@ if __name__ == '__main__':
 
     total = sum((sizes[option_queues['size'][0]].cost, proteins[option_queues['protein'][0]].cost, vegetables[option_queues['vegetable'][0]].cost))
 
-    menus.rotate(-1)
+    # menus.rotate(-1)
     # redraw_ui(gks, option_sets[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
-    toggle_option(-1, option_queues[menus[0]], option_sets[menus[0]])
+    # toggle_option(-1, option_queues[menus[0]], option_sets[menus[0]])
     redraw_ui(gks, menus[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
 
     # running total
