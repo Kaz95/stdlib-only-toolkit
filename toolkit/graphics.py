@@ -601,9 +601,11 @@ if __name__ == '__main__':
         def handle(self, key):
             match key:
                 case 'H':
-                    print('up arrow')
+                    toggle_option(1, option_queues[self.menus[0]], option_sets[self.menus[0]])
+                    # print('up arrow')
                 case 'P':
-                    print('down arrow')
+                    toggle_option(-1, option_queues[self.menus[0]], option_sets[self.menus[0]])
+                    # print('down arrow')
                 case 'K':
                     menus.rotate(-1)
                     # print('left arrow')
