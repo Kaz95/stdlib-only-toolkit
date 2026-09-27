@@ -605,9 +605,11 @@ if __name__ == '__main__':
                 case 'P':
                     print('down arrow')
                 case 'K':
-                    print('left arrow')
+                    menus.rotate(-1)
+                    # print('left arrow')
                 case 'M':
-                    print('right arrow')
+                    menus.rotate(1)
+                    # print('right arrow')
                 case 'q':
                     print('quit')
                 case '\r':
