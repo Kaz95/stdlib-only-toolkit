@@ -604,21 +604,10 @@ if __name__ == '__main__':
     ):
         vegetable.draw(x, y, gks)
 
-
-    # A set of options
-    # Row 1
-    gks.paint_chars(f'{sizes[SizeOptions.SMALL].description}', 2, 14)
-    gks.paint_chars(f'{sizes[SizeOptions.SMALL].cost}', 2, 23)
-
-    # Row 2
-    gks.paint_chars(f'{sizes[SizeOptions.MEDIUM].description}', 2, 43)
-    gks.paint_chars(f'{sizes[SizeOptions.MEDIUM].cost}', 2, 52)
-
-    # Row 3
-    gks.paint_chars(f'{sizes[SizeOptions.LARGE].description}', 2, 72)
-    gks.paint_chars(f'{sizes[SizeOptions.LARGE].cost}', 2, 81)
-
-    select_option(gks, sizes[cur_size].option_number)
+    menus.rotate(-1)
+    # redraw_ui(gks, option_sets[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
+    toggle_option(-1, option_queues[menus[0]], option_sets[menus[0]])
+    redraw_ui(gks, menus[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
 
     # running total
 
