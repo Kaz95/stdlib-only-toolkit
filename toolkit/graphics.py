@@ -298,7 +298,9 @@ class GKS:
                 key = msvcrt.getwch()
                 if key in ('\xe0', '\x00'):
                     key = msvcrt.getwch()
-                command_handler.handle(key)
+
+                if command_handler.handle(key) == 'quit':
+                    self.rendering = False
 
             if self.buffer_updated:
                 self.paint_frame()
@@ -613,7 +615,7 @@ if __name__ == '__main__':
                     menus.rotate(1)
                     # print('right arrow')
                 case 'q':
-                    print('quit')
+                    return 'quit'
                 case '\r':
                     print('enter key')
             redraw_ui(gks, menus[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
