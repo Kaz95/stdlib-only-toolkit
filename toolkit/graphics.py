@@ -598,11 +598,7 @@ if __name__ == '__main__':
         'vegetable': collections.deque(vegetables),
     }
 
-    for x, y in (
-            (CENTER_X + size.topping_offset, CENTER_Y - size.topping_offset),
-            (CENTER_X - size.topping_offset, CENTER_Y + size.topping_offset)
-    ):
-        vegetable.draw(x, y, gks)
+    total = sum((sizes[option_queues['size'][0]].cost, proteins[option_queues['protein'][0]].cost, vegetables[option_queues['vegetable'][0]].cost))
 
     menus.rotate(-1)
     # redraw_ui(gks, option_sets[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
@@ -610,14 +606,10 @@ if __name__ == '__main__':
     redraw_ui(gks, menus[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
 
     # running total
-
-    gks.paint_chars(f'SZ${f'{sizes[cur_size].cost:05.2f}' if sizes[SizeOptions.SMALL].cost else 'None'}', 68, 2)
-    gks.paint_chars(f'PT${f'{proteins[cur_protein].cost:05.2f}' if cur_protein else 'None'}', 68, 12)
-    gks.paint_chars(f'VG${f'{vegetables[cur_vegetable].cost:05.2f}' if cur_vegetable else 'None'}', 68, 22)
-
-    # total = sizes[cur_size].cost + proteins[cur_protein].cost + vegetables[cur_vegetable].cost
+    gks.paint_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}', 68, 2)
+    gks.paint_chars(f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}', 68, 12)
+    gks.paint_chars(f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}', 68, 22)
 
     gks.paint_chars(f'TT${total:05.2f}', 67, 41)
 
-    # a = sizes[SizeOptions.SMALL].cost + proteins[cur_protein].cost + vegetables[cur_vegetable].cost
     gks.start_render_loop(60)
