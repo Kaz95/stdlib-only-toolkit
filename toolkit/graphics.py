@@ -617,7 +617,8 @@ if __name__ == '__main__':
                 case 'q':
                     return 'quit'
                 case '\r':
-                    print('enter key')
+                    print('Checkout')
+
             redraw_ui(gks, menus[0], option_queues['size'][0], option_queues['protein'][0], option_queues['vegetable'][0])
 
     gks = GKS()
