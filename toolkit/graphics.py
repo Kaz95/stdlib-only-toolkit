@@ -556,6 +556,14 @@ if __name__ == '__main__':
         'vegetable': collections.deque(vegetables),
     }
 
+    def draw_running_total(engine: GKS, option_queues):
+        total = sum((sizes[option_queues['size'][0]].cost, proteins[option_queues['protein'][0]].cost, vegetables[option_queues['vegetable'][0]].cost))
+        engine.paint_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}', 68,2)
+        engine.paint_chars(f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}', 68, 12)
+        engine.paint_chars(f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}',68, 22)
+
+        engine.paint_chars(f'TT${total:05.2f}', 67, 41)
+
     def redraw_ui(
             engine: GKS,
             active_menu: str,
@@ -585,6 +593,7 @@ if __name__ == '__main__':
         center_header(headers[active_menu], engine)
         paint_option_set(engine, option_sets[active_menu])
         select_option(engine, selections[active_menu].option_number)
+        draw_running_total(engine, option_deques)
 
     def toggle_option(
             direction: int,
@@ -642,9 +651,11 @@ if __name__ == '__main__':
 
 
     # running total
-    gks.paint_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}', 68, 2)
-    gks.paint_chars(f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}', 68, 12)
-    gks.paint_chars(f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}', 68, 22)
+    # gks.paint_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}', 68, 2)
+    # gks.paint_chars(f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}', 68, 12)
+    # gks.paint_chars(f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}', 68, 22)
+    #
+    # gks.paint_chars(f'TT${total:05.2f}', 67, 41)
 
     input_handler = CommandHandler(menus, option_deques)
     gks.start_render_loop(60, input_handler)
