@@ -19,14 +19,19 @@ import winsound
 CHANNELS = 2
 SAMPLE_WIDTH = 2
 SAMPLE_RATE = 44100
+audio_library = {'ds9_ops_button_1': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets'
+                                     r'/generated/ds9_ops_button_1_audio_bytes', 'cash_register':
+    r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets/generated/kaching_audio_bytes'}
 
-def load_remote_raw_audio_bytes():
-    with urllib.request.urlopen('https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/master/assets'
-                                '/generated/kaching_audio_bytes') as response:
-        raw_audio_bytes = response.read()
-        return raw_audio_bytes
+def load_remote_audio_library(audio_library):
+    audio_library = audio_library.copy()
+    for sound in audio_library:
+        with urllib.request.urlopen(audio_library[sound]) as response:
+            raw_audio_bytes = response.read()
+            audio_library[sound] = raw_audio_bytes
+    return audio_library
 
-def play_kaching(loaded_bytes):
+def play_sound(loaded_bytes):
     # How have I never used io library before now?!
     bytes_io = io.BytesIO()
     # Set header and load
@@ -39,9 +44,10 @@ def play_kaching(loaded_bytes):
     winsound.PlaySound(bytes_io.getvalue(), winsound.SND_MEMORY)
 
 def play(audio_bytes):
-    play_thread = threading.Thread(target=play_kaching, args=(audio_bytes,))
-    play_thread.daemon = True  # Allows the program to exit even if the audio is still playing
+    play_thread = threading.Thread(target=play_sound, args=(audio_bytes,))
+    # play_thread.daemon = True  # Allows the program to exit even if the audio is still playing
     play_thread.start()
+    return play_thread
 
 # Graphics
 type RGB = tuple[int, int, int]
@@ -571,26 +577,36 @@ class CommandHandler:
         self.menus = menus
         self.option_ques = option_ques
         self.audio = audio
+        self.audio_thread = None
+
+    def play_audio(self, audio_bytes):
+        self.audio_thread = play(audio_bytes)
+
 
     def handle(self, key):
         match key:
             case 'H':
+                play(self.audio['ds9_ops_button_1'])
                 toggle_option(1, option_deques[self.menus[0]], option_sets[self.menus[0]])
             case 'P':
+                play(self.audio['ds9_ops_button_1'])
                 toggle_option(-1, option_deques[self.menus[0]], option_sets[self.menus[0]])
             case 'K':
+                play(self.audio['ds9_ops_button_1'])
                 menus.rotate(-1)
             case 'M':
+                play(self.audio['ds9_ops_button_1'])
                 menus.rotate(1)
             case 'q':
                 return 'quit'
             case '\r':
-                play(self.audio)
+                self.play_audio(self.audio['cash_register'])
+                return 'quit'
 
         redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
 
 if __name__ == '__main__':
-    raw_audio = load_remote_raw_audio_bytes()
+    audio_library = load_remote_audio_library(audio_library)
     gks = GKS()
     sys.stdout.write(gks.HIDE_CURSOR)
     sys.stdout.write(gks.CLEAR_SCREEN)
@@ -600,5 +616,6 @@ if __name__ == '__main__':
         if msvcrt.kbhit():
             break
     redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
-    input_handler = CommandHandler(menus, option_deques, raw_audio)
+    input_handler = CommandHandler(menus, option_deques, audio_library)
     gks.start_render_loop(60, input_handler)
+    input_handler.audio_thread.join()
