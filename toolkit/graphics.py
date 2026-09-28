@@ -375,6 +375,21 @@ if __name__ == '__main__':
 
         engine.paint_chars(header, starting_x, starting_y)
 
+
+    def draw_instruction_page(engine: GKS):
+        engine.draw_rect(0, 0, 132, 100)
+        engine.paint_chars('Instructions', 18, 3, )
+        engine.paint_chars('Menu-Nav:',3, 20)
+        engine.paint_chars('Selection:', 3, 37)
+        engine.paint_chars('Checkout: Enter', 3, 54)
+        engine.paint_chars('Quit: Q', 3, 71)
+
+        gks.paint_chars('<', 85, 20)
+        gks.paint_chars('>', 100, 20)
+
+        gks.paint_chars('^', 85, 37)
+        gks.paint_chars('~', 100, 37)
+
     def draw_static_ui(engine):
         # Boarder
         engine.draw_rect(0, 0, 132, 100)
@@ -635,6 +650,10 @@ if __name__ == '__main__':
             redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
 
     gks = GKS()
+    draw_instruction_page(gks)
+    while True:
+        if msvcrt.kbhit():
+            break
     redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
     input_handler = CommandHandler(menus, option_deques)
     gks.start_render_loop(60, input_handler)
