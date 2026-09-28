@@ -1,5 +1,6 @@
 import io
 import threading
+import time
 import urllib.request
 import wave
 import winsound
@@ -8,8 +9,12 @@ CHANNELS = 2
 SAMPLE_WIDTH = 2
 SAMPLE_RATE = 44100
 
-input_wav_path = r'../assets/source_audio/kaching-short.wav'
-raw_output_path = r'../assets/generated/kaching_audio_bytes'
+input_wav_path = r'../assets/source_audio/ds9_ops_button_1.wav'
+raw_output_path = r'../assets/generated/ds9_ops_button_1_audio_bytes'
+
+audio_library = {'ds9_ops_button_1': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets'
+                                     r'/generated/ds9_ops_button_1_audio_bytes', 'cash_register':
+    r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets/generated/kaching_audio_bytes'}
 
 def extract_audio_bytes(wav_file):
     with wave.open(wav_file, 'rb') as wav_file:
@@ -37,14 +42,21 @@ def load_raw_audio_bytes(file_path):
         loaded_bytes = raw_file.read()
         return loaded_bytes
 
-def load_remote_raw_audio_bytes():
-    with urllib.request.urlopen('https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/master/assets'
-                                '/generated/kaching_audio_bytes') as response:
+def load_remote_raw_audio_bytes(remote_bytes):
+    with urllib.request.urlopen(remote_bytes) as response:
         raw_audio_bytes = response.read()
         return raw_audio_bytes
 
+def load_remote_audio_library(audio_library):
+    audio_library = audio_library.copy()
+    for sound in audio_library:
+        with urllib.request.urlopen(audio_library[sound]) as response:
+            raw_audio_bytes = response.read()
+            audio_library[sound] = raw_audio_bytes
+    return audio_library
 
-def play_kaching(loaded_bytes):
+
+def play_sound(loaded_bytes):
     # How have I never used io library before now?!
     bytes_io = io.BytesIO()
     # Set header and load
@@ -59,15 +71,21 @@ def play_kaching(loaded_bytes):
     # print('playback finished.')
 
 def play(audio_bytes):
-    play_thread = threading.Thread(target=play_kaching, args=(audio_bytes,))
-    play_thread.daemon = True  # Allows the program to exit even if the audio is still playing
+    play_thread = threading.Thread(target=play_sound, args=(audio_bytes,))
     play_thread.start()
+    return play_thread
 
 
 if __name__ == '__main__':
-    audio_bytes = load_remote_raw_audio_bytes()
-    play(audio_bytes)
+    # audio_bytes = load_remote_raw_audio_bytes()
+    # play(audio_bytes)
+
+    al = load_remote_audio_library(audio_library)
 
     # raw_audio_bytes = extract_audio_bytes(input_wav_path)
     # write_raw_audio_bytes(raw_output_path, raw_audio_bytes)
     # play(load_raw_audio_bytes(raw_output_path))
+    play(al['ds9_ops_button_1'])
+    time.sleep(1.5)
+    play(al['cash_register'])
+    time.sleep(1.5)
