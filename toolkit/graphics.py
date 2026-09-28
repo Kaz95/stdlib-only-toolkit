@@ -651,6 +651,7 @@ if __name__ == '__main__':
 
     gks = GKS()
     draw_instruction_page(gks)
+    gks.paint_frame()
     while True:
         if msvcrt.kbhit():
             break
