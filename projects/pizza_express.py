@@ -548,16 +548,12 @@ class CommandHandler:
         match key:
             case 'H':
                 toggle_option(1, option_deques[self.menus[0]], option_sets[self.menus[0]])
-                # print('up arrow')
             case 'P':
                 toggle_option(-1, option_deques[self.menus[0]], option_sets[self.menus[0]])
-                # print('down arrow')
             case 'K':
                 menus.rotate(-1)
-                # print('left arrow')
             case 'M':
                 menus.rotate(1)
-                # print('right arrow')
             case 'q':
                 return 'quit'
             case '\r':
