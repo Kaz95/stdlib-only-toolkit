@@ -567,9 +567,10 @@ def toggle_option(
     return selected
 
 class CommandHandler:
-    def __init__(self, menus, option_ques):
+    def __init__(self, menus, option_ques, audio):
         self.menus = menus
         self.option_ques = option_ques
+        self.audio = audio
 
     def handle(self, key):
         match key:
@@ -584,11 +585,12 @@ class CommandHandler:
             case 'q':
                 return 'quit'
             case '\r':
-                print('Checkout')
+                play(self.audio)
 
         redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
 
 if __name__ == '__main__':
+    raw_audio = load_remote_raw_audio_bytes()
     gks = GKS()
     sys.stdout.write(gks.HIDE_CURSOR)
     sys.stdout.write(gks.CLEAR_SCREEN)
@@ -598,5 +600,5 @@ if __name__ == '__main__':
         if msvcrt.kbhit():
             break
     redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
-    input_handler = CommandHandler(menus, option_deques)
+    input_handler = CommandHandler(menus, option_deques, raw_audio)
     gks.start_render_loop(60, input_handler)
