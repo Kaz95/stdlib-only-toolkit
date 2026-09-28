@@ -286,27 +286,32 @@ class GKS:
         This controls frame pacing, user input listening, and rendering. New frame is only rendered if update flag is
         set.
         """
-        sys.stdout.write(self.HIDE_CURSOR)
-        sys.stdout.write(self.CLEAR_SCREEN)
-        frame_duration = 1 / frame_rate
-        self.rendering = True
-        while self.rendering:
-            start_time = time.perf_counter()
-            if msvcrt.kbhit():
-                key = msvcrt.getwch()
-                if key in ('\xe0', '\x00'):
+        try:
+            sys.stdout.write(self.HIDE_CURSOR)
+            sys.stdout.write(self.CLEAR_SCREEN)
+            frame_duration = 1 / frame_rate
+            self.rendering = True
+            while self.rendering:
+                start_time = time.perf_counter()
+                if msvcrt.kbhit():
                     key = msvcrt.getwch()
+                    if key in ('\xe0', '\x00'):
+                        key = msvcrt.getwch()
 
-                if command_handler.handle(key) == 'quit':
-                    self.rendering = False
+                    if command_handler.handle(key) == 'quit':
+                        self.rendering = False
 
-            if self.buffer_updated:
-                self.paint_frame()
-                self.buffer_updated = False
-            elapsed_time = time.perf_counter() - start_time
-            sleep_time = frame_duration - elapsed_time
-            if sleep_time > 0:
-                time.sleep(sleep_time)
+                if self.buffer_updated:
+                    self.paint_frame()
+                    self.buffer_updated = False
+                elapsed_time = time.perf_counter() - start_time
+                sleep_time = frame_duration - elapsed_time
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+        finally:
+            sys.stdout.write(self.SHOW_CURSOR)
+
+
 
     @staticmethod
     def load_font():
@@ -377,6 +382,8 @@ if __name__ == '__main__':
 
 
     def draw_instruction_page(engine: GKS):
+        sys.stdout.write(GKS.HIDE_CURSOR)
+        sys.stdout.write(GKS.CLEAR_SCREEN)
         engine.draw_rect(0, 0, 132, 100)
         engine.paint_chars('Instructions', 18, 3, )
         engine.paint_chars('Menu-Nav:',3, 20)
