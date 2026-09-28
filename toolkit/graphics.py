@@ -382,8 +382,6 @@ if __name__ == '__main__':
 
 
     def draw_instruction_page(engine: GKS):
-        sys.stdout.write(GKS.HIDE_CURSOR)
-        sys.stdout.write(GKS.CLEAR_SCREEN)
         engine.draw_rect(0, 0, 132, 100)
         engine.paint_chars('Instructions', 18, 3, )
         engine.paint_chars('Menu-Nav:',3, 20)
@@ -657,6 +655,8 @@ if __name__ == '__main__':
             redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
 
     gks = GKS()
+    sys.stdout.write(gks.HIDE_CURSOR)
+    sys.stdout.write(gks.CLEAR_SCREEN)
     draw_instruction_page(gks)
     gks.paint_frame()
     while True:
