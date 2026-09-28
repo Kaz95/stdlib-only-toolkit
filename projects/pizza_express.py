@@ -1,17 +1,49 @@
 import collections
+import io
 import json
+import msvcrt
+import sys
+import threading
 import time
 import urllib.request
-from enum import Enum, auto
-from typing import Final
+import wave
 from collections.abc import Callable
 from dataclasses import dataclass
-import sys
+from enum import Enum, auto
 from math import sqrt
-from pprint import pp, pprint
+from typing import Final
 
-import msvcrt
+import winsound
 
+# Audio
+CHANNELS = 2
+SAMPLE_WIDTH = 2
+SAMPLE_RATE = 44100
+
+def load_remote_raw_audio_bytes():
+    with urllib.request.urlopen('https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/master/assets'
+                                '/generated/kaching_audio_bytes') as response:
+        raw_audio_bytes = response.read()
+        return raw_audio_bytes
+
+def play_kaching(loaded_bytes):
+    # How have I never used io library before now?!
+    bytes_io = io.BytesIO()
+    # Set header and load
+    with wave.open(bytes_io, "wb") as wav_write:
+        wav_write.setnchannels(CHANNELS)
+        wav_write.setsampwidth(SAMPLE_WIDTH)
+        wav_write.setframerate(SAMPLE_RATE)
+        wav_write.writeframes(loaded_bytes)
+
+    winsound.PlaySound(bytes_io.getvalue(), winsound.SND_MEMORY)
+
+def play(audio_bytes):
+    play_thread = threading.Thread(target=play_kaching, args=(audio_bytes,))
+    play_thread.daemon = True  # Allows the program to exit even if the audio is still playing
+    play_thread.start()
+
+# Graphics
 type RGB = tuple[int, int, int]
 
 class GKS:
@@ -33,11 +65,6 @@ class GKS:
     WHITE: Final[RGB] = (255, 255, 255)
     WIDTH: Final[int] = 132
     HEIGHT: Final[int] = 100
-
-    # PRE_RENDERED_FRAMES = []
-
-    # BUFFER_ROW = [BLACK] * WIDTH
-    # video_buffer = []
 
     def __init__(self, width: int=WIDTH, height: int=HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
