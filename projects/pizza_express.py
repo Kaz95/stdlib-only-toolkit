@@ -49,7 +49,6 @@ def play_sound(loaded_bytes):
 
 def play(audio_bytes):
     play_thread = threading.Thread(target=play_sound, args=(audio_bytes,))
-    # play_thread.daemon = True  # Allows the program to exit even if the audio is still playing
     play_thread.start()
     return play_thread
 
