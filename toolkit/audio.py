@@ -9,8 +9,8 @@ CHANNELS = 2
 SAMPLE_WIDTH = 2
 SAMPLE_RATE = 44100
 
-input_wav_path = r'../assets/source_audio/ds9_ops_button_1.wav'
-raw_output_path = r'../assets/generated/ds9_ops_button_1_audio_bytes'
+input_wav_path = r'../assets/source_audio/printer_noise.wav'
+raw_output_path = r'../assets/generated/printer_noise_audio_bytes'
 
 audio_library = {'ds9_ops_button_1': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets'
                                      r'/generated/ds9_ops_button_1_audio_bytes', 'cash_register':
@@ -80,12 +80,12 @@ if __name__ == '__main__':
     # audio_bytes = load_remote_raw_audio_bytes()
     # play(audio_bytes)
 
-    al = load_remote_audio_library(audio_library)
+    # al = load_remote_audio_library(audio_library)
 
-    # raw_audio_bytes = extract_audio_bytes(input_wav_path)
-    # write_raw_audio_bytes(raw_output_path, raw_audio_bytes)
-    # play(load_raw_audio_bytes(raw_output_path))
-    play(al['ds9_ops_button_1'])
-    time.sleep(1.5)
-    play(al['cash_register'])
-    time.sleep(1.5)
+    raw_audio_bytes = extract_audio_bytes(input_wav_path)
+    write_raw_audio_bytes(raw_output_path, raw_audio_bytes)
+    play(load_raw_audio_bytes(raw_output_path))
+    # play(al['ds9_ops_button_1'])
+    time.sleep(5)
+    # play(al['cash_register'])
+    # time.sleep(1.5)
