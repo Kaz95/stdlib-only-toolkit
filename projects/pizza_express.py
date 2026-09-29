@@ -68,6 +68,8 @@ class GKS:
     CLEAR_SCREEN: Final[str] = "\x1b[2J"
     HIDE_CURSOR: Final[str] = "\x1b[?25l"
     SHOW_CURSOR: Final[str] = "\x1b[?25h"
+    ENTER_ALT_SCREEN = "\x1b[?1049h"
+    EXIT_ALT_SCREEN = "\x1b[?1049l"
 
     UPPER_BLOCK: Final[str] = '\u2580'  # ▀
     LOWER_BLOCK: Final[str] = '\u2584'  # ▄
@@ -638,8 +640,9 @@ class CommandHandler:
 if __name__ == '__main__':
     audio_library = load_remote_audio_library(audio_library)
     gks = GKS()
+    sys.stdout.write(GKS.ENTER_ALT_SCREEN)
     sys.stdout.write(gks.HIDE_CURSOR)
-    sys.stdout.write(gks.CLEAR_SCREEN)
+    # sys.stdout.write(gks.CLEAR_SCREEN)
     draw_instruction_page(gks)
     gks.paint_frame()
     while True:
@@ -649,3 +652,4 @@ if __name__ == '__main__':
     input_handler = CommandHandler(menus, option_deques, audio_library)
     gks.start_render_loop(60, input_handler)
     input_handler.audio_thread.join()
+    sys.stdout.write(GKS.EXIT_ALT_SCREEN)

@@ -39,6 +39,8 @@ class GKS:
     CLEAR_SCREEN: Final[str] = "\x1b[2J"
     HIDE_CURSOR: Final[str] = "\x1b[?25l"
     SHOW_CURSOR: Final[str] = "\x1b[?25h"
+    ENTER_ALT_SCREEN = "\x1b[?1049h"
+    EXIT_ALT_SCREEN = "\x1b[?1049l"
 
     UPPER_BLOCK: Final[str] = '\u2580'  # ▀
     LOWER_BLOCK: Final[str] = '\u2584'  # ▄
