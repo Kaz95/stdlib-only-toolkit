@@ -15,6 +15,7 @@ from typing import Final
 
 import winsound
 
+
 # Audio
 CHANNELS = 2
 SAMPLE_WIDTH = 2
@@ -310,7 +311,7 @@ CENTER_X = 99
 CENTER_Y = 75
 
 
-def center_header(header: str, engine: GKS):
+def center_header(header: str, engine: GKS, color: RGB=GKS.WHITE):
     # 7 chars max. Can push to 8 by changing staring x to 2, otherwise first char will touch left boarder.
     # Pushing starting x to 2 results is slightly misaligned glyphs on all lengths < 8
     if len(header) > 7:
@@ -325,7 +326,7 @@ def center_header(header: str, engine: GKS):
 
     starting_x += centering_offset
 
-    engine.paint_chars(header, starting_x, starting_y)
+    engine.paint_chars(header, starting_x, starting_y, color)
 
 
 def draw_instruction_page(engine: GKS):
@@ -542,15 +543,15 @@ def draw_running_total(engine: GKS, option_queues):
 
     engine.paint_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}',
                        68,
-                       2)
+                       2, (198, 124, 56))
     engine.paint_chars(
         f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}',
         68,
-        12)
+        12, (101, 67, 33))
     engine.paint_chars(
         f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}',
         68,
-        22)
+        22, (34, 136, 0))
 
     engine.paint_chars(f'TT${total:05.2f}', 67, 41)
 
@@ -581,7 +582,17 @@ def redraw_ui(
         raise ValueError(f'Invalid menu: {active_menu}')
 
     draw_pizza(engine, sizes[current_size], proteins[current_protein], vegetables[current_vegetable])
-    center_header(headers[active_menu], engine)
+
+    active_menu_color = GKS.WHITE
+    match active_menu:
+        case 'size':
+            active_menu_color = (198, 124, 56)
+        case 'protein':
+            active_menu_color = (101, 67, 33)
+        case 'vegetable':
+            active_menu_color = (34, 136, 0)
+
+    center_header(headers[active_menu], engine, active_menu_color)
     paint_option_set(engine, option_sets[active_menu])
     select_option(engine, selections[active_menu].option_number)
     draw_running_total(engine, option_deques)
@@ -642,7 +653,6 @@ if __name__ == '__main__':
     gks = GKS()
     sys.stdout.write(GKS.ENTER_ALT_SCREEN)
     sys.stdout.write(gks.HIDE_CURSOR)
-    # sys.stdout.write(gks.CLEAR_SCREEN)
     draw_instruction_page(gks)
     gks.paint_frame()
     while True:
@@ -651,5 +661,7 @@ if __name__ == '__main__':
     redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
     input_handler = CommandHandler(menus, option_deques, audio_library)
     gks.start_render_loop(60, input_handler)
-    input_handler.audio_thread.join()
+    if input_handler.audio_thread:
+        input_handler.audio_thread.join()
     sys.stdout.write(GKS.EXIT_ALT_SCREEN)
+
