@@ -86,12 +86,12 @@ if __name__ == '__main__':
     # audio_bytes = load_remote_raw_audio_bytes()
     # play(audio_bytes)
 
-    al = load_remote_audio_library(audio_library)
+    # al = load_remote_audio_library(audio_library)
 
-    # raw_audio_bytes = extract_audio_bytes(input_wav_path)
-    # write_raw_audio_bytes(raw_output_path, raw_audio_bytes)
-    # play(load_raw_audio_bytes(raw_output_path))
-    play(al['printer'])
+    raw_audio_bytes = extract_audio_bytes(input_wav_path)
+    write_raw_audio_bytes(raw_output_path, raw_audio_bytes)
+    play(load_raw_audio_bytes(raw_output_path))
+    # play(al['printer'])
     time.sleep(5)
     # play(al['cash_register'])
     # time.sleep(1.5)
