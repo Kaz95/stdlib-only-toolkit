@@ -73,8 +73,8 @@ class GKS:
     CLEAR_SCREEN: Final[str] = "\x1b[2J"
     HIDE_CURSOR: Final[str] = "\x1b[?25l"
     SHOW_CURSOR: Final[str] = "\x1b[?25h"
-    ENTER_ALT_SCREEN = Final[str] = "\x1b[?1049h"
-    EXIT_ALT_SCREEN = Final[str] = "\x1b[?1049l"
+    ENTER_ALT_SCREEN: Final[str] = "\x1b[?1049h"
+    EXIT_ALT_SCREEN: Final[str] = "\x1b[?1049l"
 
     UPPER_BLOCK: Final[str] = '\u2580'  # ▀
     LOWER_BLOCK: Final[str] = '\u2584'  # ▄
@@ -231,7 +231,7 @@ class GKS:
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
 
-    def start_render_loop(self, frame_rate: int, command_handler) -> None:
+    def start_render_loop(self, frame_rate: int, command_handler) -> None | str:
         """Initiate the main render loop.
 
         This controls frame pacing, user input listening, and rendering. New frame is only rendered if update flag is
@@ -248,9 +248,10 @@ class GKS:
                     key = msvcrt.getwch()
                     if key in ('\xe0', '\x00'):
                         key = msvcrt.getwch()
-
-                    if command_handler.handle(key) == 'quit':
+                    flag = command_handler.handle(key)
+                    if flag in ('quit', 'receipt'):
                         self.rendering = False
+                        return flag
 
                 if self.buffer_updated:
                     self.paint_frame()
@@ -335,7 +336,7 @@ def center_header(header: str, engine: GKS, color: RGB=GKS.WHITE):
 
 def draw_instruction_page(engine: GKS):
     engine.draw_rect(0, 0, 132, 100)
-    engine.paint_chars('Instructions', 18, 3, )
+    engine.paint_chars('Instructions', 18, 3)
     engine.paint_chars('Menu-Nav:', 3, 20)
     engine.paint_chars('Selection:', 3, 37)
     engine.paint_chars('Checkout: Enter', 3, 54)
@@ -346,6 +347,11 @@ def draw_instruction_page(engine: GKS):
 
     gks.paint_chars('^', 85, 37)
     gks.paint_chars('~', 100, 37)
+
+def draw_receipt_query_page(engine: GKS):
+    gks.clear()
+    engine.draw_rect(0, 0, 132, 100)
+    engine.paint_chars('Receipt?', 18, 3, )
 
 
 def draw_static_ui(engine):
@@ -646,8 +652,10 @@ class CommandHandler:
             case 'q':
                 return 'quit'
             case '\r':
-                self.play_audio(self.audio['cash_register'])
-                return 'quit'
+                play(self.audio['cash_register'])
+                return 'receipt'
+                # play(self.audio['printer'])
+                # return 'quit'
 
         redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
 
@@ -664,7 +672,12 @@ if __name__ == '__main__':
             break
     redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
     input_handler = CommandHandler(menus, option_deques, audio_library)
-    gks.start_render_loop(60, input_handler)
+    flag = gks.start_render_loop(60, input_handler)
+    if flag == 'receipt':
+        draw_receipt_query_page(gks)
+        gks.paint_frame()
+        while True:
+            pass
     if input_handler.audio_thread:
         input_handler.audio_thread.join()
     sys.stdout.write(GKS.EXIT_ALT_SCREEN)
