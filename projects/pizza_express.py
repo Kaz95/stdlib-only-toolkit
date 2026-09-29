@@ -651,5 +651,6 @@ if __name__ == '__main__':
     redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
     input_handler = CommandHandler(menus, option_deques, audio_library)
     gks.start_render_loop(60, input_handler)
-    input_handler.audio_thread.join()
+    if input_handler.audio_thread:
+        input_handler.audio_thread.join()
     sys.stdout.write(GKS.EXIT_ALT_SCREEN)
