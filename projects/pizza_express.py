@@ -21,8 +21,13 @@ CHANNELS = 2
 SAMPLE_WIDTH = 2
 SAMPLE_RATE = 44100
 audio_library = {'ds9_ops_button_1': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets'
-                                     r'/generated/ds9_ops_button_1_audio_bytes', 'cash_register':
-                     r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets/generated/kaching_audio_bytes'}
+                                     r'/generated/ds9_ops_button_1_audio_bytes',
+
+                 'cash_register': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets/generated'
+                                  r'/kaching_audio_bytes',
+
+                 'printer': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets/generated'
+                            r'/printer_noise_audio_bytes'}
 
 
 def load_remote_audio_library(audio_library):
