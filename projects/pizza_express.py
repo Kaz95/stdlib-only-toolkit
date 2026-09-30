@@ -347,6 +347,7 @@ def draw_instruction_page(engine: GKS):
     engine.draw_chars('Selection:', 3, 37)
     engine.draw_chars('Checkout: Enter', 3, 54)
     engine.draw_chars('Quit: Q', 3, 71)
+    engine.draw_centered_chars('Sound Warning!', 90)
 
     gks.draw_chars('<', 85, 20)
     gks.draw_chars('>', 100, 20)
@@ -581,7 +582,7 @@ def draw_running_total(engine: GKS, option_queues, receipt=False):
 
         engine.draw_chars(f'TT${total:05.2f}', non_receipt_total_coords['x'], non_receipt_total_coords['y'] + 39)
     else:
-        engine.draw_rect(30, 8, 70, 60)
+        engine.draw_rect(30, 6, 70, 60)
         engine.draw_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}',
                           receipt_total_coords['x'],
                           receipt_total_coords['y'], (198, 124, 56))
