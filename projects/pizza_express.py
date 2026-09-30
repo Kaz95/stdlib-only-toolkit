@@ -7,13 +7,13 @@ import threading
 import time
 import urllib.request
 import wave
+import winsound
+
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, auto
 from math import sqrt
 from typing import Final
-
-import winsound
 
 
 # Audio
