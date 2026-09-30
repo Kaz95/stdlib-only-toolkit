@@ -282,11 +282,11 @@ class GKS:
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
 
-    def start_render_loop(self, frame_rate: int, command_handler) -> None:
+    def start_render_loop(self, frame_rate: int, command_handler=None) -> None:
         """Initiate the main render loop.
 
         This controls frame pacing, user input listening, and rendering. New frame is only rendered if update flag is
-        set.
+        set. A command handler may be omitted for graphics-only render loops.
         """
         try:
             sys.stdout.write(self.HIDE_CURSOR)
@@ -295,7 +295,7 @@ class GKS:
             self.rendering = True
             while self.rendering:
                 start_time = time.perf_counter()
-                if msvcrt.kbhit():
+                if command_handler is not None and msvcrt.kbhit():
                     key = msvcrt.getwch()
                     if key in ('\xe0', '\x00'):
                         key = msvcrt.getwch()
