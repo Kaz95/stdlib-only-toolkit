@@ -151,7 +151,7 @@ class GKS:
         Uses integer arithmetic to calculate difference of squares and keeps a running tab to avoid recalculating at
         each step. Only calculates one octant between 90° and 45°, then takes advantage of the symmetry of a circle to
         find the coordinates of the other seven octants. The entire algo uses normal cartesian coordinates for depicting
-        (x,y) and is converted to screen coordinates before painting the pixel.
+        (x,y) and is converted to screen coordinates before drawing the pixel.
 
         Implementing this almost feels like cheating. This is so much better than anything I'd ever come up with alone.
         I spent most of my time understanding the math behind it, so I could understand the efficiency gains. I've never
@@ -214,8 +214,8 @@ class GKS:
             for x in range(left, right + 1):
                 self.set_pixel(x, y, color)
 
-    def paint_frame(self) -> None:
-        """Paint a single frame to the terminal."""
+    def draw_frame(self) -> None:
+        """Draw a single frame to the terminal."""
         sys.stdout.write(self.CURSOR_TO_TOP)
         for y in range(0, self.height, 2):
             line_buffer = []
@@ -254,7 +254,7 @@ class GKS:
                         return flag
 
                 if self.buffer_updated:
-                    self.paint_frame()
+                    self.draw_frame()
                     self.buffer_updated = False
                 elapsed_time = time.perf_counter() - start_time
                 sleep_time = frame_duration - elapsed_time
@@ -284,8 +284,8 @@ class GKS:
 
         return (row >> (width - 1 - bit_index)) & 1
 
-    def paint_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE):
-        """Paint chars from given word, using built-in font, starting at point (x,y)."""
+    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE):
+        """Draw chars from given word, using built-in font, starting at point (x,y)."""
         word = word.upper()
         unsupported_characters = [char for char in word if char not in self.font]
         if unsupported_characters:
@@ -331,27 +331,27 @@ def center_header(header: str, engine: GKS, color: RGB=GKS.WHITE):
 
     starting_x += centering_offset
 
-    engine.paint_chars(header, starting_x, starting_y, color)
+    engine.draw_chars(header, starting_x, starting_y, color)
 
 
 def draw_instruction_page(engine: GKS):
     engine.draw_rect(0, 0, 132, 100)
-    engine.paint_chars('Instructions', 18, 3)
-    engine.paint_chars('Menu-Nav:', 3, 20)
-    engine.paint_chars('Selection:', 3, 37)
-    engine.paint_chars('Checkout: Enter', 3, 54)
-    engine.paint_chars('Quit: Q', 3, 71)
+    engine.draw_chars('Instructions', 18, 3)
+    engine.draw_chars('Menu-Nav:', 3, 20)
+    engine.draw_chars('Selection:', 3, 37)
+    engine.draw_chars('Checkout: Enter', 3, 54)
+    engine.draw_chars('Quit: Q', 3, 71)
 
-    gks.paint_chars('<', 85, 20)
-    gks.paint_chars('>', 100, 20)
+    gks.draw_chars('<', 85, 20)
+    gks.draw_chars('>', 100, 20)
 
-    gks.paint_chars('^', 85, 37)
-    gks.paint_chars('~', 100, 37)
+    gks.draw_chars('^', 85, 37)
+    gks.draw_chars('~', 100, 37)
 
 def draw_receipt_query_page(engine: GKS):
     gks.clear()
     engine.draw_rect(0, 0, 132, 100)
-    engine.paint_chars('Receipt?', 18, 3, )
+    engine.draw_chars('Receipt?', 18, 3, )
 
 
 def draw_static_ui(engine):
@@ -432,14 +432,14 @@ def draw_olive(x, y, engine):
     engine.new_draw_circle(x, y, 1, (0, 0, 0))
 
 
-def paint_option_set(engine, option_set):
+def draw_option_set(engine, option_set):
     option_description_y_coord = 14
     option_price_y_coord = 23
     y_offset = 29
 
     for option in option_set:
-        engine.paint_chars(f'{option_set[option].description}', 2, option_description_y_coord)
-        engine.paint_chars(f'${option_set[option].cost:04.2f}', 2, option_price_y_coord)
+        engine.draw_chars(f'{option_set[option].description}', 2, option_description_y_coord)
+        engine.draw_chars(f'${option_set[option].cost:04.2f}', 2, option_price_y_coord)
 
         option_description_y_coord += y_offset
         option_price_y_coord += y_offset
@@ -551,19 +551,19 @@ def draw_running_total(engine: GKS, option_queues):
     total = sum((sizes[option_queues['size'][0]].cost, proteins[option_queues['protein'][0]].cost,
                  vegetables[option_queues['vegetable'][0]].cost))
 
-    engine.paint_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}',
-                       68,
-                       2, (198, 124, 56))
-    engine.paint_chars(
+    engine.draw_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}',
+                      68,
+                      2, (198, 124, 56))
+    engine.draw_chars(
         f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}',
         68,
         12, (101, 67, 33))
-    engine.paint_chars(
+    engine.draw_chars(
         f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}',
         68,
         22, (34, 136, 0))
 
-    engine.paint_chars(f'TT${total:05.2f}', 67, 41)
+    engine.draw_chars(f'TT${total:05.2f}', 67, 41)
 
 
 def redraw_ui(
@@ -603,7 +603,7 @@ def redraw_ui(
             active_menu_color = (34, 136, 0)
 
     center_header(headers[active_menu], engine, active_menu_color)
-    paint_option_set(engine, option_sets[active_menu])
+    draw_option_set(engine, option_sets[active_menu])
     select_option(engine, selections[active_menu].option_number)
     draw_running_total(engine, option_deques)
 
@@ -666,7 +666,7 @@ if __name__ == '__main__':
     sys.stdout.write(GKS.ENTER_ALT_SCREEN)
     sys.stdout.write(gks.HIDE_CURSOR)
     draw_instruction_page(gks)
-    gks.paint_frame()
+    gks.draw_frame()
     while True:
         if msvcrt.kbhit():
             break
@@ -675,7 +675,7 @@ if __name__ == '__main__':
     flag = gks.start_render_loop(60, input_handler)
     if flag == 'receipt':
         draw_receipt_query_page(gks)
-        gks.paint_frame()
+        gks.draw_frame()
         while True:
             pass
     if input_handler.audio_thread:

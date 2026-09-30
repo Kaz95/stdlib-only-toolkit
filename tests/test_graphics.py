@@ -89,53 +89,53 @@ def gks_with_test_font():
         yield GKS(24, 8)
 
 
-def test_paint_chars_maps_word_to_glyphs(gks_with_test_font):
+def test_draw_chars_maps_word_to_glyphs(gks_with_test_font):
     """Each character in the word should use its corresponding glyph data."""
     gks = gks_with_test_font
 
-    gks.paint_chars("AB", 2, 1)
+    gks.draw_chars("AB", 2, 1)
 
     assert gks.video_buffer[1][2] == gks.WHITE
     assert gks.video_buffer[7][17] == gks.WHITE
 
 
-def test_paint_chars_offsets_each_glyph_to_the_right(gks_with_test_font):
+def test_draw_chars_offsets_each_glyph_to_the_right(gks_with_test_font):
     """Glyphs should be placed in consecutive eight-pixel columns."""
     gks = gks_with_test_font
 
-    gks.paint_chars("AA", 3, 2)
+    gks.draw_chars("AA", 3, 2)
 
     assert gks.video_buffer[2][3] == gks.WHITE
     assert gks.video_buffer[2][11] == gks.WHITE
     assert gks.video_buffer[2][19] == gks.BLACK
 
 
-def test_paint_chars_paints_all_glyphs_and_preserves_color(gks_with_test_font):
+def test_draw_chars_draws_all_glyphs_and_preserves_color(gks_with_test_font):
     """Every glyph should update the video buffer using the requested color."""
     gks = gks_with_test_font
     color = (12, 34, 56)
 
-    gks.paint_chars("AB", 0, 0, color)
+    gks.draw_chars("AB", 0, 0, color)
 
     assert gks.video_buffer[0][0] == color
     assert gks.video_buffer[6][15] == color
     assert gks.video_buffer[0][8] == gks.BLACK
 
 
-def test_paint_chars_maps_lowercase_words_to_uppercase_glyphs(gks_with_test_font):
+def test_draw_chars_maps_lowercase_words_to_uppercase_glyphs(gks_with_test_font):
     """Lowercase input should resolve to the corresponding uppercase glyphs."""
     gks = gks_with_test_font
 
-    gks.paint_chars("ab", 0, 0)
+    gks.draw_chars("ab", 0, 0)
 
     assert gks.video_buffer[0][0] == gks.WHITE
     assert gks.video_buffer[6][15] == gks.WHITE
 
 
-def test_paint_chars_rejects_unsupported_character(gks_with_test_font):
+def test_draw_chars_rejects_unsupported_character(gks_with_test_font):
     """Words containing characters absent from the font should be rejected."""
     with pytest.raises(ValueError, match="Character not available in font"):
-        gks_with_test_font.paint_chars("A?", 0, 0)
+        gks_with_test_font.draw_chars("A?", 0, 0)
 
 
 def test_blit_places_bitmap_at_valid_position():
@@ -228,7 +228,7 @@ def test_draw_rect_draws_only_the_border():
 
 
 def test_draw_filled_rect_fills_the_entire_area():
-    """Filled rectangles must paint every pixel inside the rectangle bounds."""
+    """Filled rectangles must draw every pixel inside the rectangle bounds."""
     gks = GKS(8, 6)
     color = (12, 13, 14)
 
@@ -291,13 +291,13 @@ def test_draw_filled_circle_span_draws_scanlines_across_the_disk():
     assert gks.video_buffer[0][0] != color
 
 
-def test_paint_frame_outputs_ansi_color_sequences(capsys):
+def test_draw_frame_outputs_ansi_color_sequences(capsys):
     """The frame renderer should convert the buffer into terminal escape sequences."""
     gks = GKS(8, 6)
     gks.set_pixel(0, 0, (255, 0, 0))
     gks.set_pixel(1, 1, (0, 255, 0))
 
-    gks.paint_frame()
+    gks.draw_frame()
 
     output = capsys.readouterr().out
     assert "\x1b[48;2;255;0;0m" in output
@@ -306,12 +306,12 @@ def test_paint_frame_outputs_ansi_color_sequences(capsys):
     assert gks.RESET in output
 
 
-def test_paint_frame_paints_missing_bottom_row_black(capsys):
+def test_draw_frame_draws_missing_bottom_row_black(capsys):
     """An odd-height frame should use black for the missing bottom half."""
     gks = GKS(1, 3)
     gks.set_pixel(0, 2, (255, 0, 0))
 
-    gks.paint_frame()
+    gks.draw_frame()
 
     output = capsys.readouterr().out
     assert "\x1b[48;2;255;0;0m\x1b[38;2;0;0;0m" in output
@@ -328,7 +328,7 @@ def test_render_loop_sleeps_for_remaining_frame_time():
     with (
         patch.object(graphics.time, "perf_counter", side_effect=[10.000, 10.003]),
         patch.object(graphics.time, "sleep", side_effect=stop_after_sleep) as sleep,
-        patch.object(gks, "paint_frame"),
+        patch.object(gks, "draw_frame"),
     ):
         gks.start_render_loop(frame_rate=100)
 
@@ -376,7 +376,7 @@ def test_render_loop_iteration_includes_work_and_sleep():
 
 
 def test_set_pixel_marks_video_buffer_updated():
-    """Writing a pixel marks the buffer as needing to be repainted to screen."""
+    """Writing a pixel marks the buffer as needing to be redrawn to screen."""
     gks = GKS(2, 2)
 
     assert gks.buffer_updated is False
@@ -386,9 +386,9 @@ def test_set_pixel_marks_video_buffer_updated():
     assert gks.buffer_updated is True
 
 
-@pytest.mark.parametrize("buffer_updated, expected_paint_calls", [(True, 1), (False, 0)])
-def test_render_loop_draws_only_updated_video_buffer(buffer_updated, expected_paint_calls):
-    """The loop only paints when the video buffer update flag is set."""
+@pytest.mark.parametrize("buffer_updated, expected_draw_calls", [(True, 1), (False, 0)])
+def test_render_loop_draws_only_updated_video_buffer(buffer_updated, expected_draw_calls):
+    """The loop only draws when the video buffer update flag is set."""
     gks = GKS(2, 2)
     gks.buffer_updated = buffer_updated
 
@@ -396,10 +396,10 @@ def test_render_loop_draws_only_updated_video_buffer(buffer_updated, expected_pa
         gks.rendering = False
 
     with (
-        patch.object(gks, "paint_frame") as paint_frame,
+        patch.object(gks, "draw_frame") as draw_frame,
         patch.object(graphics.time, "perf_counter", return_value=10.0),
         patch.object(graphics.time, "sleep", side_effect=stop_after_sleep),
     ):
         gks.start_render_loop(60)
 
-    assert paint_frame.call_count == expected_paint_calls
+    assert draw_frame.call_count == expected_draw_calls
