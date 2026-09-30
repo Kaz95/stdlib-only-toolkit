@@ -181,7 +181,7 @@ class GKS:
         Uses integer arithmetic to calculate difference of squares and keeps a running tab to avoid recalculating at
         each step. Only calculates one octant between 90° and 45°, then takes advantage of the symmetry of a circle to
         find the coordinates of the other seven octants. The entire algo uses normal cartesian coordinates for depicting
-        (x,y) and is converted to screen coordinates before painting the pixel.
+        (x,y) and is converted to screen coordinates before drawing the pixel.
 
         Implementing this almost feels like cheating. This is so much better than anything I'd ever come up with alone.
         I spent most of my time understanding the math behind it, so I could understand the efficiency gains. I've never
@@ -265,8 +265,8 @@ class GKS:
             self.video_buffer[y_start + row_index][x_start:x_start + bitmap_width] = row
 
 
-    def paint_frame(self) -> None:
-        """Paint a single frame to the terminal."""
+    def draw_frame(self) -> None:
+        """Draw a single frame to the terminal."""
         sys.stdout.write(self.CURSOR_TO_TOP)
         for y in range(0, self.height, 2):
             line_buffer = []
@@ -282,11 +282,11 @@ class GKS:
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
 
-    def start_render_loop(self, frame_rate: int, command_handler) -> None:
+    def start_render_loop(self, frame_rate: int, command_handler=None) -> None:
         """Initiate the main render loop.
 
         This controls frame pacing, user input listening, and rendering. New frame is only rendered if update flag is
-        set.
+        set. A command handler may be omitted for graphics-only render loops.
         """
         try:
             sys.stdout.write(self.HIDE_CURSOR)
@@ -295,7 +295,7 @@ class GKS:
             self.rendering = True
             while self.rendering:
                 start_time = time.perf_counter()
-                if msvcrt.kbhit():
+                if command_handler is not None and msvcrt.kbhit():
                     key = msvcrt.getwch()
                     if key in ('\xe0', '\x00'):
                         key = msvcrt.getwch()
@@ -304,7 +304,7 @@ class GKS:
                         self.rendering = False
 
                 if self.buffer_updated:
-                    self.paint_frame()
+                    self.draw_frame()
                     self.buffer_updated = False
                 elapsed_time = time.perf_counter() - start_time
                 sleep_time = frame_duration - elapsed_time
@@ -334,8 +334,8 @@ class GKS:
 
         return (row >> (width - 1 - bit_index)) & 1
 
-    def paint_chars(self, word: str, x_start: int, y_start: int, color: RGB=WHITE):
-        """Paint chars from given word, using built-in font, starting at point (x,y)."""
+    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB=WHITE):
+        """Draw chars from given word, using built-in font, starting at point (x,y)."""
         word = word.upper()
         unsupported_characters = [char for char in word if char not in self.font]
         if unsupported_characters:
@@ -359,6 +359,10 @@ class GKS:
 
             x_start += 8
 
+    def draw_centered_chars(self, word: str, y:int, color: RGB=WHITE):
+        x_offset = (self.width - (len(word) * 8)) // 2
+
+        self.draw_chars(word, x_offset, y, color)
 
 if __name__ == '__main__':
     pass
