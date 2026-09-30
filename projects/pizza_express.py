@@ -309,6 +309,11 @@ class GKS:
 
             x_start += 8
 
+    def draw_centered_chars(self, word: str, y: int, color: RGB = WHITE):
+        x_offset = (self.width - (len(word) * 8)) // 2
+
+        self.draw_chars(word, x_offset, y, color)
+
 
 # Pizza Express Specific
 # Pizza origin
@@ -336,7 +341,7 @@ def center_header(header: str, engine: GKS, color: RGB=GKS.WHITE):
 
 def draw_instruction_page(engine: GKS):
     engine.draw_rect(0, 0, 132, 100)
-    engine.draw_chars('Instructions', 18, 3)
+    engine.draw_centered_chars('Instructions', 3)
     engine.draw_chars('Menu-Nav:', 3, 20)
     engine.draw_chars('Selection:', 3, 37)
     engine.draw_chars('Checkout: Enter', 3, 54)
@@ -351,7 +356,7 @@ def draw_instruction_page(engine: GKS):
 def draw_receipt_query_page(engine: GKS):
     gks.clear()
     engine.draw_rect(0, 0, 132, 100)
-    engine.draw_chars('Receipt?', 18, 3, )
+    engine.draw_centered_chars('Receipt?', 3)
 
 
 def draw_static_ui(engine):

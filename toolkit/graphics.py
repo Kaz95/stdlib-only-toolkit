@@ -359,6 +359,10 @@ class GKS:
 
             x_start += 8
 
+    def draw_centered_chars(self, word: str, y:int, color: RGB=WHITE):
+        x_offset = (self.width - (len(word) * 8)) // 2
+
+        self.draw_chars(word, x_offset, y, color)
 
 if __name__ == '__main__':
     pass
