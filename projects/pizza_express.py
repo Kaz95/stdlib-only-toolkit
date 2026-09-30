@@ -248,6 +248,7 @@ class GKS:
                     key = msvcrt.getwch()
                     if key in ('\xe0', '\x00'):
                         key = msvcrt.getwch()
+
                     flag = command_handler.handle(key)
                     if flag in ('quit', 'receipt'):
                         self.rendering = False
@@ -353,10 +354,16 @@ def draw_instruction_page(engine: GKS):
     gks.draw_chars('^', 85, 37)
     gks.draw_chars('~', 100, 37)
 
-def draw_receipt_query_page(engine: GKS):
+def draw_receipt_query_page(engine: GKS, option):
     gks.clear()
     engine.draw_rect(0, 0, 132, 100)
     engine.draw_centered_chars('Receipt?', 3)
+    if option == 'yes':
+        engine.draw_centered_chars('Yes', 19, (34, 136, 0))
+        engine.draw_centered_chars('No', 29)
+    elif option == 'no':
+        engine.draw_centered_chars('Yes', 19)
+        engine.draw_centered_chars('No', 29, (34, 136, 0))
 
 
 def draw_static_ui(engine):
@@ -552,23 +559,42 @@ option_deques = {
 }
 
 
-def draw_running_total(engine: GKS, option_queues):
+def draw_running_total(engine: GKS, option_queues, receipt=False):
+
+    non_receipt_total_coords = {'x': 68, 'y': 2}
+    receipt_total_coords = {'x': 34, 'y': 10}
+
     total = sum((sizes[option_queues['size'][0]].cost, proteins[option_queues['protein'][0]].cost,
                  vegetables[option_queues['vegetable'][0]].cost))
+    if not receipt:
+        engine.draw_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}',
+                          non_receipt_total_coords['x'],
+                          non_receipt_total_coords['y'], (198, 124, 56))
+        engine.draw_chars(
+            f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}',
+            non_receipt_total_coords['x'],
+            non_receipt_total_coords['y'] + 10, (101, 67, 33))
+        engine.draw_chars(
+            f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}',
+            non_receipt_total_coords['x'],
+            non_receipt_total_coords['y'] + 20, (34, 136, 0))
 
-    engine.draw_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}',
-                      68,
-                      2, (198, 124, 56))
-    engine.draw_chars(
-        f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}',
-        68,
-        12, (101, 67, 33))
-    engine.draw_chars(
-        f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}',
-        68,
-        22, (34, 136, 0))
+        engine.draw_chars(f'TT${total:05.2f}', non_receipt_total_coords['x'], non_receipt_total_coords['y'] + 39)
+    else:
+        engine.draw_rect(30, 8, 70, 60)
+        engine.draw_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}',
+                          receipt_total_coords['x'],
+                          receipt_total_coords['y'], (198, 124, 56))
+        engine.draw_chars(
+            f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}',
+            receipt_total_coords['x'],
+            receipt_total_coords['y'] + 10, (101, 67, 33))
+        engine.draw_chars(
+            f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}',
+            receipt_total_coords['x'],
+            receipt_total_coords['y'] + 20, (34, 136, 0))
 
-    engine.draw_chars(f'TT${total:05.2f}', 67, 41)
+        engine.draw_chars(f'TT${total:05.2f}', receipt_total_coords['x'], receipt_total_coords['y'] + 39)
 
 
 def redraw_ui(
@@ -659,10 +685,11 @@ class CommandHandler:
             case '\r':
                 play(self.audio['cash_register'])
                 return 'receipt'
-                # play(self.audio['printer'])
-                # return 'quit'
+
 
         redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
+
+receipt_options = collections.deque(['yes', 'no'])
 
 
 if __name__ == '__main__':
@@ -678,11 +705,35 @@ if __name__ == '__main__':
     redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
     input_handler = CommandHandler(menus, option_deques, audio_library)
     flag = gks.start_render_loop(60, input_handler)
+
+    # absolute slop, but I'm out of time and it works.
     if flag == 'receipt':
-        draw_receipt_query_page(gks)
+        draw_receipt_query_page(gks, receipt_options[0])
         gks.draw_frame()
         while True:
-            pass
+            if msvcrt.kbhit():
+                key = msvcrt.getwch()
+                if key == 'q':
+                    break
+                if key == '\r':
+                    if receipt_options[0] == 'yes':
+                        play(audio_library['printer'])
+                        gks.clear()
+                        draw_running_total(gks, option_deques, receipt=True)
+                        gks.draw_frame()
+                    else:
+                        break
+
+                if key in ('\xe0', '\x00'):
+                    key = msvcrt.getwch()
+                    if key == 'H':
+                        receipt_options.rotate(-1)
+                    if key == 'P':
+                        receipt_options.rotate(1)
+
+                    draw_receipt_query_page(gks, receipt_options[0])
+                    gks.draw_frame()
+
     if input_handler.audio_thread:
         input_handler.audio_thread.join()
     sys.stdout.write(GKS.EXIT_ALT_SCREEN)
