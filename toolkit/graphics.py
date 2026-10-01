@@ -12,19 +12,13 @@ TODO:
         gains come from.
 
 """
-import collections
 import json
+import msvcrt
+import sys
 import time
 import urllib.request
-from enum import Enum, auto
-from typing import Final
-from collections.abc import Callable
-from dataclasses import dataclass
-import sys
 from math import sqrt
-from pprint import pp, pprint
-
-import msvcrt
+from typing import Final
 
 type RGB = tuple[int, int, int]
 
