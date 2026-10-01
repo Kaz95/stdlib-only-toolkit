@@ -44,10 +44,6 @@ class GKS:
     WIDTH: Final[int] = 132
     HEIGHT: Final[int] = 100
 
-    # PRE_RENDERED_FRAMES = []
-
-    # BUFFER_ROW = [BLACK] * WIDTH
-    # video_buffer = []
 
     def __init__(self, width: int=WIDTH, height: int=HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
