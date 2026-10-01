@@ -24,7 +24,7 @@ branching logic to correctly cast the corresponding options data its respective 
 
 ## The Plan
 
-Firstly, I was never going to make a basic terminal app. It would have taken me five minutes and I wouldn't have learned
+First, I was never going to make a basic terminal app. It would have taken me five minutes and I wouldn't have learned
 a thing. I've been programming for some time, and this is an introductory course. That is no reason I can't learn
 something, and I decided that every project I do in this class is going to be a lesson. My previous project focus on 
 linear interpolation and bitmapped graphics. For this project I decided the lesson was time management. 
@@ -75,7 +75,7 @@ I learned into practice.
     like. Just not enough time. Soon™
 
 
-- I had to create some really sloppy code near the end to shoehorn in static screen that didn't conform to the normal
+- I had to create some really sloppy code near the end to shoehorn in static screens that didn't conform to the normal
   static UI. I just threw them outside the main loop. I also had to do the same for input for those pages because that's 
   handled inside the render loop. Its slop, but it worked and I was able to add on a couple more small features because
   I chose not to force them into the main loop.
@@ -88,4 +88,5 @@ I learned into practice.
 - **Time Management**/**Projejct Management**
   - How to write a properly scoped issue with requirements, acceptance criteria, ect.
   - How to use pull requests to close issues.
+    - Feature branches. I've used them, but never with pull requests and focused issues.
   - Estimating time to completion on issues of various complexity.
