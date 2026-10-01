@@ -1,0 +1,741 @@
+import collections
+import io
+import json
+import msvcrt
+import sys
+import threading
+import time
+import urllib.request
+import wave
+import winsound
+
+from collections.abc import Callable
+from dataclasses import dataclass
+from enum import Enum, auto
+from math import sqrt
+from typing import Final
+
+
+# Audio
+CHANNELS = 2
+SAMPLE_WIDTH = 2
+SAMPLE_RATE = 44100
+audio_library = {'ds9_ops_button_1': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets'
+                                     r'/generated/ds9_ops_button_1_audio_bytes',
+
+                 'cash_register': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets/generated'
+                                  r'/kaching_audio_bytes',
+
+                 'printer': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets/generated'
+                            r'/printer_noise_audio_bytes'}
+
+
+def load_remote_audio_library(audio_library):
+    audio_library = audio_library.copy()
+    for sound in audio_library:
+        with urllib.request.urlopen(audio_library[sound]) as response:
+            raw_audio_bytes = response.read()
+            audio_library[sound] = raw_audio_bytes
+    return audio_library
+
+
+def play_sound(loaded_bytes):
+    # How have I never used io library before now?!
+    bytes_io = io.BytesIO()
+    # Set header and load
+    with wave.open(bytes_io, "wb") as wav_write:
+        wav_write.setnchannels(CHANNELS)
+        wav_write.setsampwidth(SAMPLE_WIDTH)
+        wav_write.setframerate(SAMPLE_RATE)
+        wav_write.writeframes(loaded_bytes)
+
+    winsound.PlaySound(bytes_io.getvalue(), winsound.SND_MEMORY)
+
+
+def play(audio_bytes):
+    play_thread = threading.Thread(target=play_sound, args=(audio_bytes,))
+    play_thread.start()
+    return play_thread
+
+
+# Graphics
+type RGB = tuple[int, int, int]
+
+
+class GKS:
+    """A class for drawing vector and bitmapped graphics to the terminal.
+
+    Will provide constants, drawing primitives, animation pre-rendering, and custom color palettes. The name GKS is
+    a homage to the Graphical Kernel System, the first international standard for low-level 2D computer graphics.
+    """
+    RESET: Final[str] = "\033[0m"
+    CURSOR_TO_TOP: Final[str] = "\x1b[H"
+    CLEAR_SCREEN: Final[str] = "\x1b[2J"
+    HIDE_CURSOR: Final[str] = "\x1b[?25l"
+    SHOW_CURSOR: Final[str] = "\x1b[?25h"
+    ENTER_ALT_SCREEN: Final[str] = "\x1b[?1049h"
+    EXIT_ALT_SCREEN: Final[str] = "\x1b[?1049l"
+
+    UPPER_BLOCK: Final[str] = '\u2580'  # ▀
+    LOWER_BLOCK: Final[str] = '\u2584'  # ▄
+    FULL_BLOCK: Final[str] = '\u2588'  # █
+    BLACK: Final[RGB] = (0, 0, 0)
+    WHITE: Final[RGB] = (255, 255, 255)
+    WIDTH: Final[int] = 132
+    HEIGHT: Final[int] = 100
+
+    def __init__(self, width: int = WIDTH, height: int = HEIGHT) -> None:
+        """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
+        self.width: int = width
+        self.height: int = height
+        self.buffer_updated: bool = False
+        self.rendering: bool = False
+        self.font = self.load_font()
+        self.video_buffer: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+
+    def clear(self) -> None:
+        """Clear video buffer in place."""
+        for y in range(len(self.video_buffer)):
+            for x in range(len(self.video_buffer[y])):
+                self.video_buffer[y][x] = self.BLACK
+
+    def set_pixel(self, x: int, y: int, color: RGB = WHITE) -> None:
+        """Set a single pixels color."""
+        self.video_buffer[y][x] = color
+        self.buffer_updated = True
+
+    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB = WHITE) -> None:
+        """Draw a line between two points, using a given color."""
+        delta_of_x = x2 - x1
+        delta_of_y = y2 - y1
+
+        # If vertical line
+        if delta_of_x == 0:
+            step = 1 if y2 >= y1 else -1
+            for y in range(y1, y2 + step, step):
+                self.set_pixel(x1, y, color)
+            return
+
+        m = delta_of_y / delta_of_x
+        b = y1 - m * x1
+
+        step = 1 if x2 >= x1 else -1
+        for x in range(x1, x2 + step, step):
+            y = round(m * x + b)
+            self.set_pixel(x, y, color)
+
+    def draw_rect(self, x: int, y: int, width: int, height: int, color: RGB = WHITE) -> None:
+        """Draw a four sided object, of a given color and size, starting at point (x,y)."""
+        # Have to subtract one to avoid over running.  Width represents how wide rect is, points included.
+        x2 = x + width - 1
+        y2 = y + height - 1
+
+        self.draw_line(x, y, x2, y, color)  # Top
+        self.draw_line(x, y2, x2, y2, color)  # Bottom
+        self.draw_line(x, y, x, y2, color)  # Left
+        self.draw_line(x2, y, x2, y2, color)  # Right
+
+    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: RGB = WHITE) -> None:
+        """Draw a filled four sided object, of a given color and size, starting at point (x,y).
+
+        Just iterate through every pixel and set it to the given color.
+        """
+        for row in range(y, y + height):
+            for col in range(x, x + width):
+                self.set_pixel(col, row, color)
+
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+        """Draw a circle around the center point, starting at point (x,y).
+
+        Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
+        Uses integer arithmetic to calculate difference of squares and keeps a running tab to avoid recalculating at
+        each step. Only calculates one octant between 90° and 45°, then takes advantage of the symmetry of a circle to
+        find the coordinates of the other seven octants. The entire algo uses normal cartesian coordinates for depicting
+        (x,y) and is converted to screen coordinates before drawing the pixel.
+
+        Implementing this almost feels like cheating. This is so much better than anything I'd ever come up with alone.
+        I spent most of my time understanding the math behind it, so I could understand the efficiency gains. I've never
+        implemented a well known algorithm like this and that seemed like the most important thing to understand.
+        Bresenham is a genius, and we are all standing on the backs of giants.
+        """
+        # start at 90°
+        x = 0
+        y = radius
+
+        # Keeps track of running midpoint. Starts at 1-raidus instead of exact midpoint to stick to integer arithmetic.
+        running_decision_parameter = 1 - radius
+
+        while x <= y:
+            # 8-way symmetry
+            # It took me forever to wrap my head around the final conversion to screen coordinates
+            self.set_pixel(center_x + x, center_y + y, color)
+            self.set_pixel(center_x - x, center_y + y, color)
+            self.set_pixel(center_x + x, center_y - y, color)
+            self.set_pixel(center_x - x, center_y - y, color)
+
+            self.set_pixel(center_x + y, center_y + x, color)
+            self.set_pixel(center_x - y, center_y + x, color)
+            self.set_pixel(center_x + y, center_y - x, color)
+            self.set_pixel(center_x - y, center_y - x, color)
+
+            if running_decision_parameter < 0:
+                # Choose East
+                running_decision_parameter += 2 * x + 3
+            else:
+                # Choose South-East
+                y -= 1
+                running_decision_parameter += 2 * (x - y) + 5
+
+            x += 1
+
+    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+        """Draw a filled circle around center point, starting at point (x,y).
+
+        Decided to start with the most obvious version. I know I can do better based on what I learned with circle
+        midpoint.
+        """
+        for y in range(center_y - radius, center_y + radius + 1):
+            for x in range(center_x - radius, center_x + radius + 1):
+                if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
+                    self.set_pixel(x, y, color)
+
+    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+        """Draw a filled circle around center point, starting at point (x,y).
+
+        Another pretty easy one. Just isolate x. I'll learn the blended circle midpoint/span method eventually, but
+        I need to focus on other parts of the project. I've got plenty of CPU, can't waste time on this sadly.
+        """
+        for y in range(center_y - radius, center_y + radius + 1):
+            dy = y - center_y
+            x_offset = sqrt(radius ** 2 - dy ** 2)
+            left = round(center_x - x_offset)
+            right = round(center_x + x_offset)
+
+            for x in range(left, right + 1):
+                self.set_pixel(x, y, color)
+
+    def draw_frame(self) -> None:
+        """Draw a single frame to the terminal."""
+        sys.stdout.write(self.CURSOR_TO_TOP)
+        for y in range(0, self.height, 2):
+            line_buffer = []
+            for x in range(self.width):
+                top = self.video_buffer[y][x]
+                bottom = self.video_buffer[y + 1][x] if y + 1 < self.height else self.BLACK
+
+                bg_ansi = f"\x1b[48;2;{top[0]};{top[1]};{top[2]}m"
+                fg_ansi = f"\x1b[38;2;{bottom[0]};{bottom[1]};{bottom[2]}m"
+
+                line_buffer.append(f"{bg_ansi}{fg_ansi}{self.LOWER_BLOCK}")
+
+            sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
+            sys.stdout.flush()
+
+    def start_render_loop(self, frame_rate: int, command_handler) -> None | str:
+        """Initiate the main render loop.
+
+        This controls frame pacing, user input listening, and rendering. New frame is only rendered if update flag is
+        set.
+        """
+        try:
+            sys.stdout.write(self.HIDE_CURSOR)
+            sys.stdout.write(self.CLEAR_SCREEN)
+            frame_duration = 1 / frame_rate
+            self.rendering = True
+            while self.rendering:
+                start_time = time.perf_counter()
+                if msvcrt.kbhit():
+                    key = msvcrt.getwch()
+                    if key in ('\xe0', '\x00'):
+                        key = msvcrt.getwch()
+
+                    flag = command_handler.handle(key)
+                    if flag in ('quit', 'receipt'):
+                        self.rendering = False
+                        return flag
+
+                if self.buffer_updated:
+                    self.draw_frame()
+                    self.buffer_updated = False
+                elapsed_time = time.perf_counter() - start_time
+                sleep_time = frame_duration - elapsed_time
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+        finally:
+            sys.stdout.write(self.SHOW_CURSOR)
+
+    @staticmethod
+    def load_font():
+        """Load remote font and cast hex strings to int."""
+        with urllib.request.urlopen(
+                r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets/fonts/font8x8.json') as response:
+            font_set_as_hex_str = json.load(response)
+            font_set_as_hex_int = {char: [int(hex_str, 16) for hex_str in rows] for char, rows in
+                                   font_set_as_hex_str.items()}
+            return font_set_as_hex_int
+
+    @staticmethod
+    def get_pixel(row: int, bit_index: int, width: int = 8) -> int:
+        """Isolate a single bit from a given integer, use an AND mask to capture it, and return it.
+
+        Bit index must be valid.
+        """
+        if bit_index >= width or bit_index < 0:
+            raise ValueError('Bit index out of range')
+
+        return (row >> (width - 1 - bit_index)) & 1
+
+    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE):
+        """Draw chars from given word, using built-in font, starting at point (x,y)."""
+        word = word.upper()
+        unsupported_characters = [char for char in word if char not in self.font]
+        if unsupported_characters:
+            raise ValueError(f'Character not available in font: {unsupported_characters[0]!r}')
+
+        glyph_data = [self.font[char] for char in word]
+
+        for _ in range(len(glyph_data)):
+            a_glyph = glyph_data.pop(0)
+
+            for y in range(0, len(a_glyph), 2):
+                for x in range(8):
+
+                    top = self.get_pixel(a_glyph[y], x)
+                    bottom = self.get_pixel(a_glyph[y + 1], x)
+
+                    if top:
+                        self.set_pixel(x_start + x, y_start + y, color)
+                    if bottom:
+                        self.set_pixel(x_start + x, y_start + y + 1, color)
+
+            x_start += 8
+
+    def draw_centered_chars(self, word: str, y: int, color: RGB = WHITE):
+        x_offset = (self.width - (len(word) * 8)) // 2
+
+        self.draw_chars(word, x_offset, y, color)
+
+
+# Pizza Express Specific
+# Pizza origin
+CENTER_X = 99
+CENTER_Y = 75
+
+
+def center_header(header: str, engine: GKS, color: RGB=GKS.WHITE):
+    # 7 chars max. Can push to 8 by changing staring x to 2, otherwise first char will touch left boarder.
+    # Pushing starting x to 2 results is slightly misaligned glyphs on all lengths < 8
+    if len(header) > 7:
+        raise ValueError('Header too long')
+
+    starting_x = 1
+    starting_y = 3
+    usable_width = 64
+
+    length_of_glyphs = len(header) * 8
+    centering_offset = (usable_width - length_of_glyphs) // 2
+
+    starting_x += centering_offset
+
+    engine.draw_chars(header, starting_x, starting_y, color)
+
+
+def draw_instruction_page(engine: GKS):
+    engine.draw_rect(0, 0, 132, 100)
+    engine.draw_centered_chars('Instructions', 3)
+    engine.draw_chars('Menu-Nav:', 3, 20)
+    engine.draw_chars('Selection:', 3, 37)
+    engine.draw_chars('Checkout: Enter', 3, 54)
+    engine.draw_chars('Quit: Q', 3, 71)
+    engine.draw_centered_chars('Sound Warning!', 90)
+
+    gks.draw_chars('<', 85, 20)
+    gks.draw_chars('>', 100, 20)
+
+    gks.draw_chars('^', 85, 37)
+    gks.draw_chars('~', 100, 37)
+
+def draw_receipt_query_page(engine: GKS, option):
+    gks.clear()
+    engine.draw_rect(0, 0, 132, 100)
+    engine.draw_centered_chars('Receipt?', 3)
+    if option == 'yes':
+        engine.draw_centered_chars('Yes', 19, (34, 136, 0))
+        engine.draw_centered_chars('No', 29)
+    elif option == 'no':
+        engine.draw_centered_chars('Yes', 19)
+        engine.draw_centered_chars('No', 29, (34, 136, 0))
+
+
+def draw_static_ui(engine):
+    # Boarder
+    engine.draw_rect(0, 0, 132, 100)
+
+    # Center divider
+    engine.draw_line(65, 0, 65, 99)
+    engine.draw_line(66, 0, 66, 99)
+
+    # Horizontal midpoint on the right half
+    engine.draw_line(66, 49, 131, 49)
+    engine.draw_line(66, 50, 131, 50)
+
+    # Header for options section
+    engine.draw_line(0, 11, 64, 11)
+
+    # Static selection elements
+    engine.draw_rect(53, 24, 11, 10)
+    engine.draw_rect(53, 53, 11, 10)
+    engine.draw_rect(53, 82, 11, 10)
+
+
+def select_option(engine: GKS, option: int):
+    engine.draw_rect(53, 24, 11, 10)
+    engine.draw_rect(53, 53, 11, 10)
+    engine.draw_rect(53, 82, 11, 10)
+
+    if option == 1:
+        engine.draw_filled_rect(53, 24, 11, 10)
+
+    elif option == 2:
+        engine.draw_filled_rect(53, 53, 11, 10)
+
+    elif option == 3:
+        engine.draw_filled_rect(53, 82, 11, 10)
+
+    else:
+        raise ValueError('Invalid option')
+
+
+def draw_sm_pizza(engine):
+    engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 16, (198, 124, 56))
+    engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 14, (244, 196, 48))
+
+
+def draw_md_pizza(engine):
+    engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 19, (198, 124, 56))
+    engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 17, (244, 196, 48))
+
+
+def draw_lg_pizza(engine):
+    engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 23, (198, 124, 56))
+    engine.draw_filled_circle_span(CENTER_X, CENTER_Y, 20, (244, 196, 48))
+
+
+def draw_bpepper(x, y, engine):
+    engine.draw_rect(x, y, 4, 1, (34, 136, 0))
+
+
+def draw_rpepper(x, y, engine):
+    engine.draw_rect(x, y, 4, 1, (205, 28, 24))
+
+
+def draw_tofu(x, y, engine):
+    engine.draw_filled_rect(x, y, 3, 3, (238, 220, 130))
+
+
+def draw_pepperoni(x, y, engine):
+    engine.draw_filled_circle(x, y, 2, (255, 0, 0))
+
+
+def draw_sausage(x, y, engine):
+    engine.draw_filled_circle(x, y, 2, (101, 67, 33))
+
+
+def draw_olive(x, y, engine):
+    engine.new_draw_circle(x, y, 1, (0, 0, 0))
+
+
+def draw_option_set(engine, option_set):
+    option_description_y_coord = 14
+    option_price_y_coord = 23
+    y_offset = 29
+
+    for option in option_set:
+        engine.draw_chars(f'{option_set[option].description}', 2, option_description_y_coord)
+        engine.draw_chars(f'${option_set[option].cost:04.2f}', 2, option_price_y_coord)
+
+        option_description_y_coord += y_offset
+        option_price_y_coord += y_offset
+
+
+def draw_pizza(engine, pizza_size, protein_option, vegetable_option):
+    pizza_size.draw(engine)
+
+    for x, y in (
+            (CENTER_X + pizza_size.topping_offset, CENTER_Y + pizza_size.topping_offset),
+            (CENTER_X - pizza_size.topping_offset, CENTER_Y - pizza_size.topping_offset),
+
+    ):
+        protein_option.draw(x, y, engine)
+
+    for x, y in (
+            (CENTER_X + pizza_size.topping_offset, CENTER_Y - pizza_size.topping_offset),
+            (CENTER_X - pizza_size.topping_offset, CENTER_Y + pizza_size.topping_offset)
+    ):
+        vegetable_option.draw(x, y, engine)
+
+
+class SizeOptions(Enum):
+    SMALL = auto()
+    MEDIUM = auto()
+    LARGE = auto()
+
+
+class ProteinOptions(Enum):
+    PEPPERONI = auto()
+    SAUSAGE = auto()
+    TOFU = auto()
+
+
+class VegetableOptions(Enum):
+    BELL_PEPPERS = auto()
+    RED_PEPPERS = auto()
+    BLACK_OLIVES = auto()
+
+
+@dataclass(frozen=True, slots=True)
+class SizeOption:
+    cost: float
+    description: str
+    draw: Callable[[GKS], None]
+    topping_offset: int
+    option_number: int
+
+
+@dataclass(frozen=True, slots=True)
+class ToppingOption:
+    cost: float
+    description: str
+    draw: Callable[[int, int, GKS], None]
+    option_number: int
+
+
+sizes = {
+    SizeOptions.SMALL: SizeOption(
+        cost=12.99,
+        description="6-inch",
+        draw=draw_sm_pizza,
+        topping_offset=7,
+        option_number=1,
+    ),
+    SizeOptions.MEDIUM: SizeOption(
+        cost=15.99,
+        description="12-inch",
+        draw=draw_md_pizza,
+        topping_offset=9,
+        option_number=2,
+    ),
+    SizeOptions.LARGE: SizeOption(
+        cost=18.99,
+        description="18-inch",
+        draw=draw_lg_pizza,
+        topping_offset=11,
+        option_number=3,
+    ),
+}
+
+proteins = {
+    ProteinOptions.PEPPERONI: ToppingOption(2, 'pep\'roni', draw_pepperoni, 1),
+    ProteinOptions.SAUSAGE: ToppingOption(2, 'sausage', draw_sausage, 2),
+    ProteinOptions.TOFU: ToppingOption(5, 'tofu', draw_tofu, 3)
+}
+
+vegetables = {
+    VegetableOptions.BELL_PEPPERS: ToppingOption(0.50, 'B.pepper', draw_bpepper, 1),
+    VegetableOptions.RED_PEPPERS: ToppingOption(0.50, 'R.pepper', draw_rpepper, 2),
+    VegetableOptions.BLACK_OLIVES: ToppingOption(0.75, 'B.olives', draw_olive, 3),
+}
+
+option_sets = {
+    'size': sizes,
+    'protein': proteins,
+    'vegetable': vegetables,
+}
+
+menus = collections.deque(['size', 'protein', 'vegetable'])
+option_deques = {
+    'size': collections.deque(sizes),
+    'protein': collections.deque(proteins),
+    'vegetable': collections.deque(vegetables),
+}
+
+
+def draw_running_total(engine: GKS, option_queues, receipt=False):
+
+    non_receipt_total_coords = {'x': 68, 'y': 2}
+    receipt_total_coords = {'x': 34, 'y': 10}
+
+    total = sum((sizes[option_queues['size'][0]].cost, proteins[option_queues['protein'][0]].cost,
+                 vegetables[option_queues['vegetable'][0]].cost))
+    if not receipt:
+        engine.draw_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}',
+                          non_receipt_total_coords['x'],
+                          non_receipt_total_coords['y'], (198, 124, 56))
+        engine.draw_chars(
+            f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}',
+            non_receipt_total_coords['x'],
+            non_receipt_total_coords['y'] + 10, (101, 67, 33))
+        engine.draw_chars(
+            f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}',
+            non_receipt_total_coords['x'],
+            non_receipt_total_coords['y'] + 20, (34, 136, 0))
+
+        engine.draw_chars(f'TT${total:05.2f}', non_receipt_total_coords['x'], non_receipt_total_coords['y'] + 39)
+    else:
+        engine.draw_rect(30, 6, 70, 60)
+        engine.draw_chars(f'SZ${f'{sizes[option_queues['size'][0]].cost:05.2f}' if option_queues['size'][0] else 0}',
+                          receipt_total_coords['x'],
+                          receipt_total_coords['y'], (198, 124, 56))
+        engine.draw_chars(
+            f'PT${f'{proteins[option_queues['protein'][0]].cost:05.2f}' if option_queues['protein'][0] else 0}',
+            receipt_total_coords['x'],
+            receipt_total_coords['y'] + 10, (101, 67, 33))
+        engine.draw_chars(
+            f'VG${f'{vegetables[option_queues['vegetable'][0]].cost:05.2f}' if option_queues['vegetable'][0] else 0}',
+            receipt_total_coords['x'],
+            receipt_total_coords['y'] + 20, (34, 136, 0))
+
+        engine.draw_chars(f'TT${total:05.2f}', receipt_total_coords['x'], receipt_total_coords['y'] + 39)
+
+
+def redraw_ui(
+        engine: GKS,
+        active_menu: str,
+        current_size: SizeOptions,
+        current_protein: ProteinOptions,
+        current_vegetable: VegetableOptions,
+):
+    """Rebuild the frame from the current model state."""
+    engine.clear()
+    draw_static_ui(engine)
+
+    headers = {
+        'size': 'Size',
+        'protein': 'Protein',
+        'vegetable': 'Veggies',
+    }
+    selections = {
+        'size': sizes[current_size],
+        'protein': proteins[current_protein],
+        'vegetable': vegetables[current_vegetable],
+    }
+
+    if active_menu not in option_sets:
+        raise ValueError(f'Invalid menu: {active_menu}')
+
+    draw_pizza(engine, sizes[current_size], proteins[current_protein], vegetables[current_vegetable])
+
+    active_menu_color = GKS.WHITE
+    match active_menu:
+        case 'size':
+            active_menu_color = (198, 124, 56)
+        case 'protein':
+            active_menu_color = (101, 67, 33)
+        case 'vegetable':
+            active_menu_color = (34, 136, 0)
+
+    center_header(headers[active_menu], engine, active_menu_color)
+    draw_option_set(engine, option_sets[active_menu])
+    select_option(engine, selections[active_menu].option_number)
+    draw_running_total(engine, option_deques)
+
+
+def toggle_option(
+        direction: int,
+        option_queue,
+        option_set,
+):
+    """Advance one option queue and return its newly selected option."""
+    if not option_queue:
+        raise ValueError('Option queue cannot be empty')
+
+    option_queue.rotate(direction)
+    selected = option_queue[0]
+    if selected not in option_set:
+        raise ValueError('Option queue contains an invalid option')
+
+    return selected
+
+
+class CommandHandler:
+    def __init__(self, menus, option_ques, audio):
+        self.menus = menus
+        self.option_ques = option_ques
+        self.audio = audio
+        self.audio_thread = None
+
+    def play_audio(self, audio_bytes):
+        self.audio_thread = play(audio_bytes)
+
+    def handle(self, key):
+        match key:
+            case 'H':
+                play(self.audio['ds9_ops_button_1'])
+                toggle_option(1, option_deques[self.menus[0]], option_sets[self.menus[0]])
+            case 'P':
+                play(self.audio['ds9_ops_button_1'])
+                toggle_option(-1, option_deques[self.menus[0]], option_sets[self.menus[0]])
+            case 'K':
+                play(self.audio['ds9_ops_button_1'])
+                menus.rotate(-1)
+            case 'M':
+                play(self.audio['ds9_ops_button_1'])
+                menus.rotate(1)
+            case 'q':
+                return 'quit'
+            case '\r':
+                play(self.audio['cash_register'])
+                return 'receipt'
+
+
+        redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
+
+receipt_options = collections.deque(['yes', 'no'])
+
+
+if __name__ == '__main__':
+    audio_library = load_remote_audio_library(audio_library)
+    gks = GKS()
+    sys.stdout.write(GKS.ENTER_ALT_SCREEN)
+    sys.stdout.write(gks.HIDE_CURSOR)
+    draw_instruction_page(gks)
+    gks.draw_frame()
+    while True:
+        if msvcrt.kbhit():
+            break
+    redraw_ui(gks, menus[0], option_deques['size'][0], option_deques['protein'][0], option_deques['vegetable'][0])
+    input_handler = CommandHandler(menus, option_deques, audio_library)
+    flag = gks.start_render_loop(60, input_handler)
+
+    # absolute slop, but I'm out of time and it works.
+    if flag == 'receipt':
+        draw_receipt_query_page(gks, receipt_options[0])
+        gks.draw_frame()
+        while True:
+            if msvcrt.kbhit():
+                key = msvcrt.getwch()
+                if key == 'q':
+                    break
+                if key == '\r':
+                    if receipt_options[0] == 'yes':
+                        play(audio_library['printer'])
+                        gks.clear()
+                        draw_running_total(gks, option_deques, receipt=True)
+                        gks.draw_frame()
+                    else:
+                        break
+
+                if key in ('\xe0', '\x00'):
+                    key = msvcrt.getwch()
+                    if key == 'H':
+                        receipt_options.rotate(-1)
+                    if key == 'P':
+                        receipt_options.rotate(1)
+
+                    draw_receipt_query_page(gks, receipt_options[0])
+                    gks.draw_frame()
+
+    if input_handler.audio_thread:
+        input_handler.audio_thread.join()
+    sys.stdout.write(GKS.EXIT_ALT_SCREEN)
+

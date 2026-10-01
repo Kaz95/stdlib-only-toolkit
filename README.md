@@ -23,10 +23,7 @@ projects/    the actual per-assignment submissions
 
 - `canvas.py` - ANSI color and cursor-control constants, bordered box
   drawing, and a small bitmap font renderer built from hand-encoded 4-bit
-  sprite data. The `Drawing.draw_window` method currently still contains
-  the tip calculator's specific layout. That's being pulled out so this
-  file only holds a generic bordered box primitive, with per-project UI
-  layered on top elsewhere.
+  sprite data.
 - `animator.py` - fades a bitmap in and out in the terminal using linear
   interpolation between colors, frame by frame, written directly with
   24-bit ANSI escape codes.
