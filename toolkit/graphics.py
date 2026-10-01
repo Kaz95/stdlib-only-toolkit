@@ -234,11 +234,11 @@ class GKS:
             for x in range(left, right + 1):
                 self.set_pixel(x, y, color)
 
-    def draw_sprite(self, x, y, sprite_data):
+    def draw_sprite(self, x: int, y: int, sprite_data):
         """Draw sprite from given data, starting at point (x,y)."""
         pass
 
-    def blit(self, bitmap, x_start: int=0, y_start:int=0):
+    def blit(self, bitmap, x_start: int=0, y_start:int=0) -> None:
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
         bitmap_height = len(bitmap)
         bitmap_width = len(bitmap[0])
@@ -306,7 +306,7 @@ class GKS:
 
 
     @staticmethod
-    def load_font():
+    def load_font() -> dict[str, list[int]]:
         """Load remote font and cast hex strings to int."""
         with urllib.request.urlopen(r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets/fonts/font8x8.json') as response:
             font_set_as_hex_str = json.load(response)
