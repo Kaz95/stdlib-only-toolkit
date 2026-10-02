@@ -22,7 +22,7 @@ audio_library = {'ds9_ops_button_1': r'https://github.com/Kaz95/stdlib-only-tool
                             r'/printer_noise_audio_bytes'}
 
 
-def extract_audio_bytes(wav_file):
+def extract_audio_bytes(wav_file: str) -> bytes:
     with wave.open(wav_file, 'rb') as wav_file:
         channels = wav_file.getnchannels()
         sample_width = wav_file.getsampwidth()
