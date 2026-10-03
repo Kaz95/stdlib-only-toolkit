@@ -272,10 +272,12 @@ class GKS:
             sys.stdout.flush()
 
     class CommandHandler:
+        """Command Handler Factory."""
         def __init__(self):
             pass
 
         def handle(self, key):
+            """Handle a keypress."""
             pass
 
     def start_render_loop(self, frame_rate: int, command_handler=None) -> None:
@@ -353,6 +355,7 @@ class GKS:
             x_start += 8
 
     def draw_centered_chars(self, word: str, y: int, color: RGB = WHITE):
+        """Draw center aligned characters. Centered within canvas total width."""
         x_offset = (self.width - (len(word) * 8)) // 2
 
         self.draw_chars(word, x_offset, y, color)
