@@ -66,6 +66,9 @@ class GKS:
 
     def set_pixel(self, x: int, y: int, color: RGB = WHITE) -> None:
         """Set a single pixels color."""
+        if x < 0 or y < 0 or x >= self.width or y >= self.height:
+            raise ValueError(f'Point: ({x}, {y}) is no within video buffer dimensions: {self.width}x{self.height}')
+
         self.video_buffer[y][x] = color
         self.buffer_updated = True
 
@@ -368,4 +371,5 @@ class GKS:
 
 
 if __name__ == '__main__':
-    pass
+    gks = GKS()
+    gks.set_pixel(-2, 4)
