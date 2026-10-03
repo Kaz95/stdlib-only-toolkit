@@ -43,7 +43,7 @@ class GKS:
 
     BLACK: Final[RGB] = (0, 0, 0)
     WHITE: Final[RGB] = (255, 255, 255)
-    WIDTH: Final[int] = 132
+    WIDTH: Final[int] = 134
     HEIGHT: Final[int] = 100
 
     REMOTE_FONT_URL: Final[str] = (r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets'
