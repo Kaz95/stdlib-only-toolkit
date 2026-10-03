@@ -4,15 +4,17 @@ import time
 import urllib.request
 import wave
 import winsound
+from threading import Thread
 
-CHANNELS = 2
-SAMPLE_WIDTH = 2
-SAMPLE_RATE = 44100
 
-input_wav_path = r'../assets/source_audio/printer_noise.wav'
-raw_output_path = r'../assets/generated/printer_noise_audio_bytes'
+CHANNELS: int = 2
+SAMPLE_WIDTH: int = 2
+SAMPLE_RATE: int = 44100
 
-audio_library = {'ds9_ops_button_1': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets'
+input_wav_path: str = r'../assets/source_audio/printer_noise.wav'
+raw_output_path: str = r'../assets/generated/printer_noise_audio_bytes'
+
+audio_library: dict[str, str] = {'ds9_ops_button_1': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets'
                                      r'/generated/ds9_ops_button_1_audio_bytes',
 
                  'cash_register': r'https://github.com/Kaz95/stdlib-only-toolkit/raw/refs/heads/dev/assets/generated'
@@ -23,6 +25,7 @@ audio_library = {'ds9_ops_button_1': r'https://github.com/Kaz95/stdlib-only-tool
 
 
 def extract_audio_bytes(wav_file: str) -> bytes:
+    """Extract audio bytes from a WAV file."""
     with wave.open(wav_file, 'rb') as wav_file:
         channels = wav_file.getnchannels()
         sample_width = wav_file.getsampwidth()
@@ -37,33 +40,32 @@ def extract_audio_bytes(wav_file: str) -> bytes:
 
     return raw_audio_bytes
 
-def write_raw_audio_bytes(file_name, raw_audio_bytes):
+def write_raw_audio_bytes(file_name: str, raw_audio_bytes: bytes) -> None:
+    """Write raw audio bytes to a WAV file."""
     with open(file_name, "wb") as raw_file:
         raw_file.write(raw_audio_bytes)
 
 
 
-def load_raw_audio_bytes(file_path):
+def load_raw_audio_bytes(file_path: str) -> bytes:
+    """Load raw audio bytes from a file."""
     with open(file_path, "rb") as raw_file:
         loaded_bytes = raw_file.read()
         return loaded_bytes
 
-def load_remote_raw_audio_bytes(remote_bytes):
-    with urllib.request.urlopen(remote_bytes) as response:
-        raw_audio_bytes = response.read()
-        return raw_audio_bytes
 
-def load_remote_audio_library(audio_library):
-    audio_library = audio_library.copy()
+def load_remote_audio_library(audio_library: dict[str, str]) -> dict[str, bytes]:
+    """Load remote audio library."""
+    loaded_audio_library = audio_library.copy()
     for sound in audio_library:
-        with urllib.request.urlopen(audio_library[sound]) as response:
+        with urllib.request.urlopen(loaded_audio_library[sound]) as response:
             raw_audio_bytes = response.read()
-            audio_library[sound] = raw_audio_bytes
-    return audio_library
+            loaded_audio_library[sound] = raw_audio_bytes
+    return loaded_audio_library
 
 
-def play_sound(loaded_bytes):
-    # How have I never used io library before now?!
+def play_sound(loaded_bytes: bytes) -> None:
+    """Rebuild wav from meta info and raw bytes. Then play sound."""
     bytes_io = io.BytesIO()
     # Set header and load
     with wave.open(bytes_io, "wb") as wav_write:
@@ -72,11 +74,10 @@ def play_sound(loaded_bytes):
         wav_write.setframerate(SAMPLE_RATE)
         wav_write.writeframes(loaded_bytes)
 
-    # print('playback started')
     winsound.PlaySound(bytes_io.getvalue(), winsound.SND_MEMORY)
-    # print('playback finished.')
 
-def play(audio_bytes):
+def play(audio_bytes: bytes) -> Thread:
+    """Play sound on a separate thread."""
     play_thread = threading.Thread(target=play_sound, args=(audio_bytes,))
     play_thread.start()
     return play_thread
