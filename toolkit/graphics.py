@@ -21,6 +21,7 @@ from math import sqrt
 from typing import Final
 
 type RGB = tuple[int, int, int]
+type BITMAP = list[list[RGB]]
 
 
 class GKS:
@@ -247,8 +248,9 @@ class GKS:
         """Draw sprite from given data, starting at point (x,y)."""
         pass
 
-    def blit(self, bitmap: list[list[RGB]], x_start: int = 0, y_start: int = 0) -> None:
+    def blit(self, bitmap: BITMAP , x_start: int = 0, y_start: int = 0) -> None:
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
+
         bitmap_height = len(bitmap)
         bitmap_width = len(bitmap[0])
 
