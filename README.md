@@ -21,9 +21,6 @@ projects/    the actual per-assignment submissions
 
 ### toolkit/
 
-- `canvas.py` - ANSI color and cursor-control constants, bordered box
-  drawing, and a small bitmap font renderer built from hand-encoded 4-bit
-  sprite data.
 - `animator.py` - fades a bitmap in and out in the terminal using linear
   interpolation between colors, frame by frame, written directly with
   24-bit ANSI escape codes.
