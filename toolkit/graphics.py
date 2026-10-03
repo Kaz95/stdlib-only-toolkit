@@ -40,10 +40,14 @@ class GKS:
     UPPER_BLOCK: Final[str] = '\u2580'  # ▀
     LOWER_BLOCK: Final[str] = '\u2584'  # ▄
     FULL_BLOCK: Final[str] = '\u2588'  # █
+
     BLACK: Final[RGB] = (0, 0, 0)
     WHITE: Final[RGB] = (255, 255, 255)
     WIDTH: Final[int] = 132
     HEIGHT: Final[int] = 100
+
+    REMOTE_FONT_URL: Final[str] = (r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets'
+                                   r'/fonts/font8x8.json')
 
     def __init__(self, width: int = WIDTH, height: int = HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
@@ -311,11 +315,10 @@ class GKS:
         finally:
             sys.stdout.write(self.SHOW_CURSOR)
 
-    @staticmethod
-    def load_font() -> dict[str, list[int]]:
+
+    def load_font(self) -> dict[str, list[int]]:
         """Load remote font and cast hex strings to int."""
-        with urllib.request.urlopen(
-                r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets/fonts/font8x8.json') as response:
+        with urllib.request.urlopen(self.REMOTE_FONT_URL) as response:
             font_set_as_hex_str = json.load(response)
             font_set_as_hex_int = {char: [int(hex_str, 16) for hex_str in rows] for char, rows in
                                    font_set_as_hex_str.items()}
