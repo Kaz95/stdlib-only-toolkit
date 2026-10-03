@@ -64,7 +64,7 @@ def load_remote_sounds(remote_sounds: dict[str, str]) -> dict[str, bytes]:
     return sound_bytes
 
 
-def _play_sound(audio_bytes: bytes, threaded=True) -> None:
+def _play_sound(audio_bytes: bytes) -> None:
     """Rebuild wav from meta info and raw bytes. Then play sound."""
     bytes_io = io.BytesIO()
     # Set header and load
