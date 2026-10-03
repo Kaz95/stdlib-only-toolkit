@@ -272,7 +272,10 @@ class GKS:
             sys.stdout.flush()
 
     class CommandHandler:
-        """Command Handler Factory."""
+        """Command Handler Factory.
+
+        I've never written anything quite like this, and I'm not really sure where I want to put it yet.
+        """
         def __init__(self):
             pass
 
