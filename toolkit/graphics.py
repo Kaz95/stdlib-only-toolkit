@@ -22,6 +22,7 @@ from typing import Final
 
 type RGB = tuple[int, int, int]
 
+
 class GKS:
     """A class for drawing vector and bitmapped graphics to the terminal.
 
@@ -44,8 +45,7 @@ class GKS:
     WIDTH: Final[int] = 132
     HEIGHT: Final[int] = 100
 
-
-    def __init__(self, width: int=WIDTH, height: int=HEIGHT) -> None:
+    def __init__(self, width: int = WIDTH, height: int = HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
         self.width: int = width
         self.height: int = height
@@ -60,12 +60,12 @@ class GKS:
             for x in range(len(self.video_buffer[y])):
                 self.video_buffer[y][x] = self.BLACK
 
-    def set_pixel(self, x: int, y: int, color: RGB=WHITE) -> None:
+    def set_pixel(self, x: int, y: int, color: RGB = WHITE) -> None:
         """Set a single pixels color."""
         self.video_buffer[y][x] = color
         self.buffer_updated = True
 
-    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB=WHITE) -> None:
+    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB = WHITE) -> None:
         """Draw a line between two points, using a given color."""
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
@@ -85,7 +85,7 @@ class GKS:
             y = round(m * x + b)
             self.set_pixel(x, y, color)
 
-    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB=WHITE) -> None:
+    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB = WHITE) -> None:
         """Draw a line between two points, using a given color.
 
         Somehow harder to understand than circle midpoint. This wasn't too hard to implement, but hard to really
@@ -128,7 +128,7 @@ class GKS:
                 running_decision_parameter += dx
                 y1 += sy
 
-    def draw_rect(self, x: int, y: int, width: int, height: int, color: RGB=WHITE) -> None:
+    def draw_rect(self, x: int, y: int, width: int, height: int, color: RGB = WHITE) -> None:
         """Draw a four sided object, of a given color and size, starting at point (x,y)."""
         # Have to subtract one to avoid over running.  Width represents how wide rect is, points included.
         x2 = x + width - 1
@@ -139,7 +139,7 @@ class GKS:
         self.draw_line(x, y, x, y2, color)  # Left
         self.draw_line(x2, y, x2, y2, color)  # Right
 
-    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: RGB=WHITE) -> None:
+    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: RGB = WHITE) -> None:
         """Draw a filled four sided object, of a given color and size, starting at point (x,y).
 
         Just iterate through every pixel and set it to the given color.
@@ -148,7 +148,7 @@ class GKS:
             for col in range(x, x + width):
                 self.set_pixel(col, row, color)
 
-    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB=WHITE) -> None:
+    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
         """Draw a circle around center point, starting at point (x,y).
 
         This is currently using cartesian method based on relationship between x and y. Improvements Soon™.
@@ -164,7 +164,7 @@ class GKS:
             self.set_pixel(x, y1, color)
             self.set_pixel(x, y2, color)
 
-    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB=WHITE) -> None:
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
         """Draw a circle around the center point, starting at point (x,y).
 
         Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
@@ -208,7 +208,7 @@ class GKS:
 
             x += 1
 
-    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: RGB=WHITE) -> None:
+    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Decided to start with the most obvious version. I know I can do better based on what I learned with circle
@@ -219,7 +219,7 @@ class GKS:
                 if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
                     self.set_pixel(x, y, color)
 
-    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: RGB=WHITE) -> None:
+    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Another pretty easy one. Just isolate x. I'll learn the blended circle midpoint/span method eventually, but
@@ -238,22 +238,21 @@ class GKS:
         """Draw sprite from given data, starting at point (x,y)."""
         pass
 
-    def blit(self, bitmap, x_start: int=0, y_start:int=0) -> None:
+    def blit(self, bitmap: list[list[RGB]], x_start: int = 0, y_start: int = 0) -> None:
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
         bitmap_height = len(bitmap)
         bitmap_width = len(bitmap[0])
 
         if (
-            x_start < 0
-            or y_start < 0
-            or x_start + bitmap_width > self.width
-            or y_start + bitmap_height > self.height
+                x_start < 0
+                or y_start < 0
+                or x_start + bitmap_width > self.width
+                or y_start + bitmap_height > self.height
         ):
             raise ValueError('Bitmap does not fit')
 
         for row_index, row in enumerate(bitmap):
             self.video_buffer[y_start + row_index][x_start:x_start + bitmap_width] = row
-
 
     def draw_frame(self) -> None:
         """Draw a single frame to the terminal."""
@@ -272,6 +271,13 @@ class GKS:
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
 
+    class CommandHandler:
+        def __init__(self):
+            pass
+
+        def handle(self, key):
+            pass
+
     def start_render_loop(self, frame_rate: int, command_handler=None) -> None:
         """Initiate the main render loop.
 
@@ -287,15 +293,12 @@ class GKS:
                 start_time = time.perf_counter()
                 if command_handler is not None and msvcrt.kbhit():
                     key = msvcrt.getwch()
-                    if key in ('\xe0', '\x00'):
-                        key = msvcrt.getwch()
-
-                    if command_handler.handle(key) == 'quit':
-                        self.rendering = False
+                    command_handler.handle(key)
 
                 if self.buffer_updated:
                     self.draw_frame()
                     self.buffer_updated = False
+
                 elapsed_time = time.perf_counter() - start_time
                 sleep_time = frame_duration - elapsed_time
                 if sleep_time > 0:
@@ -303,14 +306,14 @@ class GKS:
         finally:
             sys.stdout.write(self.SHOW_CURSOR)
 
-
-
     @staticmethod
     def load_font() -> dict[str, list[int]]:
         """Load remote font and cast hex strings to int."""
-        with urllib.request.urlopen(r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets/fonts/font8x8.json') as response:
+        with urllib.request.urlopen(
+                r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets/fonts/font8x8.json') as response:
             font_set_as_hex_str = json.load(response)
-            font_set_as_hex_int = {char: [int(hex_str, 16) for hex_str in rows] for char, rows in font_set_as_hex_str.items()}
+            font_set_as_hex_int = {char: [int(hex_str, 16) for hex_str in rows] for char, rows in
+                                   font_set_as_hex_str.items()}
             return font_set_as_hex_int
 
     @staticmethod
@@ -324,7 +327,7 @@ class GKS:
 
         return (row >> (width - 1 - bit_index)) & 1
 
-    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB=WHITE):
+    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE):
         """Draw chars from given word, using built-in font, starting at point (x,y)."""
         word = word.upper()
         unsupported_characters = [char for char in word if char not in self.font]
@@ -349,10 +352,11 @@ class GKS:
 
             x_start += 8
 
-    def draw_centered_chars(self, word: str, y:int, color: RGB=WHITE):
+    def draw_centered_chars(self, word: str, y: int, color: RGB = WHITE):
         x_offset = (self.width - (len(word) * 8)) // 2
 
         self.draw_chars(word, x_offset, y, color)
+
 
 if __name__ == '__main__':
     pass
