@@ -51,6 +51,8 @@ class GKS:
 
     def __init__(self, width: int = WIDTH, height: int = HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
+        if width <= 0 or height <= 0:
+            raise ValueError(f'Width and height must be positive, got {width} and {height}')
         self.width: int = width
         self.height: int = height
         self.buffer_updated: bool = False
