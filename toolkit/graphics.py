@@ -46,6 +46,10 @@ class GKS:
     WHITE: Final[RGB] = (255, 255, 255)
     WIDTH: Final[int] = 134
     HEIGHT: Final[int] = 100
+    COLOR_PALETTE_1 = {0: BLACK, 1: WHITE}
+    COLOR_PALETTE_2 = {0: WHITE, 1: (255, 0, 0)}
+    COLOR_PALETTE_3 = {0: (0, 0, 255), 1: BLACK}
+    CURRENT_PALETTE = COLOR_PALETTE_1
 
     REMOTE_FONT_URL: Final[str] = (r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets'
                                    r'/fonts/font8x8.json')
@@ -59,7 +63,7 @@ class GKS:
         self.buffer_updated: bool = False
         self.rendering: bool = False
         self.font = self.load_font()
-        self.video_buffer: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+        self.video_buffer: list[list[RGB | int]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
     def clear(self) -> None:
         """Clear video buffer in place."""
@@ -67,7 +71,7 @@ class GKS:
             for x in range(len(self.video_buffer[y])):
                 self.video_buffer[y][x] = self.BLACK
 
-    def set_pixel(self, x: int, y: int, color: RGB = WHITE) -> None:
+    def set_pixel(self, x: int, y: int, color: int | RGB = WHITE) -> None:
         """Set a single pixels color."""
         if x < 0 or y < 0 or x >= self.width or y >= self.height:
             raise ValueError(f'Point: ({x}, {y}) is no within video buffer dimensions: {self.width}x{self.height}')
@@ -273,6 +277,10 @@ class GKS:
             for x in range(self.width):
                 top = self.video_buffer[y][x]
                 bottom = self.video_buffer[y + 1][x] if y + 1 < self.height else self.BLACK
+                if isinstance(top, int):
+                    top = self.CURRENT_PALETTE[top]
+                if isinstance(bottom, int):
+                    bottom = self.CURRENT_PALETTE[bottom]
 
                 bg_ansi = f"\x1b[48;2;{top[0]};{top[1]};{top[2]}m"
                 fg_ansi = f"\x1b[38;2;{bottom[0]};{bottom[1]};{bottom[2]}m"
