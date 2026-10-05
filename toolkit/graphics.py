@@ -12,6 +12,7 @@ TODO:
         gains come from.
 
 """
+import collections
 import json
 import msvcrt
 import sys
@@ -384,4 +385,22 @@ class GKS:
 
 if __name__ == '__main__':
     gks = GKS()
-    gks.set_pixel(-2, 4)
+    palettes = collections.deque([gks.COLOR_PALETTE_1, gks.COLOR_PALETTE_2, gks.COLOR_PALETTE_3])
+    for x in range(20, 41):
+        for y in range(20, 41):
+            gks.set_pixel(x, y, 1)
+
+    for x in range(50, 71):
+        for y in range(50, 71):
+            gks.set_pixel(x, y, 0)
+    gks.draw_frame()
+
+    while True:
+        time.sleep(1.5)
+        palettes.rotate(1)
+        gks.CURRENT_PALETTE = palettes[0]
+        gks.draw_frame()
+
+    # gks.set_pixel(-2, 4)
+    # gks.draw_filled_rect(40, 40, 20, 20, 1)
+
