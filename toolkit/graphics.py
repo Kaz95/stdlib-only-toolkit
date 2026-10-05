@@ -80,7 +80,7 @@ class GKS:
         self.video_buffer[y][x] = color
         self.buffer_updated = True
 
-    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB = WHITE) -> None:
+    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE) -> None:
         """Draw a line between two points, using a given color."""
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
@@ -100,7 +100,7 @@ class GKS:
             y = round(m * x + b)
             self.set_pixel(x, y, color)
 
-    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB = WHITE) -> None:
+    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE) -> None:
         """Draw a line between two points, using a given color.
 
         Somehow harder to understand than circle midpoint. This wasn't too hard to implement, but hard to really
@@ -143,7 +143,7 @@ class GKS:
                 running_decision_parameter += dx
                 y1 += sy
 
-    def draw_rect(self, x: int, y: int, width: int, height: int, color: RGB = WHITE) -> None:
+    def draw_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE) -> None:
         """Draw a four sided object, of a given color and size, starting at point (x,y)."""
         # Have to subtract one to avoid over running.  Width represents how wide rect is, points included.
         x2 = x + width - 1
@@ -154,7 +154,7 @@ class GKS:
         self.draw_line(x, y, x, y2, color)  # Left
         self.draw_line(x2, y, x2, y2, color)  # Right
 
-    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: RGB = WHITE) -> None:
+    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE) -> None:
         """Draw a filled four sided object, of a given color and size, starting at point (x,y).
 
         Just iterate through every pixel and set it to the given color.
@@ -163,7 +163,7 @@ class GKS:
             for col in range(x, x + width):
                 self.set_pixel(col, row, color)
 
-    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
         """Draw a circle around center point, starting at point (x,y).
 
         This is currently using cartesian method based on relationship between x and y. Improvements Soon™.
@@ -179,7 +179,7 @@ class GKS:
             self.set_pixel(x, y1, color)
             self.set_pixel(x, y2, color)
 
-    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
         """Draw a circle around the center point, starting at point (x,y).
 
         Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
@@ -223,7 +223,7 @@ class GKS:
 
             x += 1
 
-    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Decided to start with the most obvious version. I know I can do better based on what I learned with circle
@@ -234,7 +234,7 @@ class GKS:
                 if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
                     self.set_pixel(x, y, color)
 
-    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Another pretty easy one. Just isolate x. I'll learn the blended circle midpoint/span method eventually, but
