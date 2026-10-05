@@ -47,9 +47,9 @@ class GKS:
     WHITE: Final[RGB] = (255, 255, 255)
     WIDTH: Final[int] = 134
     HEIGHT: Final[int] = 100
-    COLOR_PALETTE_1 = {0: BLACK, 1: WHITE}
-    COLOR_PALETTE_2 = {0: WHITE, 1: (255, 0, 0)}
-    COLOR_PALETTE_3 = {0: (0, 0, 255), 1: BLACK}
+    COLOR_PALETTE_1 = {0: (0, 255, 0), 1: WHITE}
+    COLOR_PALETTE_2 = {0: (0, 255, 255), 1: (255, 0, 0)}
+    COLOR_PALETTE_3 = {0: (0, 0, 255), 1: (255, 255, 0)}
     CURRENT_PALETTE = COLOR_PALETTE_1
 
     REMOTE_FONT_URL: Final[str] = (r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets'
@@ -385,22 +385,28 @@ class GKS:
 
 if __name__ == '__main__':
     gks = GKS()
+    sys.stdout.write(gks.ENTER_ALT_SCREEN)
+    sys.stdout.write(gks.HIDE_CURSOR)
     palettes = collections.deque([gks.COLOR_PALETTE_1, gks.COLOR_PALETTE_2, gks.COLOR_PALETTE_3])
-    for x in range(20, 41):
-        for y in range(20, 41):
-            gks.set_pixel(x, y, 1)
-
-    for x in range(50, 71):
-        for y in range(50, 71):
-            gks.set_pixel(x, y, 0)
+    # for x in range(20, 41):
+    #     for y in range(20, 41):
+    #         gks.set_pixel(x, y, 1)
+    #
+    # for x in range(50, 71):
+    #     for y in range(50, 71):
+    #         gks.set_pixel(x, y, 0)
+    gks.draw_rect(50, 50, 20, 20, 1)
+    gks.draw_filled_rect(55, 55, 10, 10, 0)
     gks.draw_frame()
-
-    while True:
-        time.sleep(1.5)
-        palettes.rotate(1)
-        gks.CURRENT_PALETTE = palettes[0]
-        gks.draw_frame()
-
+    try:
+        while True:
+            time.sleep(1.5)
+            palettes.rotate(1)
+            gks.CURRENT_PALETTE = palettes[0]
+            gks.draw_frame()
+    finally:
+        sys.stdout.write(gks.SHOW_CURSOR)
+        sys.stdout.write(gks.EXIT_ALT_SCREEN)
     # gks.set_pixel(-2, 4)
     # gks.draw_filled_rect(40, 40, 20, 20, 1)
 
