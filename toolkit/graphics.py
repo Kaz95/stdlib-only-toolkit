@@ -12,6 +12,7 @@ TODO:
         gains come from.
 
 """
+import collections
 import json
 import msvcrt
 import sys
@@ -46,6 +47,10 @@ class GKS:
     WHITE: Final[RGB] = (255, 255, 255)
     WIDTH: Final[int] = 134
     HEIGHT: Final[int] = 100
+    COLOR_PALETTE_1 = {0: (0, 255, 0), 1: WHITE}
+    COLOR_PALETTE_2 = {0: (0, 255, 255), 1: (255, 0, 0)}
+    COLOR_PALETTE_3 = {0: (0, 0, 255), 1: (255, 255, 0)}
+    CURRENT_PALETTE = COLOR_PALETTE_1
 
     REMOTE_FONT_URL: Final[str] = (r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets'
                                    r'/fonts/font8x8.json')
@@ -59,7 +64,7 @@ class GKS:
         self.buffer_updated: bool = False
         self.rendering: bool = False
         self.font = self.load_font()
-        self.video_buffer: list[list[RGB]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+        self.video_buffer: list[list[RGB | int]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
 
     def clear(self) -> None:
         """Clear video buffer in place."""
@@ -67,7 +72,7 @@ class GKS:
             for x in range(len(self.video_buffer[y])):
                 self.video_buffer[y][x] = self.BLACK
 
-    def set_pixel(self, x: int, y: int, color: RGB = WHITE) -> None:
+    def set_pixel(self, x: int, y: int, color: int | RGB = WHITE) -> None:
         """Set a single pixels color."""
         if x < 0 or y < 0 or x >= self.width or y >= self.height:
             raise ValueError(f'Point: ({x}, {y}) is no within video buffer dimensions: {self.width}x{self.height}')
@@ -75,7 +80,7 @@ class GKS:
         self.video_buffer[y][x] = color
         self.buffer_updated = True
 
-    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB = WHITE) -> None:
+    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE) -> None:
         """Draw a line between two points, using a given color."""
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
@@ -95,7 +100,7 @@ class GKS:
             y = round(m * x + b)
             self.set_pixel(x, y, color)
 
-    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: RGB = WHITE) -> None:
+    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE) -> None:
         """Draw a line between two points, using a given color.
 
         Somehow harder to understand than circle midpoint. This wasn't too hard to implement, but hard to really
@@ -138,7 +143,7 @@ class GKS:
                 running_decision_parameter += dx
                 y1 += sy
 
-    def draw_rect(self, x: int, y: int, width: int, height: int, color: RGB = WHITE) -> None:
+    def draw_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE) -> None:
         """Draw a four sided object, of a given color and size, starting at point (x,y)."""
         # Have to subtract one to avoid over running.  Width represents how wide rect is, points included.
         x2 = x + width - 1
@@ -149,7 +154,7 @@ class GKS:
         self.draw_line(x, y, x, y2, color)  # Left
         self.draw_line(x2, y, x2, y2, color)  # Right
 
-    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: RGB = WHITE) -> None:
+    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE) -> None:
         """Draw a filled four sided object, of a given color and size, starting at point (x,y).
 
         Just iterate through every pixel and set it to the given color.
@@ -158,7 +163,7 @@ class GKS:
             for col in range(x, x + width):
                 self.set_pixel(col, row, color)
 
-    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
         """Draw a circle around center point, starting at point (x,y).
 
         This is currently using cartesian method based on relationship between x and y. Improvements Soon™.
@@ -174,7 +179,7 @@ class GKS:
             self.set_pixel(x, y1, color)
             self.set_pixel(x, y2, color)
 
-    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
         """Draw a circle around the center point, starting at point (x,y).
 
         Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
@@ -218,7 +223,7 @@ class GKS:
 
             x += 1
 
-    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Decided to start with the most obvious version. I know I can do better based on what I learned with circle
@@ -229,7 +234,7 @@ class GKS:
                 if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
                     self.set_pixel(x, y, color)
 
-    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: RGB = WHITE) -> None:
+    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Another pretty easy one. Just isolate x. I'll learn the blended circle midpoint/span method eventually, but
@@ -273,6 +278,10 @@ class GKS:
             for x in range(self.width):
                 top = self.video_buffer[y][x]
                 bottom = self.video_buffer[y + 1][x] if y + 1 < self.height else self.BLACK
+                if isinstance(top, int):
+                    top = self.CURRENT_PALETTE[top]
+                if isinstance(bottom, int):
+                    bottom = self.CURRENT_PALETTE[bottom]
 
                 bg_ansi = f"\x1b[48;2;{top[0]};{top[1]};{top[2]}m"
                 fg_ansi = f"\x1b[38;2;{bottom[0]};{bottom[1]};{bottom[2]}m"
@@ -376,4 +385,28 @@ class GKS:
 
 if __name__ == '__main__':
     gks = GKS()
-    gks.set_pixel(-2, 4)
+    sys.stdout.write(gks.ENTER_ALT_SCREEN)
+    sys.stdout.write(gks.HIDE_CURSOR)
+    palettes = collections.deque([gks.COLOR_PALETTE_1, gks.COLOR_PALETTE_2, gks.COLOR_PALETTE_3])
+    # for x in range(20, 41):
+    #     for y in range(20, 41):
+    #         gks.set_pixel(x, y, 1)
+    #
+    # for x in range(50, 71):
+    #     for y in range(50, 71):
+    #         gks.set_pixel(x, y, 0)
+    gks.draw_rect(50, 50, 20, 20, 1)
+    gks.draw_filled_rect(55, 55, 10, 10, 0)
+    gks.draw_frame()
+    try:
+        while True:
+            time.sleep(1.5)
+            palettes.rotate(1)
+            gks.CURRENT_PALETTE = palettes[0]
+            gks.draw_frame()
+    finally:
+        sys.stdout.write(gks.SHOW_CURSOR)
+        sys.stdout.write(gks.EXIT_ALT_SCREEN)
+    # gks.set_pixel(-2, 4)
+    # gks.draw_filled_rect(40, 40, 20, 20, 1)
+
