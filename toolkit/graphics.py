@@ -280,6 +280,66 @@ class GKS:
         for row_index, row in enumerate(bitmap):
             self.video_buffer[y_start + row_index][x_start:x_start + bitmap_width] = row
 
+    def draw_sprite(self, sprite: BITMAP, x_sprite_coordinate: int, y_sprite_coordinate: int) -> None:
+        """Draw a sprite while preserving the background beneath translucent pixels."""
+        if not sprite or not sprite[0]:
+            raise ValueError("Sprite must not be empty")
+
+        sprite_height = len(sprite)
+        sprite_width = len(sprite[0])
+
+        if any(len(row) != sprite_width for row in sprite):
+            raise ValueError("Sprite rows must have equal widths")
+
+        # Find the first sprite column visible on screen.
+        # If x is negative, its inverse will be positive and that many pixels are clipped from the sprite.
+        sprite_left_edge = max(0, -x_sprite_coordinate)
+        # Find the first sprite row visible on screen. Same as left edge
+        sprite_top_edge = max(0, -y_sprite_coordinate)
+
+        # Min of actual sprite dimension and the number of sprite row/columns that can fit before canvas edges.
+        sprite_right_edge = min(sprite_width, self.width - x_sprite_coordinate)
+        sprite_bottom_edge = min(sprite_height, self.height - y_sprite_coordinate)
+
+        # If invalid slice range, the entire sprite is outside the video buffer.
+        if sprite_left_edge >= sprite_right_edge or sprite_top_edge >= sprite_bottom_edge:
+            return
+
+        # Iterate through sprite rows that are visible.
+        for sprite_row_index in range(sprite_top_edge, sprite_bottom_edge):
+            # Translate visible sprite row into its destination video buffer row.
+            buffer_row_index = sprite_row_index + y_sprite_coordinate
+
+            # Grab visible section of sprite row.
+            sprite_row = sprite[sprite_row_index][sprite_left_edge:sprite_right_edge]
+
+            # Translate the visible sprite columns into buffer columns.
+            destination_left = x_sprite_coordinate + sprite_left_edge
+            destination_right = x_sprite_coordinate + sprite_right_edge
+
+            # Get the buffer destination row.
+            destination_row = self.video_buffer[buffer_row_index]
+
+            # Save the existing pixels so translucent sprite pixels can preserve them.
+            existing_row = destination_row[destination_left:destination_right]
+
+            # All translucent
+            if all(pixel is TRANSLUCENT for pixel in sprite_row):
+                continue
+
+            # None translucent
+            if all(pixel is not TRANSLUCENT for pixel in sprite_row):
+                destination_row[destination_left:destination_right] = sprite_row
+                continue
+
+            # Merge rows, keep old pixel if translucent sprite pixel, else use sprite pixel.
+            destination_row[destination_left:destination_right] = [
+                old_pixel if sprite_pixel is TRANSLUCENT else sprite_pixel
+                for old_pixel, sprite_pixel in zip(existing_row, sprite_row)
+            ]
+
+        self.buffer_updated = True
+
     def draw_frame(self) -> None:
         """Draw a single frame to the terminal."""
         sys.stdout.write(self.CURSOR_TO_TOP)
