@@ -76,12 +76,18 @@ class GKS:
             for x in range(len(self.video_buffer[y])):
                 self.video_buffer[y][x] = self.BLACK
 
-    def set_pixel(self, x: int, y: int, color: int | RGB = WHITE) -> None:
+    def set_pixel(self, x: int, y: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Set a single pixels color."""
-        if x < 0 or y < 0 or x >= self.width or y >= self.height:
-            raise ValueError(f'Point: ({x}, {y}) is no within video buffer dimensions: {self.width}x{self.height}')
+        if canvas is None:
+            canvas = self.video_buffer
 
-        self.video_buffer[y][x] = color
+        canvas_height = len(canvas)
+        canvas_width = len(canvas[0]) if canvas_height else 0
+
+        if not (0 <= x < canvas_width and 0 <= y < canvas_height):
+            return
+
+        canvas[y][x] = color
         self.buffer_updated = True
 
     def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE) -> None:
@@ -238,7 +244,7 @@ class GKS:
                 if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
                     self.set_pixel(x, y, color)
 
-    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
+    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Another pretty easy one. Just isolate x. I'll learn the blended circle midpoint/span method eventually, but
@@ -251,7 +257,7 @@ class GKS:
             right = round(center_x + x_offset)
 
             for x in range(left, right + 1):
-                self.set_pixel(x, y, color)
+                self.set_pixel(x, y, color, canvas)
 
     def draw_sprite(self, x: int, y: int, sprite_data):
         """Draw sprite from given data, starting at point (x,y)."""
