@@ -259,8 +259,8 @@ class GKS:
             for x in range(left, right + 1):
                 self.set_pixel(x, y, color, canvas)
 
-    def draw_sprite(self, x: int, y: int, sprite_data):
-        """Draw sprite from given data, starting at point (x,y)."""
+    def draw_background(self):
+        """Generic background drawing method. Customize as needed."""
         pass
 
     def blit(self, bitmap: BITMAP , x_start: int = 0, y_start: int = 0) -> None:
@@ -313,6 +313,14 @@ class GKS:
             """Handle a keypress."""
             pass
 
+    def do_stuff(self) -> None:
+        """Realized there was no easy way to add work to render loop without going through commands. Quick fix.
+
+        Of course, I could just add work directly to the render loop, but I want to leave the loop as decoupled as
+        possible from any program specific work done within the loop.
+        """
+        pass
+
     def start_render_loop(self, frame_rate: int, command_handler=None) -> None:
         """Initiate the main render loop.
 
@@ -325,12 +333,17 @@ class GKS:
             frame_duration = 1 / frame_rate
             self.rendering = True
             while self.rendering:
+                self.do_stuff()
                 start_time = time.perf_counter()
                 if command_handler is not None and msvcrt.kbhit():
                     key = msvcrt.getwch()
                     command_handler.handle(key)
 
                 if self.buffer_updated:
+                    self.draw_background()
+                    for sprite in self.sprites:
+                        sprite = self.sprites[sprite]
+                        self.draw_sprite(sprite.bitmap, sprite.position[0], sprite.position[1])
                     self.draw_frame()
                     self.buffer_updated = False
 
