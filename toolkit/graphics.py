@@ -265,6 +265,8 @@ class GKS:
 
     def blit(self, bitmap: BITMAP , x_start: int = 0, y_start: int = 0) -> None:
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
+        if not bitmap or not bitmap[0]:
+            raise ValueError("Bitmap must not be empty.")
 
         bitmap_height = len(bitmap)
         bitmap_width = len(bitmap[0])
