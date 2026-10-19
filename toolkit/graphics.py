@@ -18,6 +18,7 @@ import msvcrt
 import sys
 import time
 import urllib.request
+from dataclasses import dataclass
 from math import sqrt
 from typing import Final
 
@@ -384,6 +385,24 @@ class GKS:
         x_offset = (self.width - (len(word) * 8)) // 2
 
         self.draw_chars(word, x_offset, y, color)
+
+@dataclass
+class Sprite:
+    name: str
+    position: list[int]
+    width: int
+    height: int
+    bitmap: BITMAP | None = None
+
+    def create_canvas(self, width: int, height: int):
+        canvas = [[TRANSLUCENT] * width for _ in range(height)]
+        self.bitmap = canvas
+
+    def __post_init__(self):
+        self.create_canvas(self.width, self.height)
+
+
+
 
 
 if __name__ == '__main__':
