@@ -489,29 +489,71 @@ class Sprite:
 
 
 if __name__ == '__main__':
-    gks = GKS()
+    class MyGKS(GKS):
+        sprite_1_direction = True
+        sprite_2_direction = True
+        def draw_background(self):
+            gks.draw_filled_rect(0, 0, 134, 100)
+
+        def move_sprite(self, dir_flag, sprite):
+            if dir_flag:
+                if sprite.position[0] + sprite.width < self.width:
+                    sprite.position[0] += 1
+                    self.buffer_updated = True
+                else:
+                    return False
+            else:
+                if sprite.position[0] > 0:
+                    sprite.position[0] -= 1
+                    self.buffer_updated = True
+                else:
+                    return True
+
+        def do_stuff(self) -> None:
+            for sprite in self.sprites.values():
+                if sprite.name == 'pizza':
+                    dir_flag = self.move_sprite(self.sprite_1_direction, sprite)
+                    if dir_flag is not None:
+                        self.sprite_1_direction = dir_flag
+
+                else:
+                    dir_flag = self.move_sprite(self.sprite_2_direction, sprite)
+                    if dir_flag is not None:
+                        self.sprite_2_direction = dir_flag
+
+
+
+    gks = MyGKS()
     sys.stdout.write(gks.ENTER_ALT_SCREEN)
     sys.stdout.write(gks.HIDE_CURSOR)
-    palettes = collections.deque([gks.COLOR_PALETTE_1, gks.COLOR_PALETTE_2, gks.COLOR_PALETTE_3])
-    # for x in range(20, 41):
-    #     for y in range(20, 41):
-    #         gks.set_pixel(x, y, 1)
-    #
-    # for x in range(50, 71):
-    #     for y in range(50, 71):
-    #         gks.set_pixel(x, y, 0)
-    gks.draw_rect(50, 50, 20, 20, 1)
-    gks.draw_filled_rect(55, 55, 10, 10, 0)
-    gks.draw_frame()
+    pizza = Sprite('pizza', [-160, 0], 40, 40)
+    gks.sprites[pizza.name] = pizza
+
+    gks.draw_filled_circle_span(17, 17, 16, (198, 124, 56), pizza.bitmap)
+    gks.draw_filled_circle_span(17, 17, 14, (244, 196, 48), pizza.bitmap)
+
+    another_pizza = Sprite('another_pizza', [-80, 50], 40, 40)
+    gks.sprites[another_pizza.name] = another_pizza
+
+    gks.draw_filled_circle_span(20, 20, 19, (198, 124, 56), another_pizza.bitmap)
+    gks.draw_filled_circle_span(20, 20, 17, (244, 196, 48), another_pizza.bitmap)
+
     try:
-        while True:
-            time.sleep(1.5)
-            palettes.rotate(1)
-            gks.CURRENT_PALETTE = palettes[0]
-            gks.draw_frame()
+        gks.start_render_loop(60)
+
+    # palettes = collections.deque([gks.COLOR_PALETTE_1, gks.COLOR_PALETTE_2, gks.COLOR_PALETTE_3])
+    #
+    # gks.draw_rect(50, 50, 20, 20, 1)
+    # gks.draw_filled_rect(55, 55, 10, 10, 0)
+    # gks.draw_frame()
+    # try:
+    #     while True:
+    #         time.sleep(1.5)
+    #         palettes.rotate(1)
+    #         gks.CURRENT_PALETTE = palettes[0]
+    #         gks.draw_frame()
     finally:
         sys.stdout.write(gks.SHOW_CURSOR)
         sys.stdout.write(gks.EXIT_ALT_SCREEN)
     # gks.set_pixel(-2, 4)
     # gks.draw_filled_rect(40, 40, 20, 20, 1)
-
