@@ -438,7 +438,7 @@ class GKS:
 
         return (row >> (width - 1 - bit_index)) & 1
 
-    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE):
+    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE,  canvas: BITMAP | None = None):
         """Draw chars from given word, using built-in font, starting at point (x,y)."""
         word = word.upper()
         unsupported_characters = [char for char in word if char not in self.font]
@@ -457,9 +457,9 @@ class GKS:
                     bottom = self.get_pixel(a_glyph[y + 1], x)
 
                     if top:
-                        self.set_pixel(x_start + x, y_start + y, color)
+                        self.set_pixel(x_start + x, y_start + y, color, canvas)
                     if bottom:
-                        self.set_pixel(x_start + x, y_start + y + 1, color)
+                        self.set_pixel(x_start + x, y_start + y + 1, color, canvas)
 
             x_start += 8
 
