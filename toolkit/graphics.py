@@ -21,9 +21,11 @@ import urllib.request
 from math import sqrt
 from typing import Final
 
-type RGB = tuple[int, int, int]
-type BITMAP = list[list[RGB]]
 
+RGB = tuple[int, int, int]
+TRANSLUCENT = None
+PIXEL = RGB | int | TRANSLUCENT
+BITMAP = list[list[PIXEL]]
 
 class GKS:
     """A class for drawing vector and bitmapped graphics to the terminal.
@@ -64,7 +66,8 @@ class GKS:
         self.buffer_updated: bool = False
         self.rendering: bool = False
         self.font = self.load_font()
-        self.video_buffer: list[list[RGB | int]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+        self.video_buffer: list[list[PIXEL]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+        self.sprites = {}
 
     def clear(self) -> None:
         """Clear video buffer in place."""
