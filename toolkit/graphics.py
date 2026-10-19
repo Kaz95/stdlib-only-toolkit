@@ -263,6 +263,8 @@ class GKS:
         """Generic background drawing method. Customize as needed."""
         pass
 
+    # FIXME: This is somewhat deprecated. I still think there's a use for a normal blit method, but I need to remove
+    #   buffer boundaries....or maybe not. Might be useful for redrawing background. If I saved a snapshot I could blit.
     def blit(self, bitmap: BITMAP , x_start: int = 0, y_start: int = 0) -> None:
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
         if not bitmap or not bitmap[0]:
