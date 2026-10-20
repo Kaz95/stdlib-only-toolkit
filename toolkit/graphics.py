@@ -90,7 +90,7 @@ class GKS:
         canvas[y][x] = color
         self.buffer_updated = True
 
-    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE) -> None:
+    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a line between two points, using a given color."""
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
@@ -99,7 +99,7 @@ class GKS:
         if delta_of_x == 0:
             step = 1 if y2 >= y1 else -1
             for y in range(y1, y2 + step, step):
-                self.set_pixel(x1, y, color)
+                self.set_pixel(x1, y, color, canvas)
             return
 
         m = delta_of_y / delta_of_x
@@ -110,7 +110,7 @@ class GKS:
             y = round(m * x + b)
             self.set_pixel(x, y, color)
 
-    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE) -> None:
+    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a line between two points, using a given color.
 
         Somehow harder to understand than circle midpoint. This wasn't too hard to implement, but hard to really
@@ -133,7 +133,7 @@ class GKS:
         running_decision_parameter = dx - dy
 
         while True:
-            self.set_pixel(x1, y1, color)
+            self.set_pixel(x1, y1, color, canvas)
             if x1 == x2 and y1 == y2:
                 break
 
@@ -153,27 +153,27 @@ class GKS:
                 running_decision_parameter += dx
                 y1 += sy
 
-    def draw_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE) -> None:
+    def draw_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a four sided object, of a given color and size, starting at point (x,y)."""
         # Have to subtract one to avoid over running.  Width represents how wide rect is, points included.
         x2 = x + width - 1
         y2 = y + height - 1
 
-        self.draw_line(x, y, x2, y, color)  # Top
-        self.draw_line(x, y2, x2, y2, color)  # Bottom
-        self.draw_line(x, y, x, y2, color)  # Left
-        self.draw_line(x2, y, x2, y2, color)  # Right
+        self.draw_line(x, y, x2, y, color, canvas)  # Top
+        self.draw_line(x, y2, x2, y2, color, canvas)  # Bottom
+        self.draw_line(x, y, x, y2, color, canvas)  # Left
+        self.draw_line(x2, y, x2, y2, color, canvas)  # Right
 
-    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE) -> None:
+    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a filled four sided object, of a given color and size, starting at point (x,y).
 
         Just iterate through every pixel and set it to the given color.
         """
         for row in range(y, y + height):
             for col in range(x, x + width):
-                self.set_pixel(col, row, color)
+                self.set_pixel(col, row, color, canvas)
 
-    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
+    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a circle around center point, starting at point (x,y).
 
         This is currently using cartesian method based on relationship between x and y. Improvements Soon™.
@@ -186,10 +186,10 @@ class GKS:
             y1 = round(center_y - y_offset)
             y2 = round(center_y + y_offset)
 
-            self.set_pixel(x, y1, color)
-            self.set_pixel(x, y2, color)
+            self.set_pixel(x, y1, color, canvas)
+            self.set_pixel(x, y2, color, canvas)
 
-    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a circle around the center point, starting at point (x,y).
 
         Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
@@ -213,15 +213,15 @@ class GKS:
         while x <= y:
             # 8-way symmetry
             # It took me forever to wrap my head around the final conversion to screen coordinates
-            self.set_pixel(center_x + x, center_y + y, color)
-            self.set_pixel(center_x - x, center_y + y, color)
-            self.set_pixel(center_x + x, center_y - y, color)
-            self.set_pixel(center_x - x, center_y - y, color)
+            self.set_pixel(center_x + x, center_y + y, color, canvas)
+            self.set_pixel(center_x - x, center_y + y, color, canvas)
+            self.set_pixel(center_x + x, center_y - y, color, canvas)
+            self.set_pixel(center_x - x, center_y - y, color, canvas)
 
-            self.set_pixel(center_x + y, center_y + x, color)
-            self.set_pixel(center_x - y, center_y + x, color)
-            self.set_pixel(center_x + y, center_y - x, color)
-            self.set_pixel(center_x - y, center_y - x, color)
+            self.set_pixel(center_x + y, center_y + x, color, canvas)
+            self.set_pixel(center_x - y, center_y + x, color, canvas)
+            self.set_pixel(center_x + y, center_y - x, color, canvas)
+            self.set_pixel(center_x - y, center_y - x, color, canvas)
 
             if running_decision_parameter < 0:
                 # Choose East
@@ -233,7 +233,7 @@ class GKS:
 
             x += 1
 
-    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
+    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Decided to start with the most obvious version. I know I can do better based on what I learned with circle
@@ -242,7 +242,7 @@ class GKS:
         for y in range(center_y - radius, center_y + radius + 1):
             for x in range(center_x - radius, center_x + radius + 1):
                 if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
-                    self.set_pixel(x, y, color)
+                    self.set_pixel(x, y, color, canvas)
 
     def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
@@ -438,7 +438,7 @@ class GKS:
 
         return (row >> (width - 1 - bit_index)) & 1
 
-    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE,  canvas: BITMAP | None = None):
+    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE, canvas: BITMAP | None = None):
         """Draw chars from given word, using built-in font, starting at point (x,y)."""
         word = word.upper()
         unsupported_characters = [char for char in word if char not in self.font]
@@ -463,11 +463,11 @@ class GKS:
 
             x_start += 8
 
-    def draw_centered_chars(self, word: str, y: int, color: RGB = WHITE):
+    def draw_centered_chars(self, word: str, y: int, color: RGB = WHITE, canvas: BITMAP | None = None):
         """Draw center aligned characters. Centered within canvas total width."""
         x_offset = (self.width - (len(word) * 8)) // 2
 
-        self.draw_chars(word, x_offset, y, color)
+        self.draw_chars(word, x_offset, y, color, canvas)
 
 @dataclass
 class Sprite:
