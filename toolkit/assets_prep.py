@@ -2,6 +2,11 @@
 
 Decided to make this a standalone script. I'll probably just include the final bitmap data in the final project. My
 hope is to be able to reuse this in the future, similar to the basic font set and drawing class I'm using.
+
+TODO:
+    So far, I've only used this for the Panera logo. May need to consider removing this from the repo altogether.
+    I can still use it when I want to convert an image, but it doesnt have to be in the repo. Would remove the need
+    for uv. I'll probably remove it before next main merge.
 """
 import shutil, json
 import urllib.request
