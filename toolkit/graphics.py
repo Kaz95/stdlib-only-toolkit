@@ -375,7 +375,10 @@ class GKS:
 
         def handle(self, key):
             """Handle a keypress."""
-            pass
+            match key:
+                case 'q':
+                    return 'quit'
+
 
     def do_stuff(self) -> None:
         """Realized there was no easy way to add work to render loop without going through commands. Quick fix.
@@ -401,7 +404,9 @@ class GKS:
                 start_time = time.perf_counter()
                 if command_handler is not None and msvcrt.kbhit():
                     key = msvcrt.getwch()
-                    command_handler.handle(key)
+                    flag = command_handler.handle(key)
+                    if flag == 'quit':
+                        break
 
                 if self.buffer_updated:
                     self.draw_background()
@@ -552,7 +557,7 @@ if __name__ == '__main__':
 
 
     try:
-        gks.start_render_loop(60)
+        gks.start_render_loop(60, chandler)
 
     # palettes = collections.deque([gks.COLOR_PALETTE_1, gks.COLOR_PALETTE_2, gks.COLOR_PALETTE_3])
     #
