@@ -69,6 +69,7 @@ class GKS:
         self.font = self.load_font()
         self.video_buffer: list[list[PIXEL]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
         self.sprites = {}
+        self.active_sprites = []
 
     def clear(self) -> None:
         """Clear video buffer in place."""
@@ -410,8 +411,7 @@ class GKS:
 
                 if self.buffer_updated:
                     self.draw_background()
-                    for sprite in self.sprites:
-                        sprite = self.sprites[sprite]
+                    for sprite in self.active_sprites:
                         self.draw_sprite(sprite.bitmap, sprite.position[0], sprite.position[1])
                     self.draw_frame()
                     self.buffer_updated = False
@@ -552,6 +552,9 @@ if __name__ == '__main__':
     glyphs = Sprite('logo', [-40, 45], 40, 8)
     gks.sprites[glyphs.name] = glyphs
     gks.draw_chars('pizza', 0, 0, (244, 196, 48), glyphs.bitmap)
+
+    for sprite in gks.sprites.values():
+        gks.active_sprites.append(sprite)
 
     chandler = gks.CommandHandler()
 
