@@ -476,18 +476,20 @@ class GKS:
 
 @dataclass
 class Sprite:
+    """Sprite class that encompasses data that makes up a sprite."""
     name: str
     position: list[int]
     width: int
     height: int
     bitmap: BITMAP | None = None
 
-    def create_canvas(self, width: int, height: int):
+    def _create_canvas(self, width: int, height: int):
+        """Create canvas with given width and height. Default pixel state is translucent."""
         canvas = [[TRANSLUCENT] * width for _ in range(height)]
         self.bitmap = canvas
 
     def __post_init__(self):
-        self.create_canvas(self.width, self.height)
+        self._create_canvas(self.width, self.height)
 
 
 
