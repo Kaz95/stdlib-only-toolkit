@@ -195,6 +195,82 @@ def test_blit_defaults_to_top_left_origin():
     assert gks.video_buffer[0][:2] == bitmap[0]
 
 
+def test_draw_sprite_overwrites_background_with_opaque_pixels():
+    """Opaque sprite pixels should replace the corresponding background pixels."""
+    gks = GKS(4, 3)
+    background = (10, 20, 30)
+    sprite_color = (200, 100, 50)
+
+    gks.set_pixel(1, 1, background)
+    gks.buffer_updated = False
+
+    gks.draw_sprite([[sprite_color]], 1, 1)
+
+    assert gks.video_buffer[1][1] == sprite_color
+    assert gks.buffer_updated is True
+
+
+def test_draw_sprite_preserves_background_for_translucent_pixels():
+    """Translucent sprite pixels should leave the background unchanged."""
+    gks = GKS(4, 3)
+    background = (10, 20, 30)
+
+    gks.set_pixel(1, 1, background)
+    gks.buffer_updated = False
+
+    gks.draw_sprite([[graphics.TRANSLUCENT]], 1, 1)
+
+    assert gks.video_buffer[1][1] == background
+    assert gks.buffer_updated is True
+
+
+def test_draw_sprite_merges_translucent_and_opaque_pixels():
+    """Each sprite pixel should either replace or preserve its destination pixel."""
+    gks = GKS(4, 3)
+    background = (10, 20, 30)
+    sprite_color = (200, 100, 50)
+    gks.video_buffer[1][1:3] = [background, background]
+    gks.buffer_updated = False
+
+    gks.draw_sprite([[sprite_color, graphics.TRANSLUCENT]], 1, 1)
+
+    assert gks.video_buffer[1][1:3] == [sprite_color, background]
+    assert gks.buffer_updated is True
+
+
+def test_draw_sprite_clips_pixels_outside_canvas():
+    """Only the visible portion of a partially off-screen sprite should be drawn."""
+    gks = GKS(3, 2)
+    color = (200, 100, 50)
+    sprite = [[color, color], [color, color]]
+
+    gks.draw_sprite(sprite, -1, 0)
+
+    assert gks.video_buffer[0][0] == color
+    assert gks.video_buffer[1][0] == color
+    assert all(
+        gks.video_buffer[y][x] == gks.BLACK
+        for y in range(2)
+        for x in range(1, 3)
+    )
+
+
+@pytest.mark.parametrize(
+    "sprite",
+    [
+        [],
+        [[]],
+        [[GKS.WHITE], [GKS.WHITE, GKS.WHITE]],
+    ],
+)
+def test_draw_sprite_rejects_invalid_sprite(sprite):
+    """Empty and uneven-row sprites should be rejected."""
+    gks = GKS(3, 2)
+
+    with pytest.raises(ValueError):
+        gks.draw_sprite(sprite, 0, 0)
+
+
 def test_draw_line_draws_horizontal_and_vertical_segments():
     """Line drawing must cover the full segment, including axis-aligned lines."""
     gks = GKS(8, 6)
