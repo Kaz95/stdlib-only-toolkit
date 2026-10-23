@@ -27,6 +27,14 @@ def test_constructor_initializes_blank_buffer():
     assert all(pixel == gks.BLACK for row in gks.video_buffer for pixel in row)
 
 
+def test_sprite_initializes_translucent_bitmap_from_dimensions():
+    """A sprite should create a translucent bitmap matching its dimensions."""
+    sprite = graphics.Sprite("test", [0, 0], 3, 2)
+
+    assert sprite.bitmap == [[graphics.TRANSLUCENT] * 3 for _ in range(2)]
+    assert sprite.bitmap[0] is not sprite.bitmap[1]
+
+
 def test_clear_restores_black_pixels():
     """Clearing should erase any previous drawing by resetting every pixel."""
     gks = GKS(8, 6)
