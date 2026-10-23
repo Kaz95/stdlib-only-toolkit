@@ -18,12 +18,15 @@ import msvcrt
 import sys
 import time
 import urllib.request
+from dataclasses import dataclass
 from math import sqrt
 from typing import Final
 
-type RGB = tuple[int, int, int]
-type BITMAP = list[list[RGB]]
 
+RGB = tuple[int, int, int]
+TRANSLUCENT = None
+PIXEL = RGB | int | TRANSLUCENT
+BITMAP = list[list[PIXEL]]
 
 class GKS:
     """A class for drawing vector and bitmapped graphics to the terminal.
@@ -64,7 +67,9 @@ class GKS:
         self.buffer_updated: bool = False
         self.rendering: bool = False
         self.font = self.load_font()
-        self.video_buffer: list[list[RGB | int]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+        self.video_buffer: list[list[PIXEL]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
+        self.sprites = {}
+        self.active_sprites = []
 
     def clear(self) -> None:
         """Clear video buffer in place."""
@@ -72,15 +77,21 @@ class GKS:
             for x in range(len(self.video_buffer[y])):
                 self.video_buffer[y][x] = self.BLACK
 
-    def set_pixel(self, x: int, y: int, color: int | RGB = WHITE) -> None:
+    def set_pixel(self, x: int, y: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Set a single pixels color."""
-        if x < 0 or y < 0 or x >= self.width or y >= self.height:
-            raise ValueError(f'Point: ({x}, {y}) is no within video buffer dimensions: {self.width}x{self.height}')
+        if canvas is None:
+            canvas = self.video_buffer
 
-        self.video_buffer[y][x] = color
+        canvas_height = len(canvas)
+        canvas_width = len(canvas[0]) if canvas_height else 0
+
+        if not (0 <= x < canvas_width and 0 <= y < canvas_height):
+            return
+
+        canvas[y][x] = color
         self.buffer_updated = True
 
-    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE) -> None:
+    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a line between two points, using a given color."""
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
@@ -89,7 +100,7 @@ class GKS:
         if delta_of_x == 0:
             step = 1 if y2 >= y1 else -1
             for y in range(y1, y2 + step, step):
-                self.set_pixel(x1, y, color)
+                self.set_pixel(x1, y, color, canvas)
             return
 
         m = delta_of_y / delta_of_x
@@ -100,7 +111,7 @@ class GKS:
             y = round(m * x + b)
             self.set_pixel(x, y, color)
 
-    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE) -> None:
+    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a line between two points, using a given color.
 
         Somehow harder to understand than circle midpoint. This wasn't too hard to implement, but hard to really
@@ -123,7 +134,7 @@ class GKS:
         running_decision_parameter = dx - dy
 
         while True:
-            self.set_pixel(x1, y1, color)
+            self.set_pixel(x1, y1, color, canvas)
             if x1 == x2 and y1 == y2:
                 break
 
@@ -143,27 +154,27 @@ class GKS:
                 running_decision_parameter += dx
                 y1 += sy
 
-    def draw_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE) -> None:
+    def draw_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a four sided object, of a given color and size, starting at point (x,y)."""
         # Have to subtract one to avoid over running.  Width represents how wide rect is, points included.
         x2 = x + width - 1
         y2 = y + height - 1
 
-        self.draw_line(x, y, x2, y, color)  # Top
-        self.draw_line(x, y2, x2, y2, color)  # Bottom
-        self.draw_line(x, y, x, y2, color)  # Left
-        self.draw_line(x2, y, x2, y2, color)  # Right
+        self.draw_line(x, y, x2, y, color, canvas)  # Top
+        self.draw_line(x, y2, x2, y2, color, canvas)  # Bottom
+        self.draw_line(x, y, x, y2, color, canvas)  # Left
+        self.draw_line(x2, y, x2, y2, color, canvas)  # Right
 
-    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE) -> None:
+    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a filled four sided object, of a given color and size, starting at point (x,y).
 
         Just iterate through every pixel and set it to the given color.
         """
         for row in range(y, y + height):
             for col in range(x, x + width):
-                self.set_pixel(col, row, color)
+                self.set_pixel(col, row, color, canvas)
 
-    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
+    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a circle around center point, starting at point (x,y).
 
         This is currently using cartesian method based on relationship between x and y. Improvements Soon™.
@@ -176,10 +187,10 @@ class GKS:
             y1 = round(center_y - y_offset)
             y2 = round(center_y + y_offset)
 
-            self.set_pixel(x, y1, color)
-            self.set_pixel(x, y2, color)
+            self.set_pixel(x, y1, color, canvas)
+            self.set_pixel(x, y2, color, canvas)
 
-    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a circle around the center point, starting at point (x,y).
 
         Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
@@ -203,15 +214,15 @@ class GKS:
         while x <= y:
             # 8-way symmetry
             # It took me forever to wrap my head around the final conversion to screen coordinates
-            self.set_pixel(center_x + x, center_y + y, color)
-            self.set_pixel(center_x - x, center_y + y, color)
-            self.set_pixel(center_x + x, center_y - y, color)
-            self.set_pixel(center_x - x, center_y - y, color)
+            self.set_pixel(center_x + x, center_y + y, color, canvas)
+            self.set_pixel(center_x - x, center_y + y, color, canvas)
+            self.set_pixel(center_x + x, center_y - y, color, canvas)
+            self.set_pixel(center_x - x, center_y - y, color, canvas)
 
-            self.set_pixel(center_x + y, center_y + x, color)
-            self.set_pixel(center_x - y, center_y + x, color)
-            self.set_pixel(center_x + y, center_y - x, color)
-            self.set_pixel(center_x - y, center_y - x, color)
+            self.set_pixel(center_x + y, center_y + x, color, canvas)
+            self.set_pixel(center_x - y, center_y + x, color, canvas)
+            self.set_pixel(center_x + y, center_y - x, color, canvas)
+            self.set_pixel(center_x - y, center_y - x, color, canvas)
 
             if running_decision_parameter < 0:
                 # Choose East
@@ -223,7 +234,7 @@ class GKS:
 
             x += 1
 
-    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
+    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Decided to start with the most obvious version. I know I can do better based on what I learned with circle
@@ -232,9 +243,9 @@ class GKS:
         for y in range(center_y - radius, center_y + radius + 1):
             for x in range(center_x - radius, center_x + radius + 1):
                 if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
-                    self.set_pixel(x, y, color)
+                    self.set_pixel(x, y, color, canvas)
 
-    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE) -> None:
+    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Another pretty easy one. Just isolate x. I'll learn the blended circle midpoint/span method eventually, but
@@ -247,14 +258,18 @@ class GKS:
             right = round(center_x + x_offset)
 
             for x in range(left, right + 1):
-                self.set_pixel(x, y, color)
+                self.set_pixel(x, y, color, canvas)
 
-    def draw_sprite(self, x: int, y: int, sprite_data):
-        """Draw sprite from given data, starting at point (x,y)."""
+    def draw_background(self):
+        """Generic background drawing method. Customize as needed."""
         pass
 
+    # FIXME: This is somewhat deprecated. I still think there's a use for a normal blit method, but I need to remove
+    #   buffer boundaries....or maybe not. Might be useful for redrawing background. If I saved a snapshot I could blit.
     def blit(self, bitmap: BITMAP , x_start: int = 0, y_start: int = 0) -> None:
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
+        if not bitmap or not bitmap[0]:
+            raise ValueError("Bitmap must not be empty.")
 
         bitmap_height = len(bitmap)
         bitmap_width = len(bitmap[0])
@@ -269,6 +284,66 @@ class GKS:
 
         for row_index, row in enumerate(bitmap):
             self.video_buffer[y_start + row_index][x_start:x_start + bitmap_width] = row
+
+    def draw_sprite(self, sprite_bitmap: BITMAP, x_sprite_coordinate: int, y_sprite_coordinate: int) -> None:
+        """Draw a sprite while preserving the background beneath translucent pixels."""
+        if not sprite_bitmap or not sprite_bitmap[0]:
+            raise ValueError("Sprite must not be empty")
+
+        sprite_height = len(sprite_bitmap)
+        sprite_width = len(sprite_bitmap[0])
+
+        if any(len(row) != sprite_width for row in sprite_bitmap):
+            raise ValueError("Sprite rows must have equal widths")
+
+        # Find the first sprite column visible on screen.
+        # If x is negative, its inverse will be positive and that many pixels are clipped from the sprite.
+        sprite_left_edge = max(0, -x_sprite_coordinate)
+        # Find the first sprite row visible on screen. Same as left edge
+        sprite_top_edge = max(0, -y_sprite_coordinate)
+
+        # Min of actual sprite dimension and the number of sprite row/columns that can fit before canvas edges.
+        sprite_right_edge = min(sprite_width, self.width - x_sprite_coordinate)
+        sprite_bottom_edge = min(sprite_height, self.height - y_sprite_coordinate)
+
+        # If invalid slice range, the entire sprite is outside the video buffer.
+        if sprite_left_edge >= sprite_right_edge or sprite_top_edge >= sprite_bottom_edge:
+            return
+
+        # Iterate through sprite rows that are visible.
+        for sprite_row_index in range(sprite_top_edge, sprite_bottom_edge):
+            # Translate visible sprite row into its destination video buffer row.
+            buffer_row_index = sprite_row_index + y_sprite_coordinate
+
+            # Grab visible section of sprite row.
+            sprite_row = sprite_bitmap[sprite_row_index][sprite_left_edge:sprite_right_edge]
+
+            # Translate the visible sprite columns into buffer columns.
+            destination_left = x_sprite_coordinate + sprite_left_edge
+            destination_right = x_sprite_coordinate + sprite_right_edge
+
+            # Get the buffer destination row.
+            destination_row = self.video_buffer[buffer_row_index]
+
+            # Save the existing pixels so translucent sprite pixels can preserve them.
+            existing_row = destination_row[destination_left:destination_right]
+
+            # All translucent
+            if all(pixel is TRANSLUCENT for pixel in sprite_row):
+                continue
+
+            # None translucent
+            if all(pixel is not TRANSLUCENT for pixel in sprite_row):
+                destination_row[destination_left:destination_right] = sprite_row
+                continue
+
+            # Merge rows, keep old pixel if translucent sprite pixel, else use sprite pixel.
+            destination_row[destination_left:destination_right] = [
+                old_pixel if sprite_pixel is TRANSLUCENT else sprite_pixel
+                for old_pixel, sprite_pixel in zip(existing_row, sprite_row)
+            ]
+
+        self.buffer_updated = True
 
     def draw_frame(self) -> None:
         """Draw a single frame to the terminal."""
@@ -301,7 +376,18 @@ class GKS:
 
         def handle(self, key):
             """Handle a keypress."""
-            pass
+            match key:
+                case 'q':
+                    return 'quit'
+
+
+    def do_stuff(self) -> None:
+        """Realized there was no easy way to add work to render loop without going through commands. Quick fix.
+
+        Of course, I could just add work directly to the render loop, but I want to leave the loop as decoupled as
+        possible from any program specific work done within the loop.
+        """
+        pass
 
     def start_render_loop(self, frame_rate: int, command_handler=None) -> None:
         """Initiate the main render loop.
@@ -315,12 +401,18 @@ class GKS:
             frame_duration = 1 / frame_rate
             self.rendering = True
             while self.rendering:
+                self.do_stuff()
                 start_time = time.perf_counter()
                 if command_handler is not None and msvcrt.kbhit():
                     key = msvcrt.getwch()
-                    command_handler.handle(key)
+                    flag = command_handler.handle(key)
+                    if flag == 'quit':
+                        break
 
                 if self.buffer_updated:
+                    self.draw_background()
+                    for sprite in self.active_sprites:
+                        self.draw_sprite(sprite.bitmap, sprite.position[0], sprite.position[1])
                     self.draw_frame()
                     self.buffer_updated = False
 
@@ -351,7 +443,7 @@ class GKS:
 
         return (row >> (width - 1 - bit_index)) & 1
 
-    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE):
+    def draw_chars(self, word: str, x_start: int, y_start: int, color: RGB = WHITE, canvas: BITMAP | None = None):
         """Draw chars from given word, using built-in font, starting at point (x,y)."""
         word = word.upper()
         unsupported_characters = [char for char in word if char not in self.font]
@@ -370,43 +462,121 @@ class GKS:
                     bottom = self.get_pixel(a_glyph[y + 1], x)
 
                     if top:
-                        self.set_pixel(x_start + x, y_start + y, color)
+                        self.set_pixel(x_start + x, y_start + y, color, canvas)
                     if bottom:
-                        self.set_pixel(x_start + x, y_start + y + 1, color)
+                        self.set_pixel(x_start + x, y_start + y + 1, color, canvas)
 
             x_start += 8
 
-    def draw_centered_chars(self, word: str, y: int, color: RGB = WHITE):
+    def draw_centered_chars(self, word: str, y: int, color: RGB = WHITE, canvas: BITMAP | None = None):
         """Draw center aligned characters. Centered within canvas total width."""
         x_offset = (self.width - (len(word) * 8)) // 2
 
-        self.draw_chars(word, x_offset, y, color)
+        self.draw_chars(word, x_offset, y, color, canvas)
+
+@dataclass
+class Sprite:
+    """Sprite class that encompasses data that makes up a sprite."""
+    name: str
+    position: list[int]
+    width: int
+    height: int
+    bitmap: BITMAP | None = None
+
+    def _create_canvas(self, width: int, height: int):
+        """Create canvas with given width and height. Default pixel state is translucent."""
+        canvas = [[TRANSLUCENT] * width for _ in range(height)]
+        self.bitmap = canvas
+
+    def __post_init__(self):
+        self._create_canvas(self.width, self.height)
+
+
+
 
 
 if __name__ == '__main__':
-    gks = GKS()
+    class MyGKS(GKS):
+        sprite_1_direction = True
+        sprite_2_direction = True
+        sprite_3_direction = True
+        def draw_background(self):
+            gks.draw_filled_rect(0, 0, 134, 100)
+
+        def move_sprite(self, dir_flag, sprite):
+            if dir_flag:
+                if sprite.position[0] + sprite.width < self.width:
+                    sprite.position[0] += 1
+                    self.buffer_updated = True
+                else:
+                    return False
+            else:
+                if sprite.position[0] > 0:
+                    sprite.position[0] -= 1
+                    self.buffer_updated = True
+                else:
+                    return True
+
+        def do_stuff(self) -> None:
+            for sprite in self.sprites.values():
+                if sprite.name == 'pizza':
+                    dir_flag = self.move_sprite(self.sprite_1_direction, sprite)
+                    if dir_flag is not None:
+                        self.sprite_1_direction = dir_flag
+
+                elif sprite.name == 'another_pizza':
+                    dir_flag = self.move_sprite(self.sprite_2_direction, sprite)
+                    if dir_flag is not None:
+                        self.sprite_2_direction = dir_flag
+
+                else:
+                    dir_flag = self.move_sprite(self.sprite_3_direction, sprite)
+                    if dir_flag is not None:
+                        self.sprite_3_direction = dir_flag
+
+
+
+    gks = MyGKS()
     sys.stdout.write(gks.ENTER_ALT_SCREEN)
     sys.stdout.write(gks.HIDE_CURSOR)
-    palettes = collections.deque([gks.COLOR_PALETTE_1, gks.COLOR_PALETTE_2, gks.COLOR_PALETTE_3])
-    # for x in range(20, 41):
-    #     for y in range(20, 41):
-    #         gks.set_pixel(x, y, 1)
-    #
-    # for x in range(50, 71):
-    #     for y in range(50, 71):
-    #         gks.set_pixel(x, y, 0)
-    gks.draw_rect(50, 50, 20, 20, 1)
-    gks.draw_filled_rect(55, 55, 10, 10, 0)
-    gks.draw_frame()
+    pizza = Sprite('pizza', [-160, 0], 40, 40)
+    gks.sprites[pizza.name] = pizza
+
+    gks.draw_filled_circle_span(17, 17, 16, (198, 124, 56), pizza.bitmap)
+    gks.draw_filled_circle_span(17, 17, 14, (244, 196, 48), pizza.bitmap)
+
+    another_pizza = Sprite('another_pizza', [-80, 60], 40, 40)
+    gks.sprites[another_pizza.name] = another_pizza
+
+    gks.draw_filled_circle_span(17, 17, 16, (198, 124, 56), another_pizza.bitmap)
+    gks.draw_filled_circle_span(17, 17, 14, (244, 196, 48), another_pizza.bitmap)
+
+    glyphs = Sprite('logo', [-40, 45], 40, 8)
+    gks.sprites[glyphs.name] = glyphs
+    gks.draw_chars('pizza', 0, 0, (244, 196, 48), glyphs.bitmap)
+
+    for sprite in gks.sprites.values():
+        gks.active_sprites.append(sprite)
+
+    chandler = gks.CommandHandler()
+
+
     try:
-        while True:
-            time.sleep(1.5)
-            palettes.rotate(1)
-            gks.CURRENT_PALETTE = palettes[0]
-            gks.draw_frame()
+        gks.start_render_loop(60, chandler)
+
+    # palettes = collections.deque([gks.COLOR_PALETTE_1, gks.COLOR_PALETTE_2, gks.COLOR_PALETTE_3])
+    #
+    # gks.draw_rect(50, 50, 20, 20, 1)
+    # gks.draw_filled_rect(55, 55, 10, 10, 0)
+    # gks.draw_frame()
+    # try:
+    #     while True:
+    #         time.sleep(1.5)
+    #         palettes.rotate(1)
+    #         gks.CURRENT_PALETTE = palettes[0]
+    #         gks.draw_frame()
     finally:
         sys.stdout.write(gks.SHOW_CURSOR)
         sys.stdout.write(gks.EXIT_ALT_SCREEN)
     # gks.set_pixel(-2, 4)
     # gks.draw_filled_rect(40, 40, 20, 20, 1)
-
