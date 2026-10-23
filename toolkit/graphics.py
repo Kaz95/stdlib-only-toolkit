@@ -6,6 +6,10 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
+    * Refactor/format module
+    * Write issue concerning project wide buffer clipping. Currently only sprite drawing has it implemented.
+    * Write issue for remote stored sprites
+    * Write issue for bitmap based sprites
     * Consider using factory pattern for creating bitmaps in the expected form. Would allow input validation to be a
         type check and remove need for complex custom type.
     * Considering using new and old circle methods as a way to learn a how to benchmark and profile exactly where the
