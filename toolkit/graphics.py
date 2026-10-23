@@ -285,15 +285,15 @@ class GKS:
         for row_index, row in enumerate(bitmap):
             self.video_buffer[y_start + row_index][x_start:x_start + bitmap_width] = row
 
-    def draw_sprite(self, sprite: BITMAP, x_sprite_coordinate: int, y_sprite_coordinate: int) -> None:
+    def draw_sprite(self, sprite_bitmap: BITMAP, x_sprite_coordinate: int, y_sprite_coordinate: int) -> None:
         """Draw a sprite while preserving the background beneath translucent pixels."""
-        if not sprite or not sprite[0]:
+        if not sprite_bitmap or not sprite_bitmap[0]:
             raise ValueError("Sprite must not be empty")
 
-        sprite_height = len(sprite)
-        sprite_width = len(sprite[0])
+        sprite_height = len(sprite_bitmap)
+        sprite_width = len(sprite_bitmap[0])
 
-        if any(len(row) != sprite_width for row in sprite):
+        if any(len(row) != sprite_width for row in sprite_bitmap):
             raise ValueError("Sprite rows must have equal widths")
 
         # Find the first sprite column visible on screen.
@@ -316,7 +316,7 @@ class GKS:
             buffer_row_index = sprite_row_index + y_sprite_coordinate
 
             # Grab visible section of sprite row.
-            sprite_row = sprite[sprite_row_index][sprite_left_edge:sprite_right_edge]
+            sprite_row = sprite_bitmap[sprite_row_index][sprite_left_edge:sprite_right_edge]
 
             # Translate the visible sprite columns into buffer columns.
             destination_left = x_sprite_coordinate + sprite_left_edge
