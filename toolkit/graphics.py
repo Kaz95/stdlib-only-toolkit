@@ -54,6 +54,7 @@ class GKS:
     WHITE: Final[RGB] = (255, 255, 255)
     WIDTH: Final[int] = 134
     HEIGHT: Final[int] = 100
+    TRANSLUCENT = None
     COLOR_PALETTE_1 = {0: (0, 255, 0), 1: WHITE}
     COLOR_PALETTE_2 = {0: (0, 255, 255), 1: (255, 0, 0)}
     COLOR_PALETTE_3 = {0: (0, 0, 255), 1: (255, 255, 0)}
@@ -61,6 +62,8 @@ class GKS:
 
     REMOTE_FONT_URL: Final[str] = (r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets'
                                    r'/fonts/font8x8.json')
+
+    SPRITES = {}
 
     def __init__(self, width: int = WIDTH, height: int = HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
