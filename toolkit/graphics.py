@@ -22,6 +22,7 @@ import msvcrt
 import sys
 import time
 import urllib.request
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from math import sqrt
 from typing import Final
@@ -494,6 +495,30 @@ class Sprite:
 
     def __post_init__(self):
         self._create_canvas(self.width, self.height)
+
+
+class Animation(ABC):
+    def __init__(self, sprite, steps, target):
+        self.sprite = sprite
+        self.steps = steps
+        self.progress = 0
+        self.direction = True
+        self.pre_calcd_values = []
+        self.target = target
+
+    def lerp(self):
+        pass
+
+    def next_step(self):
+        pass
+
+    @abstractmethod
+    def calc_steps(self):
+        pass
+
+class FadeAnimation(Animation):
+    def calc_steps(self):
+        pass
 
 
 
