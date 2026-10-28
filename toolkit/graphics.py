@@ -521,7 +521,9 @@ class FadeAnimation(Animation):
         pass
 
 
-
+class MoveAnimation(Animation):
+    def calc_steps(self):
+        pass
 
 
 if __name__ == '__main__':
