@@ -508,8 +508,10 @@ class Animation(ABC):
         self.pre_calcd_values = []
         self.target = target
 
-    def lerp(self):
-        pass
+    def lerp(self, start, target, progress):
+        """Generic lerp method."""
+        result = start + (target - start) * progress
+        return result
 
     def next_step(self):
         pass
