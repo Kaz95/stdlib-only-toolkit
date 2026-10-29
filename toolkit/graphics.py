@@ -513,7 +513,9 @@ class Animation(ABC):
         result = start + (target - start) * progress
         return result
 
+    @abstractmethod
     def next_step(self):
+        """Generic next step."""
         pass
 
     @abstractmethod
@@ -524,9 +526,15 @@ class FadeAnimation(Animation):
     def calc_steps(self):
         pass
 
+    def next_step(self):
+        pass
+
 
 class MoveAnimation(Animation):
     def calc_steps(self):
+        pass
+
+    def next_step(self):
         pass
 
 
