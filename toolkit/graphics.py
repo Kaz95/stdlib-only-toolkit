@@ -75,6 +75,8 @@ class GKS:
         self.video_buffer: list[list[PIXEL]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
         self.sprites = {}
         self.active_sprites = []
+        self.animations = {}
+        self.active_animations = []
 
     def clear(self) -> None:
         """Clear video buffer in place."""
