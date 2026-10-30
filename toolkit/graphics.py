@@ -574,7 +574,8 @@ if __name__ == '__main__':
             gks.draw_filled_rect(0, 0, 134, 100)
 
         def do_stuff(self) -> None:
-            self.active_animations[0].next_step()
+            for animation in self.active_animations:
+                animation.next_step()
             self.buffer_updated = True
 
         # def move_sprite(self, dir_flag, sprite):
@@ -632,8 +633,16 @@ if __name__ == '__main__':
     for sprite in gks.sprites.values():
         gks.active_sprites.append(sprite)
 
-    bounce = MoveAnimation(glyphs, 120, [gks.width - glyphs.width + 45,45])
-    gks.active_animations.append(bounce)
+
+
+    bounce_top_pizza = MoveAnimation(pizza, 180, [gks.width - glyphs.width + 160, 0])
+    gks.active_animations.append(bounce_top_pizza)
+
+    bounce_bottom_pizza = MoveAnimation(another_pizza, 120, [gks.width - glyphs.width + 80, 60])
+    gks.active_animations.append(bounce_bottom_pizza)
+
+    bounce_glyphs = MoveAnimation(glyphs, 120, [gks.width - glyphs.width + 45, 45])
+    gks.active_animations.append(bounce_glyphs)
 
     chandler = gks.CommandHandler()
 
