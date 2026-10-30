@@ -567,15 +567,36 @@ if __name__ == '__main__':
                     if dir_flag is not None:
                         self.sprite_1_direction = dir_flag
 
-                elif sprite.name == 'another_pizza':
-                    dir_flag = self.move_sprite(self.sprite_2_direction, sprite)
-                    if dir_flag is not None:
-                        self.sprite_2_direction = dir_flag
-
-                else:
-                    dir_flag = self.move_sprite(self.sprite_3_direction, sprite)
-                    if dir_flag is not None:
-                        self.sprite_3_direction = dir_flag
+        # def move_sprite(self, dir_flag, sprite):
+        #     if dir_flag:
+        #         if sprite.position[0] + sprite.width < self.width:
+        #             sprite.position[0] += 1
+        #             self.buffer_updated = True
+        #         else:
+        #             return False
+        #     else:
+        #         if sprite.position[0] > 0:
+        #             sprite.position[0] -= 1
+        #             self.buffer_updated = True
+        #         else:
+        #             return True
+        #
+        # def do_stuff(self) -> None:
+        #     for sprite in self.sprites.values():
+        #         if sprite.name == 'pizza':
+        #             dir_flag = self.move_sprite(self.sprite_1_direction, sprite)
+        #             if dir_flag is not None:
+        #                 self.sprite_1_direction = dir_flag
+        #
+        #         elif sprite.name == 'another_pizza':
+        #             dir_flag = self.move_sprite(self.sprite_2_direction, sprite)
+        #             if dir_flag is not None:
+        #                 self.sprite_2_direction = dir_flag
+        #
+        #         else:
+        #             dir_flag = self.move_sprite(self.sprite_3_direction, sprite)
+        #             if dir_flag is not None:
+        #                 self.sprite_3_direction = dir_flag
 
 
 
@@ -594,7 +615,7 @@ if __name__ == '__main__':
     gks.draw_filled_circle_span(17, 17, 16, (198, 124, 56), another_pizza.bitmap)
     gks.draw_filled_circle_span(17, 17, 14, (244, 196, 48), another_pizza.bitmap)
 
-    glyphs = Sprite('logo', [-40, 45], 40, 8)
+    glyphs = Sprite('logo', [0, 45], 40, 8)
     gks.sprites[glyphs.name] = glyphs
     gks.draw_chars('pizza', 0, 0, (244, 196, 48), glyphs.bitmap)
 
