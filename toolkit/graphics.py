@@ -531,11 +531,38 @@ class FadeAnimation(Animation):
 
 
 class MoveAnimation(Animation):
+    def __init__(self, sprite, steps, target):
+        super().__init__(sprite, steps, target)
+
+    def calc_a_step(self, progress):
+        x = self.sprite.position[0]
+        y = self.sprite.position[1]
+        x = int(self.lerp(x, self.target[0], progress))
+        y = int(self.lerp(y, self.target[1], progress))
+        return x, y
+
     def calc_steps(self):
-        pass
+        results = []
+        for step in range(self.steps + 1):
+            progress = step / self.steps
+            results.append(self.calc_a_step(progress))
+        return results
 
     def next_step(self):
-        pass
+        if self.direction:
+            if self.progress < self.steps:
+                self.sprite.position = list(self.pre_calcd_values[self.progress])
+                self.progress += 1
+            else:
+                self.direction = False
+                self.progress -= 1
+        else:
+            if self.progress >= 0:
+                self.sprite.position = list(self.pre_calcd_values[self.progress])
+                self.progress -= 1
+            else:
+                self.direction = True
+                self.progress += 1
 
 
 if __name__ == '__main__':
@@ -546,26 +573,9 @@ if __name__ == '__main__':
         def draw_background(self):
             gks.draw_filled_rect(0, 0, 134, 100)
 
-        def move_sprite(self, dir_flag, sprite):
-            if dir_flag:
-                if sprite.position[0] + sprite.width < self.width:
-                    sprite.position[0] += 1
-                    self.buffer_updated = True
-                else:
-                    return False
-            else:
-                if sprite.position[0] > 0:
-                    sprite.position[0] -= 1
-                    self.buffer_updated = True
-                else:
-                    return True
-
         def do_stuff(self) -> None:
-            for sprite in self.sprites.values():
-                if sprite.name == 'pizza':
-                    dir_flag = self.move_sprite(self.sprite_1_direction, sprite)
-                    if dir_flag is not None:
-                        self.sprite_1_direction = dir_flag
+            self.active_animations[0].next_step()
+            self.buffer_updated = True
 
         # def move_sprite(self, dir_flag, sprite):
         #     if dir_flag:
@@ -621,6 +631,9 @@ if __name__ == '__main__':
 
     for sprite in gks.sprites.values():
         gks.active_sprites.append(sprite)
+
+    bounce = MoveAnimation(glyphs, 60, [45,45])
+    gks.active_animations.append(bounce)
 
     chandler = gks.CommandHandler()
 
