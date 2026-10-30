@@ -505,8 +505,8 @@ class Animation(ABC):
         self.steps = steps
         self.progress = 0
         self.direction = True
-        self.pre_calcd_values = []
         self.target = target
+        self.pre_calcd_values = self.calc_steps()
 
     def lerp(self, start, target, progress):
         """Generic lerp method."""
