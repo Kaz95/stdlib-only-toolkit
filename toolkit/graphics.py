@@ -625,14 +625,14 @@ if __name__ == '__main__':
     gks.draw_filled_circle_span(17, 17, 16, (198, 124, 56), another_pizza.bitmap)
     gks.draw_filled_circle_span(17, 17, 14, (244, 196, 48), another_pizza.bitmap)
 
-    glyphs = Sprite('logo', [0, 45], 40, 8)
+    glyphs = Sprite('logo', [-45, 45], 40, 8)
     gks.sprites[glyphs.name] = glyphs
     gks.draw_chars('pizza', 0, 0, (244, 196, 48), glyphs.bitmap)
 
     for sprite in gks.sprites.values():
         gks.active_sprites.append(sprite)
 
-    bounce = MoveAnimation(glyphs, 120, [gks.width - glyphs.width,45])
+    bounce = MoveAnimation(glyphs, 120, [gks.width - glyphs.width + 45,45])
     gks.active_animations.append(bounce)
 
     chandler = gks.CommandHandler()
