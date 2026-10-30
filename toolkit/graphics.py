@@ -632,7 +632,7 @@ if __name__ == '__main__':
     for sprite in gks.sprites.values():
         gks.active_sprites.append(sprite)
 
-    bounce = MoveAnimation(glyphs, 60, [45,45])
+    bounce = MoveAnimation(glyphs, 120, [gks.width - glyphs.width,45])
     gks.active_animations.append(bounce)
 
     chandler = gks.CommandHandler()
