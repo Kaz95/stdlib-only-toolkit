@@ -523,11 +523,43 @@ class Animation(ABC):
         pass
 
 class FadeAnimation(Animation):
+    def render_interpolated_bitmap(self, progress):
+        new_bitmap = []
+        for row in self.sprite.bitmap:
+            temp_row = []
+            for pixel in row:
+                if pixel is not TRANSLUCENT:
+                    r = int(self.lerp(pixel[0], self.target[0], progress))
+                    g = int(self.lerp(pixel[1], self.target[1], progress))
+                    b = int(self.lerp(pixel[2], self.target[2], progress))
+                    temp_row.append((r,g,b))
+                else:
+                    temp_row.append(TRANSLUCENT)
+            new_bitmap.append(temp_row)
+        return new_bitmap
+
     def calc_steps(self):
-        pass
+        results = []
+        for step in range(self.steps + 1):
+            progress = step / self.steps
+            results.append(self.render_interpolated_bitmap(progress))
+        return results
 
     def next_step(self):
-        pass
+        if self.direction:
+            if self.progress < self.steps:
+                self.sprite.bitmap = self.pre_calcd_values[self.progress]
+                self.progress += 1
+            else:
+                self.direction = False
+                self.progress -= 1
+        else:
+            if self.progress >= 0:
+                self.sprite.bitmap = self.pre_calcd_values[self.progress]
+                self.progress -= 1
+            else:
+                self.direction = True
+                self.progress += 1
 
 
 class MoveAnimation(Animation):
@@ -635,14 +667,17 @@ if __name__ == '__main__':
 
 
 
-    bounce_top_pizza = MoveAnimation(pizza, 180, [gks.width - glyphs.width + 160, 0])
+    bounce_top_pizza = MoveAnimation(pizza, 360, [gks.width - glyphs.width + 160, 0])
     gks.active_animations.append(bounce_top_pizza)
 
-    bounce_bottom_pizza = MoveAnimation(another_pizza, 120, [gks.width - glyphs.width + 80, 60])
+    bounce_bottom_pizza = MoveAnimation(another_pizza, 240, [gks.width - glyphs.width + 80, 60])
     gks.active_animations.append(bounce_bottom_pizza)
 
-    bounce_glyphs = MoveAnimation(glyphs, 120, [gks.width - glyphs.width + 45, 45])
+    bounce_glyphs = MoveAnimation(glyphs, 240, [gks.width - glyphs.width + 45, 45])
     gks.active_animations.append(bounce_glyphs)
+
+    fade_glyphs = FadeAnimation(glyphs, 120, (0,0,0))
+    gks.active_animations.append(fade_glyphs)
 
     chandler = gks.CommandHandler()
 
