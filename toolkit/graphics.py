@@ -6,9 +6,10 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
+    * Write an issue outlining plans for next project: Color Theory
     * Write issue to review and update docstrings
     * Write an issue to extend test coverage
-    * Write an issue to
+    * Write an issue to store color palettes in deque and use index to access
     * Refactor/format module
     * Write issue concerning project wide buffer clipping. Currently only sprite drawing has it implemented.
     * Write issue for remote stored sprites
