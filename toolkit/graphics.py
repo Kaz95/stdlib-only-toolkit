@@ -623,9 +623,7 @@ class MoveAnimation(Animation):
 
 if __name__ == '__main__':
     class MyGKS(GKS):
-        sprite_1_direction = True
-        sprite_2_direction = True
-        sprite_3_direction = True
+
         def draw_background(self):
             gks.draw_filled_rect(0, 0, 134, 100)
 
