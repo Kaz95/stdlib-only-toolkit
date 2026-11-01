@@ -500,6 +500,7 @@ class Sprite:
 
 
 class Animation(ABC):
+    """Animation abstract base class."""
     def __init__(self, sprite, steps, target):
         self.sprite = sprite
         self.steps = steps
@@ -509,21 +510,27 @@ class Animation(ABC):
         self.pre_calcd_values = self.calc_steps()
 
     def lerp(self, start, target, progress):
-        """Generic lerp method."""
+        """Generic linear interpolation method."""
         result = start + (target - start) * progress
         return result
 
     @abstractmethod
     def next_step(self):
-        """Generic next step."""
+        """Generic method that advances the animation to the next step."""
         pass
 
     @abstractmethod
     def calc_steps(self):
+        """Generic method to precompute animation steps."""
         pass
 
 class FadeAnimation(Animation):
+    """Concrete FadeAnimation class.
+
+    Fade between two colors. Forward and back.
+    """
     def render_interpolated_bitmap(self, progress):
+        """Render an intermediate bitmap based on current progress of the linear interpolation."""
         new_bitmap = []
         for row in self.sprite.bitmap:
             temp_row = []
@@ -539,6 +546,7 @@ class FadeAnimation(Animation):
         return new_bitmap
 
     def calc_steps(self):
+        """Precompute the intermediate bitmaps between starting bitmap and the target color."""
         results = []
         for step in range(self.steps + 1):
             progress = step / self.steps
@@ -546,6 +554,7 @@ class FadeAnimation(Animation):
         return results
 
     def next_step(self):
+        """Advance the animation to the next bitmap. Reverse direction when an end point is reached."""
         if self.direction:
             if self.progress < self.steps:
                 self.sprite.bitmap = self.pre_calcd_values[self.progress]
@@ -563,10 +572,15 @@ class FadeAnimation(Animation):
 
 
 class MoveAnimation(Animation):
+    """Concrete MoveAnimation class.
+
+    Move between two points. Forward and back.
+    """
     def __init__(self, sprite, steps, target):
         super().__init__(sprite, steps, target)
 
-    def calc_a_step(self, progress):
+    def precompute_next_position(self, progress):
+        """Precompute the next position based on progress of the linear interpolation."""
         x = self.sprite.position[0]
         y = self.sprite.position[1]
         x = int(self.lerp(x, self.target[0], progress))
@@ -574,6 +588,7 @@ class MoveAnimation(Animation):
         return x, y
 
     def calc_steps(self):
+        """Precompute the intermediate positions between start and target position."""
         results = []
         for step in range(self.steps + 1):
             progress = step / self.steps
@@ -581,6 +596,7 @@ class MoveAnimation(Animation):
         return results
 
     def next_step(self):
+        """Advance the animation to the next position. Reverse direction when an end point is reached."""
         if self.direction:
             if self.progress < self.steps:
                 self.sprite.position = list(self.pre_calcd_values[self.progress])
