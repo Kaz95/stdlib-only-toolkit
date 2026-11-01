@@ -6,6 +6,9 @@ My goal is to create a very rudimentary graphics library I can use for the rest 
 learn about packaging a library for distribution.
 
 TODO:
+    * Write issue to review and update docstrings
+    * Write an issue to extend test coverage
+    * Write an issue to
     * Refactor/format module
     * Write issue concerning project wide buffer clipping. Currently only sprite drawing has it implemented.
     * Write issue for remote stored sprites
@@ -623,9 +626,7 @@ class MoveAnimation(Animation):
 
 if __name__ == '__main__':
     class MyGKS(GKS):
-        sprite_1_direction = True
-        sprite_2_direction = True
-        sprite_3_direction = True
+
         def draw_background(self):
             gks.draw_filled_rect(0, 0, 134, 100)
 
