@@ -416,6 +416,11 @@ class GKS:
                     if flag == 'quit':
                         break
 
+                if self.active_animations:
+                    self.buffer_updated = True
+                    for animation in self.active_animations:
+                        animation.next_step()
+
                 if self.buffer_updated:
                     self.draw_background()
                     for sprite in self.active_sprites:
@@ -622,41 +627,7 @@ if __name__ == '__main__':
             gks.draw_filled_rect(0, 0, 134, 100)
 
         def do_stuff(self) -> None:
-            for animation in self.active_animations:
-                animation.next_step()
-            self.buffer_updated = True
-
-        # def move_sprite(self, dir_flag, sprite):
-        #     if dir_flag:
-        #         if sprite.position[0] + sprite.width < self.width:
-        #             sprite.position[0] += 1
-        #             self.buffer_updated = True
-        #         else:
-        #             return False
-        #     else:
-        #         if sprite.position[0] > 0:
-        #             sprite.position[0] -= 1
-        #             self.buffer_updated = True
-        #         else:
-        #             return True
-        #
-        # def do_stuff(self) -> None:
-        #     for sprite in self.sprites.values():
-        #         if sprite.name == 'pizza':
-        #             dir_flag = self.move_sprite(self.sprite_1_direction, sprite)
-        #             if dir_flag is not None:
-        #                 self.sprite_1_direction = dir_flag
-        #
-        #         elif sprite.name == 'another_pizza':
-        #             dir_flag = self.move_sprite(self.sprite_2_direction, sprite)
-        #             if dir_flag is not None:
-        #                 self.sprite_2_direction = dir_flag
-        #
-        #         else:
-        #             dir_flag = self.move_sprite(self.sprite_3_direction, sprite)
-        #             if dir_flag is not None:
-        #                 self.sprite_3_direction = dir_flag
-
+            pass
 
 
     gks = MyGKS()
