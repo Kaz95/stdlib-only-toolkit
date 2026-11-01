@@ -22,6 +22,7 @@ import msvcrt
 import sys
 import time
 import urllib.request
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from math import sqrt
 from typing import Final
@@ -77,6 +78,8 @@ class GKS:
         self.video_buffer: list[list[PIXEL]] = [[(0, 0, 0)] * self.width for _ in range(self.height)]
         self.sprites = {}
         self.active_sprites = []
+        self.animations = {}
+        self.active_animations = []
 
     def clear(self) -> None:
         """Clear video buffer in place."""
@@ -416,6 +419,11 @@ class GKS:
                     if flag == 'quit':
                         break
 
+                if self.active_animations:
+                    self.buffer_updated = True
+                    for animation in self.active_animations:
+                        animation.next_step()
+
                 if self.buffer_updated:
                     self.draw_background()
                     for sprite in self.active_sprites:
@@ -499,7 +507,118 @@ class Sprite:
         self._create_canvas(self.width, self.height)
 
 
+class Animation(ABC):
+    """Animation abstract base class."""
+    def __init__(self, sprite, steps, target):
+        self.sprite = sprite
+        self.steps = steps
+        self.progress = 0
+        self.direction = True
+        self.target = target
+        self.pre_calcd_values = self.precompute_steps()
 
+    def lerp(self, start, target, progress):
+        """Generic linear interpolation method."""
+        result = start + (target - start) * progress
+        return result
+
+    @abstractmethod
+    def next_step(self):
+        """Generic method that advances the animation to the next step."""
+        pass
+
+    @abstractmethod
+    def precompute_steps(self):
+        """Generic method to precompute animation steps."""
+        pass
+
+class FadeAnimation(Animation):
+    """Concrete FadeAnimation class.
+
+    Fade between two colors. Forward and back.
+    """
+    def render_interpolated_bitmap(self, progress):
+        """Render an intermediate bitmap based on current progress of the linear interpolation."""
+        new_bitmap = []
+        for row in self.sprite.bitmap:
+            temp_row = []
+            for pixel in row:
+                if pixel is not TRANSLUCENT:
+                    r = int(self.lerp(pixel[0], self.target[0], progress))
+                    g = int(self.lerp(pixel[1], self.target[1], progress))
+                    b = int(self.lerp(pixel[2], self.target[2], progress))
+                    temp_row.append((r,g,b))
+                else:
+                    temp_row.append(TRANSLUCENT)
+            new_bitmap.append(temp_row)
+        return new_bitmap
+
+    def precompute_steps(self):
+        """Precompute the intermediate bitmaps between starting bitmap and the target color."""
+        results = []
+        for step in range(self.steps + 1):
+            progress = step / self.steps
+            results.append(self.render_interpolated_bitmap(progress))
+        return results
+
+    def next_step(self):
+        """Advance the animation to the next bitmap. Reverse direction when an end point is reached."""
+        if self.direction:
+            if self.progress < self.steps:
+                self.sprite.bitmap = self.pre_calcd_values[self.progress]
+                self.progress += 1
+            else:
+                self.direction = False
+                self.progress -= 1
+        else:
+            if self.progress >= 0:
+                self.sprite.bitmap = self.pre_calcd_values[self.progress]
+                self.progress -= 1
+            else:
+                self.direction = True
+                self.progress += 1
+
+
+class MoveAnimation(Animation):
+    """Concrete MoveAnimation class.
+
+    Move between two points. Forward and back.
+    """
+    def __init__(self, sprite, steps, target):
+        super().__init__(sprite, steps, target)
+
+    def precompute_next_position(self, progress):
+        """Precompute the next position based on progress of the linear interpolation."""
+        x = self.sprite.position[0]
+        y = self.sprite.position[1]
+        x = int(self.lerp(x, self.target[0], progress))
+        y = int(self.lerp(y, self.target[1], progress))
+        return x, y
+
+    def precompute_steps(self):
+        """Precompute the intermediate positions between start and target position."""
+        results = []
+        for step in range(self.steps + 1):
+            progress = step / self.steps
+            results.append(self.precompute_next_position(progress))
+        return results
+
+    def next_step(self):
+        """Advance the animation to the next position. Reverse direction when an end point is reached."""
+        if self.direction:
+            if self.progress < self.steps:
+                self.sprite.position = list(self.pre_calcd_values[self.progress])
+                self.progress += 1
+            else:
+                self.direction = False
+                self.progress -= 1
+        else:
+            if self.progress >= 0:
+                self.sprite.position = list(self.pre_calcd_values[self.progress])
+                self.progress -= 1
+            else:
+                self.direction = True
+                self.progress += 1
 
 
 if __name__ == '__main__':
@@ -510,37 +629,8 @@ if __name__ == '__main__':
         def draw_background(self):
             gks.draw_filled_rect(0, 0, 134, 100)
 
-        def move_sprite(self, dir_flag, sprite):
-            if dir_flag:
-                if sprite.position[0] + sprite.width < self.width:
-                    sprite.position[0] += 1
-                    self.buffer_updated = True
-                else:
-                    return False
-            else:
-                if sprite.position[0] > 0:
-                    sprite.position[0] -= 1
-                    self.buffer_updated = True
-                else:
-                    return True
-
         def do_stuff(self) -> None:
-            for sprite in self.sprites.values():
-                if sprite.name == 'pizza':
-                    dir_flag = self.move_sprite(self.sprite_1_direction, sprite)
-                    if dir_flag is not None:
-                        self.sprite_1_direction = dir_flag
-
-                elif sprite.name == 'another_pizza':
-                    dir_flag = self.move_sprite(self.sprite_2_direction, sprite)
-                    if dir_flag is not None:
-                        self.sprite_2_direction = dir_flag
-
-                else:
-                    dir_flag = self.move_sprite(self.sprite_3_direction, sprite)
-                    if dir_flag is not None:
-                        self.sprite_3_direction = dir_flag
-
+            pass
 
 
     gks = MyGKS()
@@ -558,12 +648,26 @@ if __name__ == '__main__':
     gks.draw_filled_circle_span(17, 17, 16, (198, 124, 56), another_pizza.bitmap)
     gks.draw_filled_circle_span(17, 17, 14, (244, 196, 48), another_pizza.bitmap)
 
-    glyphs = Sprite('logo', [-40, 45], 40, 8)
+    glyphs = Sprite('logo', [-45, 45], 40, 8)
     gks.sprites[glyphs.name] = glyphs
     gks.draw_chars('pizza', 0, 0, (244, 196, 48), glyphs.bitmap)
 
     for sprite in gks.sprites.values():
         gks.active_sprites.append(sprite)
+
+
+
+    bounce_top_pizza = MoveAnimation(pizza, 360, [gks.width - glyphs.width + 160, 0])
+    gks.active_animations.append(bounce_top_pizza)
+
+    bounce_bottom_pizza = MoveAnimation(another_pizza, 240, [gks.width - glyphs.width + 80, 60])
+    gks.active_animations.append(bounce_bottom_pizza)
+
+    bounce_glyphs = MoveAnimation(glyphs, 240, [gks.width - glyphs.width + 45, 45])
+    gks.active_animations.append(bounce_glyphs)
+
+    fade_glyphs = FadeAnimation(glyphs, 120, (0,0,0))
+    gks.active_animations.append(fade_glyphs)
 
     chandler = gks.CommandHandler()
 
