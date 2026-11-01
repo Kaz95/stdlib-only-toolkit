@@ -507,7 +507,7 @@ class Animation(ABC):
         self.progress = 0
         self.direction = True
         self.target = target
-        self.pre_calcd_values = self.calc_steps()
+        self.pre_calcd_values = self.precompute_steps()
 
     def lerp(self, start, target, progress):
         """Generic linear interpolation method."""
@@ -520,7 +520,7 @@ class Animation(ABC):
         pass
 
     @abstractmethod
-    def calc_steps(self):
+    def precompute_steps(self):
         """Generic method to precompute animation steps."""
         pass
 
@@ -545,7 +545,7 @@ class FadeAnimation(Animation):
             new_bitmap.append(temp_row)
         return new_bitmap
 
-    def calc_steps(self):
+    def precompute_steps(self):
         """Precompute the intermediate bitmaps between starting bitmap and the target color."""
         results = []
         for step in range(self.steps + 1):
@@ -587,12 +587,12 @@ class MoveAnimation(Animation):
         y = int(self.lerp(y, self.target[1], progress))
         return x, y
 
-    def calc_steps(self):
+    def precompute_steps(self):
         """Precompute the intermediate positions between start and target position."""
         results = []
         for step in range(self.steps + 1):
             progress = step / self.steps
-            results.append(self.calc_a_step(progress))
+            results.append(self.precompute_next_position(progress))
         return results
 
     def next_step(self):
