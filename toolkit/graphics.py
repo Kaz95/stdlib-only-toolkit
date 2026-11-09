@@ -37,6 +37,47 @@ TRANSLUCENT = None
 PIXEL = RGB | int | TRANSLUCENT
 BITMAP = list[list[PIXEL]]
 
+class ColorPalette:
+    def __init__(self, palette, tick_rate=10) -> None:
+        self.original_palette = palette
+        self.active_palette = palette.copy()
+        self.transition_palette = self.active_palette.copy()
+        self.tick_rate = tick_rate
+        self.progress = 0
+
+
+    def lerp_RGB(self, starting_color, target_color, progress):
+        r = int(starting_color[0] + (target_color[0] - starting_color[0]) * progress)
+        g = int(starting_color[1] + (target_color[1] - starting_color[1]) * progress)
+        b = int(starting_color[2] + (target_color[2] - starting_color[2]) * progress)
+
+        return r, g, b
+
+
+    def tick(self):
+        if self.progress == 0:
+            self.transition_palette = self.active_palette.copy()
+
+        self.progress += 1
+        lerp_progress = self.progress / self.tick_rate
+
+        for index, starting_color in enumerate(self.transition_palette):
+            target_color = self.transition_palette[(index - 1) % len(self.transition_palette)]
+            new_color = self.lerp_RGB(starting_color, target_color, lerp_progress)
+            self.active_palette[index] = new_color
+
+        if self.progress == self.tick_rate:
+            self.progress = 0
+
+
+
+    # def tick(self) -> None:
+    #     self.progress += 1
+    #     if self.progress == self.tick_rate:
+    #         self.palette.rotate(1)
+    #         self.progress = 0
+
+
 class GKS:
     """A class for drawing vector and bitmapped graphics to the terminal.
 
