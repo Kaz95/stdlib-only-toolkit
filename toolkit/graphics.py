@@ -101,10 +101,10 @@ class GKS:
     WIDTH: Final[int] = 134
     HEIGHT: Final[int] = 100
     TRANSLUCENT = None
-    COLOR_PALETTE_1 = {0: (0, 255, 0), 1: WHITE}
-    COLOR_PALETTE_2 = {0: (0, 255, 255), 1: (255, 0, 0)}
-    COLOR_PALETTE_3 = {0: (0, 0, 255), 1: (255, 255, 0)}
-    CURRENT_PALETTE = COLOR_PALETTE_1
+    GRAY_PALETTE = collections.deque([(0, 0, 0), (36, 36, 36), (109, 109, 109), (182, 182, 182), (255, 255, 255)])
+    BLUE_PALETTE = collections.deque([(45, 65, 85), (75, 105, 130), (110, 145, 170), (150, 185, 205), (195, 220, 235)])
+    pal = ColorPalette(GRAY_PALETTE)
+
 
     REMOTE_FONT_URL: Final[str] = (r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets'
                                    r'/fonts/font8x8.json')
