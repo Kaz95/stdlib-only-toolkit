@@ -465,6 +465,10 @@ class GKS:
                     flag = command_handler.handle(key)
                     if flag == 'quit':
                         break
+                if self.palettes:
+                    self.buffer_updated = True
+                    for palette in self.palettes:
+                        palette.tick()
 
                 if self.active_animations:
                     self.buffer_updated = True
