@@ -411,9 +411,9 @@ class GKS:
                 top = self.video_buffer[y][x]
                 bottom = self.video_buffer[y + 1][x] if y + 1 < self.height else self.BLACK
                 if isinstance(top, int):
-                    top = self.CURRENT_PALETTE[top]
+                    top = self.default_palette.active_palette[top]
                 if isinstance(bottom, int):
-                    bottom = self.CURRENT_PALETTE[bottom]
+                    bottom = self.default_palette.active_palette[bottom]
 
                 bg_ansi = f"\x1b[48;2;{top[0]};{top[1]};{top[2]}m"
                 fg_ansi = f"\x1b[38;2;{bottom[0]};{bottom[1]};{bottom[2]}m"
