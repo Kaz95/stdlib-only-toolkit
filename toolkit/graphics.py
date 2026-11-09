@@ -672,14 +672,49 @@ class MoveAnimation(Animation):
                 self.progress += 1
 
 
+
+
 if __name__ == '__main__':
     class MyGKS(GKS):
-
+        # TEST_PALETTE = collections.deque([(0, 0, 0), (36, 36, 36), (109, 109, 109), (182, 182, 182), (255, 255, 255)])
+        # pal = ColorPalette(TEST_PALETTE, 4)
+        # CURRENT_PALETTE = TEST_PALETTE
         def draw_background(self):
-            gks.draw_filled_rect(0, 0, 134, 100)
+            self.clear()
+            # gks.draw_filled_rect(0, 0, 134, 100)
+            color = 0
+            for x_offset in range(0, 144, 11):
+                gks.draw_filled_rect(2 + x_offset, 6, 10, 10, color)
+                x_offset += 11
+                color += 1
+                if color > 4:
+                    color = 0
+
+            for y_offset in range(17, 73, 11):
+                gks.draw_filled_rect(123, y_offset, 10, 10, color)
+                color += 1
+                if color > 4:
+                    color = 0
+
+            color = 4
+            for x_offset in range(0, 144, 11):
+
+                gks.draw_filled_rect(2 + x_offset, 84, 10, 10, color)
+                color -= 1
+                if color < 0:
+                    color = 4
+
+            color = 3
+            for y_offset in range(17, 73, 11):
+                gks.draw_filled_rect(2, y_offset, 10, 10, color)
+                color -= 1
+                if color < 0:
+                    color = 4
 
         def do_stuff(self) -> None:
             pass
+            # self.pal.tick()
+            # self.buffer_updated = True
 
 
     gks = MyGKS()
@@ -690,51 +725,74 @@ if __name__ == '__main__':
 
     gks.draw_filled_circle_span(17, 17, 16, (198, 124, 56), pizza.bitmap)
     gks.draw_filled_circle_span(17, 17, 14, (244, 196, 48), pizza.bitmap)
-
+    #
     another_pizza = Sprite('another_pizza', [-80, 60], 40, 40)
     gks.sprites[another_pizza.name] = another_pizza
-
+    #
     gks.draw_filled_circle_span(17, 17, 16, (198, 124, 56), another_pizza.bitmap)
     gks.draw_filled_circle_span(17, 17, 14, (244, 196, 48), another_pizza.bitmap)
-
-    glyphs = Sprite('logo', [-45, 45], 40, 8)
+    #
+    glyphs = Sprite('logo', [45, 45], 40, 8)
     gks.sprites[glyphs.name] = glyphs
     gks.draw_chars('pizza', 0, 0, (244, 196, 48), glyphs.bitmap)
 
     for sprite in gks.sprites.values():
         gks.active_sprites.append(sprite)
-
-
-
+    #
+    #
+    #
     bounce_top_pizza = MoveAnimation(pizza, 360, [gks.width - glyphs.width + 160, 0])
     gks.active_animations.append(bounce_top_pizza)
-
+    #
     bounce_bottom_pizza = MoveAnimation(another_pizza, 240, [gks.width - glyphs.width + 80, 60])
     gks.active_animations.append(bounce_bottom_pizza)
-
-    bounce_glyphs = MoveAnimation(glyphs, 240, [gks.width - glyphs.width + 45, 45])
-    gks.active_animations.append(bounce_glyphs)
-
+    #
+    # bounce_glyphs = MoveAnimation(glyphs, 240, [gks.width - glyphs.width + 45, 45])
+    # gks.active_animations.append(bounce_glyphs)
+    #
     fade_glyphs = FadeAnimation(glyphs, 120, (0,0,0))
     gks.active_animations.append(fade_glyphs)
-
+    #
     chandler = gks.CommandHandler()
 
-
-    try:
-        gks.start_render_loop(60, chandler)
-
-    # palettes = collections.deque([gks.COLOR_PALETTE_1, gks.COLOR_PALETTE_2, gks.COLOR_PALETTE_3])
+    # color = 0
+    # for x_offset in range(0, 144, 11):
+    #     gks.draw_filled_rect(2 + x_offset, 6, 10, 10, color)
+    #     x_offset += 11
+    #     color += 1
+    #     if color > 4:
+    #         color = 0
     #
-    # gks.draw_rect(50, 50, 20, 20, 1)
-    # gks.draw_filled_rect(55, 55, 10, 10, 0)
+    # for y_offset in range(17, 73, 11):
+    #     gks.draw_filled_rect(123, y_offset, 10, 10, color)
+    #     color += 1
+    #     if color > 4:
+    #         color = 0
+    #
+    # color = 4
+    # for x_offset in range(0, 144, 11):
+    #
+    #     gks.draw_filled_rect(2 + x_offset, 84, 10, 10, color)
+    #     color -= 1
+    #     if color < 0:
+    #         color = 4
+    #
+    # color = 3
+    # for y_offset in range(17, 73, 11):
+    #     gks.draw_filled_rect(2, y_offset, 10, 10, color)
+    #     color -= 1
+    #     if color < 0:
+    #         color = 4
+
     # gks.draw_frame()
-    # try:
-    #     while True:
-    #         time.sleep(1.5)
-    #         palettes.rotate(1)
-    #         gks.CURRENT_PALETTE = palettes[0]
-    #         gks.draw_frame()
+    try:
+        gks.start_render_loop(60, command_handler=chandler)
+        # while True:
+        #     time.sleep(.05)
+        #     # palettes.rotate(1)
+        #     # gks.CURRENT_PALETTE = palettes[0]
+        #     gks.CURRENT_PALETTE.rotate(1)
+        #     gks.draw_frame()
     finally:
         sys.stdout.write(gks.SHOW_CURSOR)
         sys.stdout.write(gks.EXIT_ALT_SCREEN)
