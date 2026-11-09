@@ -125,6 +125,8 @@ class GKS:
         self.active_sprites = []
         self.animations = {}
         self.active_animations = []
+        self.palettes = [self.pal]
+        self.default_palette = self.pal
 
     def clear(self) -> None:
         """Clear video buffer in place."""
