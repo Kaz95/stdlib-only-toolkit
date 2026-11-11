@@ -383,20 +383,6 @@ class GKS:
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
 
-    class CommandHandler:
-        """Command Handler Factory.
-
-        I've never written anything quite like this, and I'm not really sure where I want to put it yet.
-        """
-        def __init__(self):
-            pass
-
-        def handle(self, key):
-            """Handle a keypress."""
-            match key:
-                case 'q':
-                    return 'quit'
-
 
     def do_stuff(self) -> None:
         """Realized there was no easy way to add work to render loop without going through commands. Quick fix.
