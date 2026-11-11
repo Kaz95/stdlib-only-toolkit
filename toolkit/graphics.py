@@ -938,7 +938,7 @@ if __name__ == '__main__':
     #     gks.active_sprites.append(sprite)
 
     #
-    chandler = gks.CommandHandler()
+    chandler = CommandHandler()
 
     try:
         gks.start_render_loop(60, command_handler=chandler)
