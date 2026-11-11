@@ -939,6 +939,7 @@ if __name__ == '__main__':
 
     #
     chandler = CommandHandler()
+    gks.setup_sprites()
 
     try:
         gks.start_render_loop(60, command_handler=chandler)
