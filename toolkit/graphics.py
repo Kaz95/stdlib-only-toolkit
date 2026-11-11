@@ -37,45 +37,7 @@ TRANSLUCENT = None
 PIXEL = RGB | int | TRANSLUCENT
 BITMAP = list[list[PIXEL]]
 
-class ColorPalette:
-    def __init__(self, palette, tick_rate=10) -> None:
-        self.original_palette = palette
-        self.active_palette = palette.copy()
-        self.transition_palette = self.active_palette.copy()
-        self.tick_rate = tick_rate
-        self.progress = 0
 
-
-    def lerp_RGB(self, starting_color, target_color, progress):
-        r = int(starting_color[0] + (target_color[0] - starting_color[0]) * progress)
-        g = int(starting_color[1] + (target_color[1] - starting_color[1]) * progress)
-        b = int(starting_color[2] + (target_color[2] - starting_color[2]) * progress)
-
-        return r, g, b
-
-
-    def tick(self):
-        if self.progress == 0:
-            self.transition_palette = self.active_palette.copy()
-
-        self.progress += 1
-        lerp_progress = self.progress / self.tick_rate
-
-        for index, starting_color in enumerate(self.transition_palette):
-            target_color = self.transition_palette[(index - 1) % len(self.transition_palette)]
-            new_color = self.lerp_RGB(starting_color, target_color, lerp_progress)
-            self.active_palette[index] = new_color
-
-        if self.progress == self.tick_rate:
-            self.progress = 0
-
-
-
-    # def tick(self) -> None:
-    #     self.progress += 1
-    #     if self.progress == self.tick_rate:
-    #         self.palette.rotate(1)
-    #         self.progress = 0
 
 
 class GKS:
@@ -671,6 +633,101 @@ class MoveAnimation(Animation):
                 self.direction = True
                 self.progress += 1
 
+class ColorPaletteAnimation:
+    def __init__(self, current_hue, palette_animation_steps=10, hues=None, hue_transition_steps=6) -> None:
+        # Probably could have skipped since I'm the only one using this, but trying to get better about input validation
+        if not current_hue:
+            raise ValueError("Hue must contain at least one color")
+        if palette_animation_steps <= 0:
+            raise ValueError("Palette animation steps must be positive")
+        if hue_transition_steps <= 0:
+            raise ValueError("Hue transition steps must be positive")
+        if hues is not None:
+            if not hues:
+                raise ValueError("Hues must contain at least one hue.")
+            if any(len(hue) != len(current_hue) for hue in hues):
+                raise ValueError("Hues must have the same size as the source palette")
+
+        self.current_hue = current_hue.copy()
+        self.active_palette = current_hue.copy()
+
+        self.palette_animation_snapshot = self.active_palette.copy()
+        self.palette_animation_steps = palette_animation_steps
+        self.palette_animation_progress = 0
+
+        self.hues = [hue.copy() for hue in hues] if hues is not None else []
+        self.target_hue_index = 0
+        self.hue_transition_steps = hue_transition_steps
+        self.hue_progress = 0
+
+        self.rotated_colors = 0
+
+
+    def lerp_RGB(self, starting_color, target_color, progress):
+        r = int(starting_color[0] + (target_color[0] - starting_color[0]) * progress)
+        g = int(starting_color[1] + (target_color[1] - starting_color[1]) * progress)
+        b = int(starting_color[2] + (target_color[2] - starting_color[2]) * progress)
+
+        return r, g, b
+
+
+    def next_step(self):
+        if self.palette_animation_progress == 0:
+            self.palette_animation_snapshot = self.active_palette.copy()
+
+        self.palette_animation_progress += 1
+        lerp_progress = self.palette_animation_progress / self.palette_animation_steps
+
+        for index, starting_color in enumerate(self.palette_animation_snapshot):
+            target_color = self.palette_animation_snapshot[(index - 1) % len(self.palette_animation_snapshot)]
+            new_color = self.lerp_RGB(starting_color, target_color, lerp_progress)
+            self.active_palette[index] = new_color
+
+        if self.palette_animation_progress == self.palette_animation_steps:
+            self.palette_animation_progress = 0
+            self.rotated_colors += 1
+
+            if self.rotated_colors == len(self.active_palette):
+                self.rotated_colors = 0
+                if self.hues:
+                    self.hue_progress = min(self.hue_progress + 1, self.hue_transition_steps)
+                    lerp_progress = self.hue_progress / self.hue_transition_steps
+                    target_color = self.hues[self.target_hue_index]
+                    for index, starting_color in enumerate(self.current_hue):
+                        self.active_palette[index] = self.lerp_RGB(
+                            starting_color,
+                            target_color[index],
+                            lerp_progress,
+                        )
+                    if self.hue_progress == self.hue_transition_steps:
+                        self.current_hue = self.active_palette.copy()
+                        self.target_hue_index = (self.target_hue_index + 1) % len(self.hues)
+                        self.hue_progress = 0
+
+
+
+    # def tick(self) -> None:
+    #     self.progress += 1
+    #     if self.progress == self.tick_rate:
+    #         self.palette.rotate(1)
+    #         self.progress = 0
+class CommandHandler:
+    """Command Handler Factory.
+
+    I've never written anything quite like this, and I'm not really sure where I want to put it yet.
+    """
+    def __init__(self):
+        pass
+
+    def handle(self, key):
+        """Handle a keypress."""
+        match key:
+            case 'q':
+                return 'quit'
+            case 's':
+                return 'intro'
+            case 'w':
+                return 'sel1'
 
 
 
