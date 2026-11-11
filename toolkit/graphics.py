@@ -826,17 +826,26 @@ if __name__ == '__main__':
 
         def draw_background(self):
             self.clear()
-            # gks.draw_filled_rect(0, 0, 134, 100)
+            if self.page == 'intro':
+                self.draw_intro_page()
+            elif self.page == 'sel1':
+                self.draw_selection_page_1()
+
+        def do_stuff(self) -> None:
+            pass
+
+
+        def draw_marquee(self):
             color = 0
             for x_offset in range(0, 144, 11):
-                gks.draw_filled_rect(2 + x_offset, 6, 10, 10, color)
+                self.draw_filled_rect(2 + x_offset, 6, 10, 10, color)
                 x_offset += 11
                 color += 1
                 if color > 4:
                     color = 0
 
             for y_offset in range(17, 73, 11):
-                gks.draw_filled_rect(123, y_offset, 10, 10, color)
+                self.draw_filled_rect(123, y_offset, 10, 10, color)
                 color += 1
                 if color > 4:
                     color = 0
@@ -844,22 +853,31 @@ if __name__ == '__main__':
             color = 4
             for x_offset in range(0, 144, 11):
 
-                gks.draw_filled_rect(2 + x_offset, 84, 10, 10, color)
+                self.draw_filled_rect(2 + x_offset, 84, 10, 10, color)
                 color -= 1
                 if color < 0:
                     color = 4
 
             color = 3
             for y_offset in range(17, 73, 11):
-                gks.draw_filled_rect(2, y_offset, 10, 10, color)
+                self.draw_filled_rect(2, y_offset, 10, 10, color)
                 color -= 1
                 if color < 0:
                     color = 4
 
-        def do_stuff(self) -> None:
-            pass
-            # self.pal.tick()
-            # self.buffer_updated = True
+
+        def draw_intro_page(self):
+            self.active_sprites.append(self.sprites['top_half_logo'])
+            self.active_sprites.append(self.sprites['bottom_half_logo'])
+            self.draw_marquee()
+
+        def draw_selection_page_1(self):
+            self.draw_marquee()
+            self.active_sprites.clear()
+            del self.active_animations[1:3]
+            self.active_sprites.append(self.sprites['hot_selection'])
+            self.active_sprites.append(self.sprites['cool_selection'])
+
 
 
     gks = MyGKS()
