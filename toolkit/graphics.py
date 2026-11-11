@@ -63,10 +63,6 @@ class GKS:
     WIDTH: Final[int] = 134
     HEIGHT: Final[int] = 100
     TRANSLUCENT = None
-    GRAY_PALETTE = collections.deque([(0, 0, 0), (36, 36, 36), (109, 109, 109), (182, 182, 182), (255, 255, 255)])
-    BLUE_PALETTE = collections.deque([(45, 65, 85), (75, 105, 130), (110, 145, 170), (150, 185, 205), (195, 220, 235)])
-    pal = ColorPalette(GRAY_PALETTE)
-
 
     REMOTE_FONT_URL: Final[str] = (r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets'
                                    r'/fonts/font8x8.json')
@@ -733,6 +729,23 @@ class CommandHandler:
 
 if __name__ == '__main__':
     class MyGKS(GKS):
+        page = 'intro'
+        GRAY_PALETTE = [(0, 0, 0), (36, 36, 36), (109, 109, 109), (182, 182, 182), (255, 255, 255)]
+        BLUE_PALETTE = [(20, 40, 55), (45, 85, 115), (85, 135, 165), (145, 190, 210), (220, 240, 250)]
+        PURPLE_PALETTE = [(35, 20, 50), (75, 45, 100), (125, 80, 150), (180, 135, 195), (225, 205, 235)]
+        RED_PALETTE = [(75, 15, 15), (125, 30, 30), (180, 60, 60), (215, 130, 130), (245, 220, 220)]
+        ORANGE_PALETTE = [(70, 25, 10), (125, 55, 15), (180, 90, 25), (220, 155, 75), (245, 220, 180)]
+        YELLOW_PALETTE = [(55, 50, 10), (110, 100, 15), (170, 155, 30), (215, 200, 80), (245, 235, 180)]
+        GREEN_PALETTE = [(15, 55, 25), (30, 105, 50), (55, 155, 80), (125, 195, 140), (215, 240, 220)]
+
+
+
+        hues = [BLUE_PALETTE,
+                PURPLE_PALETTE,
+                RED_PALETTE,
+                ORANGE_PALETTE,
+                YELLOW_PALETTE,
+                GREEN_PALETTE]
         # TEST_PALETTE = collections.deque([(0, 0, 0), (36, 36, 36), (109, 109, 109), (182, 182, 182), (255, 255, 255)])
         # pal = ColorPalette(TEST_PALETTE, 4)
         # CURRENT_PALETTE = TEST_PALETTE
