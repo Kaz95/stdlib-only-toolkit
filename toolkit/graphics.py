@@ -869,6 +869,10 @@ if __name__ == '__main__':
                             self.setup_sprites()
                             self.page = 'intro'
                         elif flag == 'sel1':
+                            self.active_sprites.clear()
+                            del self.active_animations[1:3]
+                            self.active_sprites.append(self.sprites['hot_selection'])
+                            self.active_sprites.append(self.sprites['cool_selection'])
                             self.page = 'sel1'
 
                     if self.active_animations:
@@ -915,7 +919,8 @@ if __name__ == '__main__':
             move_bottom_logo = MoveAnimation(bottom_half_logo, 350, [40, 53], bounce=False)
             self.active_animations.append(move_bottom_logo)
 
-
+            self.active_sprites.append(self.sprites['top_half_logo'])
+            self.active_sprites.append(self.sprites['bottom_half_logo'])
 
 
 
@@ -973,16 +978,11 @@ if __name__ == '__main__':
 
 
         def draw_intro_page(self):
-            self.active_sprites.append(self.sprites['top_half_logo'])
-            self.active_sprites.append(self.sprites['bottom_half_logo'])
             self.draw_marquee()
 
         def draw_selection_page_1(self):
             self.draw_marquee()
-            self.active_sprites.clear()
-            del self.active_animations[1:3]
-            self.active_sprites.append(self.sprites['hot_selection'])
-            self.active_sprites.append(self.sprites['cool_selection'])
+
 
 
 
