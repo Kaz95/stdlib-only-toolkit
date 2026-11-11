@@ -415,7 +415,9 @@ class GKS:
                 if self.active_animations:
                     self.buffer_updated = True
                     for animation in self.active_animations:
-                        animation.next_step()
+                        flag = animation.next_step()
+                        if flag == 'done':
+                            self.active_animations.remove(animation)
 
                 if self.buffer_updated:
                     self.draw_background()
@@ -502,13 +504,14 @@ class Sprite:
 
 class Animation(ABC):
     """Animation abstract base class."""
-    def __init__(self, sprite, steps, target):
+    def __init__(self, sprite, steps, target, bounce=True):
         self.sprite = sprite
         self.steps = steps
         self.progress = 0
         self.direction = True
         self.target = target
         self.pre_calcd_values = self.precompute_steps()
+        self.bounce = bounce
 
     def lerp(self, start, target, progress):
         """Generic linear interpolation method."""
@@ -577,8 +580,8 @@ class MoveAnimation(Animation):
 
     Move between two points. Forward and back.
     """
-    def __init__(self, sprite, steps, target):
-        super().__init__(sprite, steps, target)
+    def __init__(self, sprite, steps, target, bounce=True):
+        super().__init__(sprite, steps, target, bounce=bounce)
 
     def precompute_next_position(self, progress):
         """Precompute the next position based on progress of the linear interpolation."""
@@ -598,13 +601,17 @@ class MoveAnimation(Animation):
 
     def next_step(self):
         """Advance the animation to the next position. Reverse direction when an end point is reached."""
+
         if self.direction:
             if self.progress < self.steps:
                 self.sprite.position = list(self.pre_calcd_values[self.progress])
                 self.progress += 1
             else:
-                self.direction = False
-                self.progress -= 1
+                if not self.bounce:
+                    return 'done'
+                else:
+                    self.direction = False
+                    self.progress -= 1
         else:
             if self.progress >= 0:
                 self.sprite.position = list(self.pre_calcd_values[self.progress])
