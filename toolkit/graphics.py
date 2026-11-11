@@ -67,8 +67,6 @@ class GKS:
     REMOTE_FONT_URL: Final[str] = (r'https://raw.githubusercontent.com/Kaz95/stdlib-only-toolkit/refs/heads/dev/assets'
                                    r'/fonts/font8x8.json')
 
-    SPRITES = {}
-
     def __init__(self, width: int = WIDTH, height: int = HEIGHT) -> None:
         """Initialize video buffer to a blank screen and cast custom height and width(if applicable) to attributes."""
         if width <= 0 or height <= 0:
@@ -83,8 +81,8 @@ class GKS:
         self.active_sprites = []
         self.animations = {}
         self.active_animations = []
-        self.palettes = [self.pal]
-        self.default_palette = self.pal
+        self.palettes = []
+
 
     def clear(self) -> None:
         """Clear video buffer in place."""
