@@ -740,6 +740,90 @@ if __name__ == '__main__':
         # TEST_PALETTE = collections.deque([(0, 0, 0), (36, 36, 36), (109, 109, 109), (182, 182, 182), (255, 255, 255)])
         # pal = ColorPalette(TEST_PALETTE, 4)
         # CURRENT_PALETTE = TEST_PALETTE
+        def start_render_loop(self, frame_rate: int, command_handler=None) -> None:
+            """Initiate the main render loop.
+
+            This controls frame pacing, user input listening, and rendering. New frame is only rendered if update flag is
+            set. A command handler may be omitted for graphics-only render loops.
+            """
+            try:
+                sys.stdout.write(self.HIDE_CURSOR)
+                sys.stdout.write(self.CLEAR_SCREEN)
+                frame_duration = 1 / frame_rate
+                self.rendering = True
+                while self.rendering:
+                    self.do_stuff()
+                    start_time = time.perf_counter()
+                    if command_handler is not None and msvcrt.kbhit():
+                        key = msvcrt.getwch()
+                        flag = command_handler.handle(key)
+                        if flag == 'quit':
+                            break
+                        elif flag == 'intro':
+                            self.setup_sprites()
+                            self.page = 'intro'
+                        elif flag == 'sel1':
+                            self.page = 'sel1'
+
+                    if self.active_animations:
+                        self.buffer_updated = True
+                        for animation in self.active_animations:
+                            flag = animation.next_step()
+                            if flag == 'done':
+                                self.active_animations.remove(animation)
+
+                    if self.buffer_updated:
+                        self.draw_background()
+                        for sprite in self.active_sprites:
+                            self.draw_sprite(sprite.bitmap, sprite.position[0], sprite.position[1])
+                        self.draw_frame()
+                        self.buffer_updated = False
+
+                    elapsed_time = time.perf_counter() - start_time
+                    sleep_time = frame_duration - elapsed_time
+                    if sleep_time > 0:
+                        time.sleep(sleep_time)
+            finally:
+                sys.stdout.write(self.SHOW_CURSOR)
+
+        def setup_sprites(self):
+            # TODO Capture a reference of animations so I don't need to remake them. Just need to break this method up.
+            self.active_sprites.clear()
+
+            if not self.active_animations:
+                marquee_animation = ColorPaletteAnimation(self.GRAY_PALETTE, hues=self.hues)
+                self.active_animations.append(marquee_animation)
+                self.palettes.append(marquee_animation.active_palette)
+
+            top_half_logo = Sprite('top_half_logo', [-45, 45], 40, 8)
+            self.sprites[top_half_logo.name] = top_half_logo
+            self.draw_chars('Color', 0, 0, 4, top_half_logo.bitmap)
+
+            bottom_half_logo = Sprite('bottom_half_logo', [375, 53], 48, 8)
+            self.sprites[bottom_half_logo.name] = bottom_half_logo
+            self.draw_chars('Theory', 0, 0, 4, bottom_half_logo.bitmap)
+
+            move_top_logo = MoveAnimation(top_half_logo, 125, [45, 45], bounce=False)
+            self.active_animations.append(move_top_logo)
+
+            move_bottom_logo = MoveAnimation(bottom_half_logo, 350, [40, 53], bounce=False)
+            self.active_animations.append(move_bottom_logo)
+
+
+
+
+
+            # for sprite in self.sprites.values():
+            #     self.active_sprites.append(sprite)
+
+            hot_selection = Sprite('hot_selection', [55, 35], 24, 8)
+            self.sprites[hot_selection.name] = hot_selection
+            self.draw_chars('hot', 0, 0, self.RED_PALETTE[0], hot_selection.bitmap)
+
+            cool_selection = Sprite('cool_selection', [52, 53], 32, 8)
+            self.sprites[cool_selection.name] = cool_selection
+            self.draw_chars('cool', 0, 0, self.BLUE_PALETTE[0], cool_selection.bitmap)
+
         def draw_background(self):
             self.clear()
             # gks.draw_filled_rect(0, 0, 134, 100)
