@@ -731,6 +731,110 @@ if __name__ == '__main__':
         YELLOW_PALETTE = [(55, 50, 10), (110, 100, 15), (170, 155, 30), (215, 200, 80), (245, 235, 180)]
         GREEN_PALETTE = [(15, 55, 25), (30, 105, 50), (55, 155, 80), (125, 195, 140), (215, 240, 220)]
 
+        colors = [
+            {
+                "color_name": "Whale's Tail",
+                "tone": "Cool",
+                "intensity": 6,
+                "color_value": (0, 57, 103)
+            },
+            {
+                "color_name": "Wild Orange",
+                "tone": "Warm",
+                "intensity": 8,
+                "color_value": (255, 122, 92)
+            },
+            {
+                "color_name": "Leche Flan",
+                "tone": "Warm",
+                "intensity": 2,
+                "color_value": (244, 212, 175)
+            },
+            {
+                "color_name": "Strawberry Fields",
+                "tone": "Warm",
+                "intensity": 5,
+                "color_value": (159, 75, 61)
+            },
+            {
+                "color_name": "Dove Wing",
+                "tone": "Cool",
+                "intensity": 1,
+                "color_value": (233, 230, 219)
+            },
+            {
+                "color_name": "Buttermilk",
+                "tone": "Warm",
+                "intensity": 1,
+                "color_value": (246, 224, 164)
+            },
+            {
+                "color_name": "Velvety Night",
+                "tone": "Cool",
+                "intensity": 10,
+                "color_value": (68, 66, 85)
+            },
+            {
+                "color_name": "Black Orchid",
+                "tone": "Cool",
+                "intensity": 10,
+                "color_value": (59, 9, 16)
+            },
+            {
+                "color_name": "Parisian Rose",
+                "tone": "Cool",
+                "intensity": 4,
+                "color_value": (216, 145, 160)
+            },
+            {
+                "color_name": "Limon Sorbet",
+                "tone": "Warm",
+                "intensity": 2,
+                "color_value": (245, 242, 170)
+            },
+            {
+                "color_name": "Snowflake",
+                "tone": "Cool",
+                "intensity": 1,
+                "color_value": (245, 245, 245)
+            },
+            {
+                "color_name": "Almond Butter",
+                "tone": "Warm",
+                "intensity": 3,
+                "color_value": (230, 210, 181)
+            },
+            {
+                "color_name": "Candy Floss",
+                "tone": "Cool",
+                "intensity": 2,
+                "color_value": (247, 168, 184)
+            },
+            {
+                "color_name": "Plum Jam",
+                "tone": "Cool",
+                "intensity": 9,
+                "color_value": (96, 26, 53)
+            },
+            {
+                "color_name": "Milky Way",
+                "tone": "Cool",
+                "intensity": 9,
+                "color_value": (232, 220, 196)
+            },
+            {
+                "color_name": "Copper Kettle",
+                "tone": "Warm",
+                "intensity": 7,
+                "color_value": (138, 73, 53)
+            },
+            {
+                "color_name": "Cayenne",
+                "tone": "Warm",
+                "intensity": 8,
+                "color_value": (227, 66, 52)  # #E34234
+            },
+        ]
 
 
         hues = [BLUE_PALETTE,
