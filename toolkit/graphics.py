@@ -991,16 +991,23 @@ if __name__ == '__main__':
             self.animations['move_instructions'] = move_instructions
             self.active_animations.append(move_instructions)
 
-            # for sprite in self.sprites.values():
-            #     self.active_sprites.append(sprite)
 
-            hot_selection = Sprite('hot_selection', [55, 35], 24, 8)
-            self.sprites[hot_selection.name] = hot_selection
-            self.draw_chars('hot', 0, 0, self.RED_PALETTE[0], hot_selection.bitmap)
+        def generate_color_recs(self):
+            color_recs = []
 
-            cool_selection = Sprite('cool_selection', [52, 53], 32, 8)
-            self.sprites[cool_selection.name] = cool_selection
-            self.draw_chars('cool', 0, 0, self.BLUE_PALETTE[0], cool_selection.bitmap)
+            for color in self.colors:
+                if color['tone'] == self.PERSONALITY:
+                    if self.STYLE == 'bold':
+                        if color['intensity'] >= 5:
+                            color_recs.append(color)
+                    elif self.STYLE == 'elegant':
+                        if color['intensity'] <= 5:
+                            color_recs.append(color)
+
+            return color_recs
+
+
+
 
         def draw_background(self):
             self.clear()
