@@ -31,13 +31,10 @@ from dataclasses import dataclass
 from math import sqrt
 from typing import Final
 
-
 RGB = tuple[int, int, int]
 TRANSLUCENT = None
 PIXEL = RGB | int | TRANSLUCENT
 BITMAP = list[list[PIXEL]]
-
-
 
 
 class GKS:
@@ -83,7 +80,6 @@ class GKS:
         self.active_animations = []
         self.palettes = []
 
-
     def clear(self) -> None:
         """Clear video buffer in place."""
         for y in range(len(self.video_buffer)):
@@ -104,7 +100,8 @@ class GKS:
         canvas[y][x] = color
         self.buffer_updated = True
 
-    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
+    def draw_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE,
+                  canvas: BITMAP | None = None) -> None:
         """Draw a line between two points, using a given color."""
         delta_of_x = x2 - x1
         delta_of_y = y2 - y1
@@ -124,7 +121,8 @@ class GKS:
             y = round(m * x + b)
             self.set_pixel(x, y, color)
 
-    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
+    def draw_bresenhams_line(self, x1: int, y1: int, x2: int, y2: int, color: int | RGB = WHITE,
+                             canvas: BITMAP | None = None) -> None:
         """Draw a line between two points, using a given color.
 
         Somehow harder to understand than circle midpoint. This wasn't too hard to implement, but hard to really
@@ -167,7 +165,8 @@ class GKS:
                 running_decision_parameter += dx
                 y1 += sy
 
-    def draw_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
+    def draw_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE,
+                  canvas: BITMAP | None = None) -> None:
         """Draw a four sided object, of a given color and size, starting at point (x,y)."""
         # Have to subtract one to avoid over running.  Width represents how wide rect is, points included.
         x2 = x + width - 1
@@ -178,7 +177,8 @@ class GKS:
         self.draw_line(x, y, x, y2, color, canvas)  # Left
         self.draw_line(x2, y, x2, y2, color, canvas)  # Right
 
-    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
+    def draw_filled_rect(self, x: int, y: int, width: int, height: int, color: int | RGB = WHITE,
+                         canvas: BITMAP | None = None) -> None:
         """Draw a filled four sided object, of a given color and size, starting at point (x,y).
 
         Just iterate through every pixel and set it to the given color.
@@ -187,7 +187,8 @@ class GKS:
             for col in range(x, x + width):
                 self.set_pixel(col, row, color, canvas)
 
-    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
+    def old_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE,
+                        canvas: BITMAP | None = None) -> None:
         """Draw a circle around center point, starting at point (x,y).
 
         This is currently using cartesian method based on relationship between x and y. Improvements Soon™.
@@ -203,7 +204,8 @@ class GKS:
             self.set_pixel(x, y1, color, canvas)
             self.set_pixel(x, y2, color, canvas)
 
-    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
+    def new_draw_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE,
+                        canvas: BITMAP | None = None) -> None:
         """Draw a circle around the center point, starting at point (x,y).
 
         Implements classic circle midpoint algorithm. Finds points using trig instead of algebraic method.
@@ -247,7 +249,8 @@ class GKS:
 
             x += 1
 
-    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
+    def draw_filled_circle(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE,
+                           canvas: BITMAP | None = None) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Decided to start with the most obvious version. I know I can do better based on what I learned with circle
@@ -258,7 +261,8 @@ class GKS:
                 if (x - center_x) ** 2 + (y - center_y) ** 2 <= radius ** 2:
                     self.set_pixel(x, y, color, canvas)
 
-    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE, canvas: BITMAP | None = None) -> None:
+    def draw_filled_circle_span(self, center_x: int, center_y: int, radius: int, color: int | RGB = WHITE,
+                                canvas: BITMAP | None = None) -> None:
         """Draw a filled circle around center point, starting at point (x,y).
 
         Another pretty easy one. Just isolate x. I'll learn the blended circle midpoint/span method eventually, but
@@ -279,7 +283,7 @@ class GKS:
 
     # FIXME: This is somewhat deprecated. I still think there's a use for a normal blit method, but I need to remove
     #   buffer boundaries....or maybe not. Might be useful for redrawing background. If I saved a snapshot I could blit.
-    def blit(self, bitmap: BITMAP , x_start: int = 0, y_start: int = 0) -> None:
+    def blit(self, bitmap: BITMAP, x_start: int = 0, y_start: int = 0) -> None:
         """Replace the frame buffer with given bitmap using slice replacement(memmove)."""
         if not bitmap or not bitmap[0]:
             raise ValueError("Bitmap must not be empty.")
@@ -383,7 +387,6 @@ class GKS:
             sys.stdout.write(''.join(line_buffer) + self.RESET + '\n')
             sys.stdout.flush()
 
-
     def do_stuff(self) -> None:
         """Realized there was no easy way to add work to render loop without going through commands. Quick fix.
 
@@ -432,7 +435,6 @@ class GKS:
                     time.sleep(sleep_time)
         finally:
             sys.stdout.write(self.SHOW_CURSOR)
-
 
     def load_font(self) -> dict[str, list[int]]:
         """Load remote font and cast hex strings to int."""
@@ -484,6 +486,7 @@ class GKS:
 
         self.draw_chars(word, x_offset, y, color, canvas)
 
+
 @dataclass
 class Sprite:
     """Sprite class that encompasses data that makes up a sprite."""
@@ -504,6 +507,7 @@ class Sprite:
 
 class Animation(ABC):
     """Animation abstract base class."""
+
     def __init__(self, sprite, steps, target, bounce=True):
         self.sprite = sprite
         self.steps = steps
@@ -528,11 +532,13 @@ class Animation(ABC):
         """Generic method to precompute animation steps."""
         pass
 
+
 class FadeAnimation(Animation):
     """Concrete FadeAnimation class.
 
     Fade between two colors. Forward and back.
     """
+
     def render_interpolated_bitmap(self, progress):
         """Render an intermediate bitmap based on current progress of the linear interpolation."""
         new_bitmap = []
@@ -543,7 +549,7 @@ class FadeAnimation(Animation):
                     r = int(self.lerp(pixel[0], self.target[0], progress))
                     g = int(self.lerp(pixel[1], self.target[1], progress))
                     b = int(self.lerp(pixel[2], self.target[2], progress))
-                    temp_row.append((r,g,b))
+                    temp_row.append((r, g, b))
                 else:
                     temp_row.append(TRANSLUCENT)
             new_bitmap.append(temp_row)
@@ -580,6 +586,7 @@ class MoveAnimation(Animation):
 
     Move between two points. Forward and back.
     """
+
     def __init__(self, sprite, steps, target, bounce=True):
         super().__init__(sprite, steps, target, bounce=bounce)
 
@@ -620,6 +627,7 @@ class MoveAnimation(Animation):
                 self.direction = True
                 self.progress += 1
 
+
 class ColorPaletteAnimation:
     def __init__(self, current_hue, palette_animation_steps=10, hues=None, hue_transition_steps=6) -> None:
         # Probably could have skipped since I'm the only one using this, but trying to get better about input validation
@@ -649,14 +657,12 @@ class ColorPaletteAnimation:
 
         self.rotated_colors = 0
 
-
     def lerp_RGB(self, starting_color, target_color, progress):
         r = int(starting_color[0] + (target_color[0] - starting_color[0]) * progress)
         g = int(starting_color[1] + (target_color[1] - starting_color[1]) * progress)
         b = int(starting_color[2] + (target_color[2] - starting_color[2]) * progress)
 
         return r, g, b
-
 
     def next_step(self):
         if self.palette_animation_progress == 0:
@@ -691,18 +697,19 @@ class ColorPaletteAnimation:
                         self.target_hue_index = (self.target_hue_index + 1) % len(self.hues)
                         self.hue_progress = 0
 
-
-
     # def tick(self) -> None:
     #     self.progress += 1
     #     if self.progress == self.tick_rate:
     #         self.palette.rotate(1)
     #         self.progress = 0
+
+
 class CommandHandler:
     """Command Handler Factory.
 
     I've never written anything quite like this, and I'm not really sure where I want to put it yet.
     """
+
     def __init__(self):
         pass
 
@@ -716,9 +723,7 @@ class CommandHandler:
                 return 'enter'
 
 
-
 if __name__ == '__main__':
-
 
     class MyGKS(GKS):
         PAGE = collections.deque(['intro', 'sel1', 'sel2', 'output'])
@@ -837,13 +842,13 @@ if __name__ == '__main__':
             },
         ]
 
-
         hues = [BLUE_PALETTE,
                 PURPLE_PALETTE,
                 RED_PALETTE,
                 ORANGE_PALETTE,
                 YELLOW_PALETTE,
                 GREEN_PALETTE]
+
         # TEST_PALETTE = collections.deque([(0, 0, 0), (36, 36, 36), (109, 109, 109), (182, 182, 182), (255, 255, 255)])
         # pal = ColorPalette(TEST_PALETTE, 4)
         # CURRENT_PALETTE = TEST_PALETTE
@@ -881,7 +886,6 @@ if __name__ == '__main__':
 
                             if self.PAGE[0] != 'output':
                                 self.PAGE.rotate(-1)
-
 
                         if key in ('\xe0', '\x00'):
                             key = msvcrt.getwch()
@@ -991,7 +995,6 @@ if __name__ == '__main__':
             self.animations['move_instructions'] = move_instructions
             self.active_animations.append(move_instructions)
 
-
         def generate_color_recs(self):
             color_recs = []
 
@@ -1006,17 +1009,12 @@ if __name__ == '__main__':
 
             return color_recs
 
-
-
-
         def draw_background(self):
             self.clear()
             self.draw_page()
 
-
         def do_stuff(self) -> None:
             pass
-
 
         def draw_marquee(self):
             color = 0
@@ -1048,7 +1046,6 @@ if __name__ == '__main__':
                 if color < 0:
                     color = 4
 
-
         def draw_intro_page(self):
             self.draw_marquee()
 
@@ -1073,7 +1070,6 @@ if __name__ == '__main__':
                         self.sprites['selection_instructions'],
                     ])
 
-
         def draw_selection_page_2(self):
             self.draw_marquee()
             if self.SELECTION[0] == 'sel1':
@@ -1094,6 +1090,7 @@ if __name__ == '__main__':
                         self.sprites['bold_not_selected'],
                         self.sprites['selection_instructions'],
                     ])
+
         def draw_color_recommendations(self, color_recs):
             """Draw each color name with its tone and intensity."""
             y = 2
@@ -1124,7 +1121,6 @@ if __name__ == '__main__':
 
             self.draw_color_recommendations(color_recs)
 
-
         def draw_page(self):
             if self.PAGE[0] == 'intro':
                 self.draw_intro_page()
@@ -1134,8 +1130,6 @@ if __name__ == '__main__':
                 self.draw_selection_page_2()
             elif self.PAGE[0] == 'output':
                 self.draw_output_page()
-
-
 
 
     gks = MyGKS()
@@ -1153,9 +1147,6 @@ if __name__ == '__main__':
     # gks.draw_filled_circle_span(17, 17, 16, (198, 124, 56), another_pizza.bitmap)
     # gks.draw_filled_circle_span(17, 17, 14, (244, 196, 48), another_pizza.bitmap)
     #
-
-
-
 
     #
     #
@@ -1203,4 +1194,3 @@ if __name__ == '__main__':
     finally:
         sys.stdout.write(gks.SHOW_CURSOR)
         sys.stdout.write(gks.EXIT_ALT_SCREEN)
-
