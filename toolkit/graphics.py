@@ -729,7 +729,9 @@ if __name__ == '__main__':
         ORANGE_PALETTE = [(70, 25, 10), (125, 55, 15), (180, 90, 25), (220, 155, 75), (245, 220, 180)]
         YELLOW_PALETTE = [(55, 50, 10), (110, 100, 15), (170, 155, 30), (215, 200, 80), (245, 235, 180)]
         GREEN_PALETTE = [(15, 55, 25), (30, 105, 50), (55, 155, 80), (125, 195, 140), (215, 240, 220)]
-
+        SELECTION = collections.deque(['sel1', 'sel2'])
+        PERSONALITY = None
+        STYLE = None
         colors = [
             {
                 "color_name": "Whale's Tail",
