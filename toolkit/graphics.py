@@ -912,7 +912,6 @@ if __name__ == '__main__':
                 sys.stdout.write(self.SHOW_CURSOR)
 
         def setup_sprites(self):
-            # TODO Capture a reference of animations so I don't need to remake them. Just need to break this method up.
             self.active_sprites.clear()
 
             if not self.active_animations:
