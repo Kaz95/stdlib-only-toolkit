@@ -733,105 +733,105 @@ if __name__ == '__main__':
         colors = [
             {
                 "color_name": "Whale's Tail",
-                "tone": "Cool",
+                "tone": "cool",
                 "intensity": 6,
                 "color_value": (0, 57, 103)
             },
             {
                 "color_name": "Wild Orange",
-                "tone": "Warm",
+                "tone": "warm",
                 "intensity": 8,
                 "color_value": (255, 122, 92)
             },
             {
                 "color_name": "Leche Flan",
-                "tone": "Warm",
+                "tone": "warm",
                 "intensity": 2,
                 "color_value": (244, 212, 175)
             },
             {
-                "color_name": "Strawberry Fields",
-                "tone": "Warm",
+                "color_name": "StrawberryFields",
+                "tone": "warm",
                 "intensity": 5,
                 "color_value": (159, 75, 61)
             },
             {
                 "color_name": "Dove Wing",
-                "tone": "Cool",
+                "tone": "cool",
                 "intensity": 1,
                 "color_value": (233, 230, 219)
             },
             {
                 "color_name": "Buttermilk",
-                "tone": "Warm",
+                "tone": "warm",
                 "intensity": 1,
                 "color_value": (246, 224, 164)
             },
             {
                 "color_name": "Velvety Night",
-                "tone": "Cool",
+                "tone": "cool",
                 "intensity": 10,
                 "color_value": (68, 66, 85)
             },
             {
                 "color_name": "Black Orchid",
-                "tone": "Cool",
+                "tone": "cool",
                 "intensity": 10,
                 "color_value": (59, 9, 16)
             },
             {
                 "color_name": "Parisian Rose",
-                "tone": "Cool",
+                "tone": "cool",
                 "intensity": 4,
                 "color_value": (216, 145, 160)
             },
             {
                 "color_name": "Limon Sorbet",
-                "tone": "Warm",
+                "tone": "warm",
                 "intensity": 2,
                 "color_value": (245, 242, 170)
             },
             {
                 "color_name": "Snowflake",
-                "tone": "Cool",
+                "tone": "cool",
                 "intensity": 1,
                 "color_value": (245, 245, 245)
             },
             {
                 "color_name": "Almond Butter",
-                "tone": "Warm",
+                "tone": "warm",
                 "intensity": 3,
                 "color_value": (230, 210, 181)
             },
             {
                 "color_name": "Candy Floss",
-                "tone": "Cool",
+                "tone": "cool",
                 "intensity": 2,
                 "color_value": (247, 168, 184)
             },
             {
                 "color_name": "Plum Jam",
-                "tone": "Cool",
+                "tone": "cool",
                 "intensity": 9,
                 "color_value": (96, 26, 53)
             },
             {
                 "color_name": "Milky Way",
-                "tone": "Cool",
+                "tone": "cool",
                 "intensity": 9,
                 "color_value": (232, 220, 196)
             },
             {
                 "color_name": "Copper Kettle",
-                "tone": "Warm",
+                "tone": "warm",
                 "intensity": 7,
                 "color_value": (138, 73, 53)
             },
             {
                 "color_name": "Cayenne",
-                "tone": "Warm",
+                "tone": "warm",
                 "intensity": 8,
-                "color_value": (227, 66, 52)  # #E34234
+                "color_value": (227, 66, 52)
             },
         ]
 
