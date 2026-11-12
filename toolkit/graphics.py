@@ -866,15 +866,29 @@ if __name__ == '__main__':
                         flag = command_handler.handle(key)
                         if flag == 'quit':
                             break
-                        elif flag == 'intro':
-                            self.setup_sprites()
-                            self.page = 'intro'
-                        elif flag == 'sel1':
-                            self.active_sprites.clear()
-                            del self.active_animations[1:3]
-                            self.active_sprites.append(self.sprites['hot_selection'])
-                            self.active_sprites.append(self.sprites['cool_selection'])
-                            self.page = 'sel1'
+
+                        elif flag == 'enter':
+                            if self.PAGE[0] == 'sel1':
+                                if self.SELECTION[0] == 'sel1':
+                                    self.PERSONALITY = 'warm'
+                                else:
+                                    self.PERSONALITY = 'cool'
+                            elif self.PAGE[0] == 'sel2':
+                                if self.SELECTION[0] == 'sel1':
+                                    self.STYLE = 'bold'
+                                else:
+                                    self.STYLE = 'elegant'
+
+                            if self.PAGE[0] != 'output':
+                                self.PAGE.rotate(-1)
+
+
+                        if key in ('\xe0', '\x00'):
+                            key = msvcrt.getwch()
+                            if key == 'K':
+                                self.SELECTION.rotate(-1)
+                            elif key == 'M':
+                                self.SELECTION.rotate(1)
 
                     if self.active_animations:
                         self.buffer_updated = True
