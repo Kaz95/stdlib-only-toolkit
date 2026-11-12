@@ -914,29 +914,82 @@ if __name__ == '__main__':
         def setup_sprites(self):
             self.active_sprites.clear()
 
-            if not self.active_animations:
-                marquee_animation = ColorPaletteAnimation(self.GRAY_PALETTE, hues=self.hues)
-                self.active_animations.append(marquee_animation)
-                self.palettes.append(marquee_animation.active_palette)
+            marquee_animation = ColorPaletteAnimation(self.GRAY_PALETTE, hues=self.hues)
+            self.animations['marquee_animation'] = marquee_animation
+            self.active_animations.append(marquee_animation)
+            self.palettes.append(marquee_animation.active_palette)
 
-            top_half_logo = Sprite('top_half_logo', [-45, 45], 40, 8)
+            top_half_logo = Sprite('top_half_logo', [-45, 40], 40, 8)
             self.sprites[top_half_logo.name] = top_half_logo
             self.draw_chars('Color', 0, 0, 4, top_half_logo.bitmap)
 
-            bottom_half_logo = Sprite('bottom_half_logo', [375, 53], 48, 8)
+            bottom_half_logo = Sprite('bottom_half_logo', [375, 48], 48, 8)
             self.sprites[bottom_half_logo.name] = bottom_half_logo
             self.draw_chars('Theory', 0, 0, 4, bottom_half_logo.bitmap)
 
-            move_top_logo = MoveAnimation(top_half_logo, 125, [45, 45], bounce=False)
-            self.active_animations.append(move_top_logo)
+            intro_instructions = Sprite('intro_instructions', [25, 370], 120, 8)
+            self.sprites[intro_instructions.name] = intro_instructions
+            self.draw_chars('Press Enter', 0, 0, 4, intro_instructions.bitmap)
 
-            move_bottom_logo = MoveAnimation(bottom_half_logo, 350, [40, 53], bounce=False)
-            self.active_animations.append(move_bottom_logo)
+            selection_instructions = Sprite('selection_instructions', [99, 75], 24, 8)
+            self.sprites[selection_instructions.name] = selection_instructions
+            self.draw_chars('< >', 0, 0, 4, selection_instructions.bitmap)
+
+            hot_selected = Sprite('hot_selected', [29, 60], 24, 8)
+            self.sprites[hot_selected.name] = hot_selected
+            self.draw_chars('hot', 0, 0, self.GRAY_PALETTE[4], hot_selected.bitmap)
+
+            hot_not_selected = Sprite('hot_not_selected', [29, 60], 24, 8)
+            self.sprites[hot_not_selected.name] = hot_not_selected
+            self.draw_chars('Hot', 0, 0, self.RED_PALETTE[0], hot_not_selected.bitmap)
+
+            cool_selected = Sprite('cool_selected', [79, 60], 32, 8)
+            self.sprites[cool_selected.name] = cool_selected
+            self.draw_chars('cool', 0, 0, self.GRAY_PALETTE[4], cool_selected.bitmap)
+
+            cool_not_selected = Sprite('cool_not_selected', [79, 60], 32, 8)
+            self.sprites[cool_not_selected.name] = cool_not_selected
+            self.draw_chars('Cool', 0, 0, self.BLUE_PALETTE[0], cool_not_selected.bitmap)
+
+            personality_page_title = Sprite('personality_page_title', [19, 32], 96, 8)
+            self.sprites[personality_page_title.name] = personality_page_title
+            self.draw_chars('Personality?', 0, 0, 4, personality_page_title.bitmap)
+
+            bold_selected = Sprite('bold_selected', [18, 60], 32, 8)
+            self.sprites[bold_selected.name] = bold_selected
+            self.draw_chars('Bold', 0, 0, self.GRAY_PALETTE[4], bold_selected.bitmap)
+
+            bold_not_selected = Sprite('bold_not_selected', [18, 60], 32, 8)
+            self.sprites[bold_not_selected.name] = bold_not_selected
+            self.draw_chars('Bold', 0, 0, (255, 191, 0), bold_not_selected.bitmap)
+
+            elegant_selected = Sprite('elegant_selected', [66, 60], 56, 8)
+            self.sprites[elegant_selected.name] = elegant_selected
+            self.draw_chars('Elegant', 0, 0, self.GRAY_PALETTE[4], elegant_selected.bitmap)
+
+            elegant_not_selected = Sprite('elegant_not_selected', [66, 60], 56, 8)
+            self.sprites[elegant_not_selected.name] = elegant_not_selected
+            self.draw_chars('Elegant', 0, 0, (120, 81, 169), elegant_not_selected.bitmap)
+
+            style_page_title = Sprite('style_page_title', [43, 32], 96, 8)
+            self.sprites[style_page_title.name] = style_page_title
+            self.draw_chars('style?', 0, 0, 4, style_page_title.bitmap)
 
             self.active_sprites.append(self.sprites['top_half_logo'])
             self.active_sprites.append(self.sprites['bottom_half_logo'])
+            self.active_sprites.append(self.sprites['intro_instructions'])
 
+            move_top_logo = MoveAnimation(top_half_logo, 125, [48, 40], bounce=False)
+            self.animations['move_top_logo'] = move_top_logo
+            self.active_animations.append(move_top_logo)
 
+            move_bottom_logo = MoveAnimation(bottom_half_logo, 350, [43, 48], bounce=False)
+            self.animations['move_bottom_logo'] = move_bottom_logo
+            self.active_animations.append(move_bottom_logo)
+
+            move_instructions = MoveAnimation(intro_instructions, 500, [25, 70], bounce=False)
+            self.animations['move_instructions'] = move_instructions
+            self.active_animations.append(move_instructions)
 
             # for sprite in self.sprites.values():
             #     self.active_sprites.append(sprite)
