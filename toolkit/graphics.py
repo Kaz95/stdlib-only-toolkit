@@ -721,7 +721,7 @@ if __name__ == '__main__':
 
 
     class MyGKS(GKS):
-        page = 'intro'
+        PAGE = collections.deque(['intro', 'sel1', 'sel2', 'output'])
         GRAY_PALETTE = [(0, 0, 0), (36, 36, 36), (109, 109, 109), (182, 182, 182), (255, 255, 255)]
         BLUE_PALETTE = [(20, 40, 55), (45, 85, 115), (85, 135, 165), (145, 190, 210), (220, 240, 250)]
         PURPLE_PALETTE = [(35, 20, 50), (75, 45, 100), (125, 80, 150), (180, 135, 195), (225, 205, 235)]
@@ -936,10 +936,8 @@ if __name__ == '__main__':
 
         def draw_background(self):
             self.clear()
-            if self.page == 'intro':
-                self.draw_intro_page()
-            elif self.page == 'sel1':
-                self.draw_selection_page_1()
+            self.draw_page()
+
 
         def do_stuff(self) -> None:
             pass
@@ -981,6 +979,86 @@ if __name__ == '__main__':
 
         def draw_selection_page_1(self):
             self.draw_marquee()
+            if self.SELECTION[0] == 'sel1':
+                if self.sprites['hot_selected'] not in self.active_sprites:
+                    self.active_sprites.clear()
+                    self.active_sprites.extend([
+                        self.sprites['personality_page_title'],
+                        self.sprites['hot_selected'],
+                        self.sprites['cool_not_selected'],
+                        self.sprites['selection_instructions'],
+                    ])
+            else:
+                if self.sprites['cool_selected'] not in self.active_sprites:
+                    self.active_sprites.clear()
+                    self.active_sprites.extend([
+                        self.sprites['personality_page_title'],
+                        self.sprites['cool_selected'],
+                        self.sprites['hot_not_selected'],
+                        self.sprites['selection_instructions'],
+                    ])
+
+
+        def draw_selection_page_2(self):
+            self.draw_marquee()
+            if self.SELECTION[0] == 'sel1':
+                if self.sprites['bold_selected'] not in self.active_sprites:
+                    self.active_sprites.clear()
+                    self.active_sprites.extend([
+                        self.sprites['style_page_title'],
+                        self.sprites['bold_selected'],
+                        self.sprites['elegant_not_selected'],
+                        self.sprites['selection_instructions'],
+                    ])
+            else:
+                if self.sprites['elegant_selected'] not in self.active_sprites:
+                    self.active_sprites.clear()
+                    self.active_sprites.extend([
+                        self.sprites['style_page_title'],
+                        self.sprites['elegant_selected'],
+                        self.sprites['bold_not_selected'],
+                        self.sprites['selection_instructions'],
+                    ])
+        def draw_color_recommendations(self, color_recs):
+            """Draw each color name with its tone and intensity."""
+            y = 2
+            for color in color_recs:
+                name = color['color_name']
+                tone = f"Tone:{color['tone']}"
+                intensity = f"Int:{color['intensity']}"
+
+                self.draw_centered_chars(name, y, color['color_value'])
+
+                if color['tone'] == 'warm':
+                    tone_color = (220, 20, 60)
+                else:
+                    tone_color = (0, 119, 190)
+                if color['intensity'] >= 5:
+                    intensity_color = (255, 234, 0)
+                else:
+                    intensity_color = (207, 181, 59)
+
+                self.draw_chars(tone, 4, y + 8, tone_color)
+                self.draw_chars(intensity, 87, y + 8, intensity_color)
+                y += 20
+
+        def draw_output_page(self):
+            color_recs = self.generate_color_recs()
+            self.active_sprites.clear()
+            self.active_animations.clear()
+
+            self.draw_color_recommendations(color_recs)
+
+
+        def draw_page(self):
+            if self.PAGE[0] == 'intro':
+                self.draw_intro_page()
+            elif self.PAGE[0] == 'sel1':
+                self.draw_selection_page_1()
+            elif self.PAGE[0] == 'sel2':
+                self.draw_selection_page_2()
+            elif self.PAGE[0] == 'output':
+                self.draw_output_page()
 
 
 
