@@ -711,10 +711,9 @@ class CommandHandler:
         match key:
             case 'q':
                 return 'quit'
-            case 's':
-                return 'intro'
-            case 'w':
-                return 'sel1'
+
+            case '\r':
+                return 'enter'
 
 
 
